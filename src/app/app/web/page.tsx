@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe, Link2, Check, ChevronRight, ChevronLeft, Plus, Trash2, Pencil } from "lucide-react";
+import { Globe, Link2, Check, ChevronRight, ChevronLeft, Plus, Trash2 } from "lucide-react";
 import type { WebPageConfig } from "@/types";
 
 const TEMPLATES = [
@@ -221,11 +221,10 @@ export default function WebBuilderPage() {
           <button
             key={label}
             onClick={() => setStep(i)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium transition-colors ${
-              step === i
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-medium transition-colors ${step === i
                 ? "bg-accent text-white"
                 : "bg-bg2 text-text hover:bg-bg3"
-            }`}
+              }`}
           >
             <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center text-[11px]">
               {i + 1}
@@ -294,11 +293,10 @@ function DesignStep({
             <button
               key={t.id}
               onClick={() => updateDraft({ templateId: t.id })}
-              className={`p-4 rounded-xl border-2 text-left transition-all ${
-                (draft.templateId || "classic") === t.id
+              className={`p-4 rounded-xl border-2 text-left transition-all ${(draft.templateId || "classic") === t.id
                   ? "border-cta bg-cta/5"
                   : "border-border hover:border-brand"
-              }`}
+                }`}
             >
               <p className="text-[13px] font-semibold text-text">{t.name}</p>
               <p className="text-[11px] text-brand mt-0.5">{t.desc}</p>
@@ -315,11 +313,10 @@ function DesignStep({
             <button
               key={p.name}
               onClick={() => updateDraft({ colorPalette: p.colors })}
-              className={`p-3 rounded-xl border-2 transition-all ${
-                draft.colorPalette?.primary === p.colors.primary
+              className={`p-3 rounded-xl border-2 transition-all ${draft.colorPalette?.primary === p.colors.primary
                   ? "border-cta"
                   : "border-border hover:border-brand"
-              }`}
+                }`}
             >
               <div className="flex gap-1 mb-2">
                 {Object.values(p.colors).map((c, i) => (

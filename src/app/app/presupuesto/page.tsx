@@ -9,7 +9,7 @@ import { Modal } from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Trash2, ChevronDown, ChevronRight, Check, X } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronRight, Check } from "lucide-react";
 import type { ExpenseCategory, BudgetSummary, PaymentSchedule } from "@/types";
 
 export default function PresupuestoPage() {

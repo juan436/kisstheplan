@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
 import {
@@ -112,8 +111,8 @@ export default function PublicWeddingPage() {
           background: template === "modern"
             ? `linear-gradient(180deg, ${colors.bg} 0%, ${colors.primary}15 100%)`
             : template === "romantic"
-            ? `radial-gradient(ellipse at center, ${colors.accent}08 0%, ${colors.bg} 70%)`
-            : undefined,
+              ? `radial-gradient(ellipse at center, ${colors.accent}08 0%, ${colors.bg} 70%)`
+              : undefined,
         }}
       >
         {/* Decorative elements */}
