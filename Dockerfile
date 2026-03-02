@@ -61,9 +61,9 @@ USER nextjs
 
 EXPOSE 3000
 
-# Health check
+# Health check usando Node nativo
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+    CMD node -e "fetch('http://127.0.0.1:3000/').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
 
 # Arrancar con el server.js generado por standalone
 CMD ["node", "server.js"]
