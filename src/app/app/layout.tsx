@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Topbar } from "@/components/layout/topbar";
-import { ModuleNav } from "@/components/layout/module-nav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -36,10 +35,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const userName = user?.name || "Usuario";
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-bg flex flex-col overflow-x-hidden">
       <Topbar weddingName={weddingName} userName={userName} onLogout={logout} />
-      <ModuleNav />
-      <main className="p-6">{children}</main>
+      <main className="flex-1 flex flex-col">{children}</main>
     </div>
   );
 }

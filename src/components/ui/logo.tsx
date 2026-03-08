@@ -25,13 +25,12 @@ export function Logo({
       href={href}
       className={cn("flex items-center no-underline relative", className)}
     >
-      {/* Use overflow-hidden to clip transparent padding and aggressive scales to zoom into the real content */}
-      <div className={cn("relative flex items-center overflow-hidden", type === "full" ? "w-[200px] h-[60px] sm:w-[260px] sm:h-[80px] lg:w-[320px] lg:h-[95px] xl:w-[360px] xl:h-[110px]" : "w-[48px] h-[48px]")}>
+      <div className={cn("relative flex items-center", type === "full" ? "w-[260px] h-[86px] sm:w-[320px] sm:h-[106px] lg:w-[360px] lg:h-[120px] xl:w-[400px] xl:h-[135px]" : "w-[48px] h-[48px]")}>
         <Image
           src={src}
           alt="Kisstheplan Logo"
           fill
-          className={cn("object-contain object-left", type === "full" && "scale-[2] md:scale-[2.5] xl:scale-[3] origin-left")}
+          className={cn("object-contain object-left", type === "full" && "scale-[1.3] md:scale-[1.5] xl:scale-[1.6] origin-left")}
           priority
         />
       </div>

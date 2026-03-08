@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -15,35 +15,35 @@ import {
   FileText,
   StickyNote,
 } from "lucide-react";
-
 import Image from "next/image";
 
 const modules = [
-  { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard, imgSrc: "/icons/Icono planning mocha.png" },
-  { name: "Invitados", href: "/app/invitados", icon: Users, imgSrc: "/icons/RSVP v3.png" },
-  { name: "Presupuesto", href: "/app/presupuesto", icon: Wallet, imgSrc: "/icons/Proveedores y presupuesto.png" },
-  { name: "Tareas", href: "/app/tareas", icon: CheckSquare, imgSrc: "/icons/Icono planning ap sin editar.png" },
-  { name: "Web", href: "/app/web", icon: Globe, imgSrc: "/icons/Icono web rsvp.png" },
-  { name: "Proveedores", href: "/app/proveedores", icon: Store, imgSrc: "/icons/Proveedores y presupuesto.png" },
-  { name: "Plano mesas", href: "/app/plano-mesas", icon: Grid3X3 },
-  { name: "Calendario", href: "/app/calendario", icon: Calendar },
-  { name: "Guión", href: "/app/guion", icon: FileText },
-  { name: "Notas", href: "/app/notas", icon: StickyNote },
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, imgSrc: "/icons/Icono planning mocha.png" },
+  { id: "invitados", name: "Invitados", icon: Users, imgSrc: "/icons/RSVP v3.png" },
+  { id: "presupuesto", name: "Presupuesto", icon: Wallet, imgSrc: "/icons/Proveedores y presupuesto.png" },
+  { id: "tareas", name: "Tareas", icon: CheckSquare, imgSrc: "/icons/Icono planning ap sin editar.png" },
+  { id: "web", name: "Web", icon: Globe, imgSrc: "/icons/Icono web rsvp.png" },
+  { id: "proveedores", name: "Proveedores", icon: Store, imgSrc: "/icons/Proveedores y presupuesto.png" },
+  { id: "plano-mesas", name: "Plano mesas", icon: Grid3X3 },
+  { id: "calendario", name: "Calendario", icon: Calendar },
+  { id: "guion", name: "Guión", icon: FileText },
+  { id: "notas", name: "Notas", icon: StickyNote },
 ];
 
 export function ModuleNav() {
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get("tab") || "dashboard";
 
   return (
     <nav className="bg-white border-b border-border">
       <div className="flex overflow-x-auto scrollbar-hide">
         {modules.map((mod) => {
-          const isActive = pathname === mod.href;
+          const isActive = currentTab === mod.id;
           const Icon = mod.icon;
           return (
             <Link
-              key={mod.href}
-              href={mod.href}
+              key={mod.id}
+              href={`/app?tab=${mod.id}`}
               className={cn(
                 "flex items-center gap-2 px-5 py-3 text-[13px] font-medium whitespace-nowrap transition-all border-b-2 no-underline",
                 isActive
