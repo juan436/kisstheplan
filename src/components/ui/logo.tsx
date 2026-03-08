@@ -30,7 +30,7 @@ export function Logo({
           src={src}
           alt="Kisstheplan Logo"
           fill
-          className={cn("object-contain", type === "full" && "scale-110 origin-left")}
+          className={cn("object-contain", type === "full" && "scale-[1.5] md:scale-[1.8] origin-left")}
           priority
         />
       </div>
