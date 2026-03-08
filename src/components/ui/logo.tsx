@@ -23,19 +23,17 @@ export function Logo({
   return (
     <Link
       href={href}
-      className={cn("flex items-center gap-2.5 no-underline", className)}
+      className={cn("flex items-center no-underline relative", className)}
     >
-      <Image
-        src={src}
-        alt="Kisstheplan Logo"
-        width={type === "full" ? 500 : 120}
-        height={type === "full" ? 200 : 120}
-        className={cn(
-          "object-contain",
-          type === "full" ? "h-24 sm:h-32 w-auto scale-[1.7] md:scale-[2] origin-left" : "h-14 w-auto scale-[1.8]",
-        )}
-        priority
-      />
+      <div className={cn("relative flex items-center", type === "full" ? "w-[240px] h-[80px]" : "w-[48px] h-[48px]")}>
+        <Image
+          src={src}
+          alt="Kisstheplan Logo"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
     </Link>
   );
 }
