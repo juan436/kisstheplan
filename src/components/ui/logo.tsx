@@ -30,11 +30,11 @@ export function Logo({
       <Image
         src={src}
         alt="Kisstheplan Logo"
-        width={type === "full" ? 150 : 40}
-        height={type === "full" ? 40 : 40}
+        width={type === "full" ? 300 : 80}
+        height={type === "full" ? 100 : 80}
         className={cn(
           "object-contain",
-          type === "full" ? "h-10 w-auto" : "h-10 w-10",
+          type === "full" ? "h-14 sm:h-20 w-auto scale-110" : "h-10 sm:h-12 w-auto scale-125",
         )}
         priority
       />
