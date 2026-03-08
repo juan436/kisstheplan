@@ -30,7 +30,7 @@ export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
     <header className="sticky top-0 z-40 h-14 bg-accent flex items-center justify-between px-5">
       {/* Left: Logo + wedding name */}
       <div className="flex items-center gap-3">
-        <Logo type="short" href="/app/dashboard" />
+        <Logo type="short" href="/app" />
         <span className="text-white font-body font-semibold text-[14px] hidden sm:block">
           {weddingName}
         </span>

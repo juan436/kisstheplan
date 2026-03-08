@@ -103,7 +103,7 @@ export default function RegisterPage() {
 
   function handleStep3() {
     // Skip payment for now (trial period)
-    router.push("/app/dashboard");
+    router.push("/app");
   }
 
   function back() {
