@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { User, Settings, HelpCircle, LogOut, Menu, X } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 interface TopbarProps {
   weddingName: string;
@@ -29,12 +30,7 @@ export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
     <header className="sticky top-0 z-40 h-14 bg-accent flex items-center justify-between px-5">
       {/* Left: Logo + wedding name */}
       <div className="flex items-center gap-3">
-        <Link
-          href="/app/dashboard"
-          className="w-9 h-9 bg-brand rounded-lg flex items-center justify-center no-underline"
-        >
-          <span className="font-display font-bold text-white text-[16px] leading-none">K</span>
-        </Link>
+        <Logo type="short" href="/app/dashboard" />
         <span className="text-white font-body font-semibold text-[14px] hidden sm:block">
           {weddingName}
         </span>

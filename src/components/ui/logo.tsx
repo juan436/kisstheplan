@@ -1,39 +1,43 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 interface LogoProps {
   variant?: "default" | "light";
+  type?: "full" | "short";
+  href?: string;
   className?: string;
 }
 
-export function Logo({ variant = "default", className }: LogoProps) {
-  const isLight = variant === "light";
+export function Logo({
+  variant = "default",
+  type = "full",
+  href = "/",
+  className,
+}: LogoProps) {
+  // Las imagenes importadas son:
+  // /logos/logo-completo.png -> Logo gREIGE sin fondo.png
+  // /logos/logo-abreviado.png -> K no background.png
+
+  const src =
+    type === "full" ? "/logos/logo-completo.png" : "/logos/logo-abreviado.png";
 
   return (
-    <Link href="/" className={cn("flex items-center gap-2.5 no-underline", className)}>
-      <div className="w-[38px] h-[38px] bg-brand rounded-lg flex items-center justify-center">
-        <span className="font-display font-bold text-white text-[18px] leading-none">
-          K
-        </span>
-      </div>
-      <div className="flex flex-col">
-        <span
-          className={cn(
-            "font-display font-semibold text-[15px] tracking-[3px] leading-tight",
-            isLight ? "text-white" : "text-text"
-          )}
-        >
-          KiSS
-        </span>
-        <span
-          className={cn(
-            "font-body font-medium text-[9px] tracking-[4px] uppercase leading-tight",
-            isLight ? "text-white/70" : "text-brand"
-          )}
-        >
-          THE PLAN
-        </span>
-      </div>
+    <Link
+      href={href}
+      className={cn("flex items-center gap-2.5 no-underline", className)}
+    >
+      <Image
+        src={src}
+        alt="Kisstheplan Logo"
+        width={type === "full" ? 150 : 40}
+        height={type === "full" ? 40 : 40}
+        className={cn(
+          "object-contain",
+          type === "full" ? "h-10 w-auto" : "h-10 w-10",
+        )}
+        priority
+      />
     </Link>
   );
 }
