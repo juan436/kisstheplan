@@ -16,7 +16,7 @@ export function LandingNav() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-[90px] bg-[#c8b8a6]">
       <div className="max-w-[1400px] mx-auto px-10 h-full flex items-center justify-between">
-        <div className="w-[300px]">
+        <div className="flex-shrink-0">
           <Logo />
         </div>
 

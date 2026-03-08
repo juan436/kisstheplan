@@ -25,12 +25,12 @@ export function Logo({
       href={href}
       className={cn("flex items-center no-underline relative", className)}
     >
-      <div className={cn("relative flex items-center", type === "full" ? "w-[240px] h-[80px]" : "w-[48px] h-[48px]")}>
+      <div className={cn("relative flex items-center", type === "full" ? "w-[260px] h-[86px] sm:w-[320px] sm:h-[106px] lg:w-[360px] lg:h-[120px] xl:w-[400px] xl:h-[135px]" : "w-[48px] h-[48px]")}>
         <Image
           src={src}
           alt="Kisstheplan Logo"
           fill
-          className="object-contain"
+          className={cn("object-contain", type === "full" && "scale-110 origin-left")}
           priority
         />
       </div>
