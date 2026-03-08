@@ -1,95 +1,81 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { CountdownRing } from "@/components/ui/countdown-ring";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import Image from "next/image";
 
 export function Hero() {
   return (
-    <section className="min-h-screen flex items-center pt-16 bg-bg">
-      <div className="max-w-[1200px] mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        {/* Left: Copy */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="text-[11px] font-bold text-cta uppercase tracking-[3px] mb-4 block">
-            Planificador de bodas
-          </span>
-          <h1 className="font-display text-[48px] md:text-[56px] leading-[1.1] text-text mb-6">
-            Tu boda,{" "}
-            <span className="italic text-cta">organizada</span>
-            <br />
-            con estilo
-          </h1>
-          <p className="text-[16px] text-accent leading-relaxed mb-8 max-w-[440px]">
-            Todo lo que necesitas para planificar la boda perfecta. Invitados,
-            presupuesto, proveedores, mesas y mucho más — en un solo lugar
-            diseñado con mimo.
-          </p>
-          <div className="flex items-center gap-4">
-            <Link href="/register">
-              <Button variant="cta" size="lg">
-                Empezar gratis
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="secondary" size="lg">
-                Ya tengo cuenta
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
+    <section className="relative pt-[90px] min-h-screen bg-white overflow-hidden flex items-center">
+      <div className="max-w-[1400px] w-full mx-auto px-6 lg:px-10 py-12 md:py-20 relative z-10 grid grid-cols-1 lg:grid-cols-[45%_55%] gap-12 lg:gap-0 items-center">
+        
+        {/* Left: Images composition */}
+        <div className="relative w-full h-[550px] md:h-[650px] lg:h-[750px] flex items-start justify-center lg:justify-start pt-4 lg:pt-10">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-[300px] md:w-[380px] lg:w-[420px] aspect-[4/5] z-10 -translate-y-8 lg:-translate-y-12"
+          >
+            <Image 
+              src="/images/portada.jpg" 
+              alt="Pareja feliz en boda" 
+              fill
+              className="object-cover rounded-sm shadow-md"
+              priority
+            />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute bottom-8 md:bottom-12 lg:bottom-16 right-0 md:right-8 lg:-right-32 w-[380px] md:w-[500px] lg:w-[650px] aspect-video z-20 shadow-2xl rounded-sm overflow-hidden border-4 border-white"
+          >
+            <Image 
+              src="/images/pantalla.jpg" 
+              alt="Dashboard de la app" 
+              fill
+              className="object-cover"
+              priority
+            />
+          </motion.div>
+        </div>
 
-        {/* Right: Dashboard preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <Card variant="elevated" className="relative overflow-hidden">
-            <div className="flex flex-col items-center gap-6 py-4">
-              {/* Mini dashboard preview */}
-              <div className="text-center">
-                <p className="text-[11px] font-bold text-cta uppercase tracking-[2px] mb-2">
-                  Cuenta atrás
-                </p>
-                <h3 className="font-display text-[24px] italic text-text">
-                  Lucía & Pablo
-                </h3>
-              </div>
-              <CountdownRing days={199} totalDays={365} size="lg" />
-              <div className="grid grid-cols-3 gap-6 w-full">
-                <StatPill value="145" label="Confirmados" color="bg-success/15 text-success" />
-                <StatPill value="38" label="Pendientes" color="bg-cta/15 text-cta" />
-                <StatPill value="12" label="Rechazados" color="bg-danger/15 text-danger" />
-              </div>
+        {/* Right: Copy & Call to action */}
+        <div className="relative w-full h-full flex flex-col justify-center">
+          {/* Beige Background Block styling from mockup */}
+          <div className="absolute inset-0 bg-[#f9f6f0] rounded-3xl -z-10 lg:-ml-32 lg:scale-y-[1.15]" />
+          
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="px-8 py-16 lg:pl-40 lg:pr-16"
+          >
+            <h1 className="font-display font-semibold text-[40px] md:text-[52px] lg:text-[60px] leading-[1.15] text-[#7C5D4B] mb-8">
+              Organiza tu boda<br />como los profesionales
+            </h1>
+            
+            <p className="text-[18px] md:text-[21px] text-[#A69C92] font-medium leading-relaxed mb-8 max-w-[600px]">
+              Lista de invitados, plano de mesas, RSVP, presupuesto, proveedores y todo lo que necesitas para organizar tu boda.
+            </p>
+            
+            <p className="text-[20px] md:text-[24px] text-[#7C5D4B] font-display mb-10 max-w-[500px] leading-snug">
+              De forma sencilla. Sin estrés.<br />Desde un solo lugar.
+            </p>
+            
+            <div className="flex">
+              <Link href="/register">
+                <button className="bg-[#c8b8a6] text-white px-10 py-4 rounded-xl font-bold tracking-wider text-[15px] hover:bg-[#b09e89] transition-colors shadow-sm uppercase">
+                  Planifica ya
+                </button>
+              </Link>
             </div>
-          </Card>
-        </motion.div>
+          </motion.div>
+        </div>
+
       </div>
     </section>
-  );
-}
-
-function StatPill({
-  value,
-  label,
-  color,
-}: {
-  value: string;
-  label: string;
-  color: string;
-}) {
-  return (
-    <div className={`rounded-xl px-3 py-2.5 text-center ${color}`}>
-      <div className="text-[20px] font-display font-bold leading-none">{value}</div>
-      <div className="text-[9px] font-semibold uppercase tracking-[0.5px] mt-1 opacity-80">
-        {label}
-      </div>
-    </div>
   );
 }

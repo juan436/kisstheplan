@@ -3,14 +3,12 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface LogoProps {
-  variant?: "default" | "light";
   type?: "full" | "short";
   href?: string;
   className?: string;
 }
 
 export function Logo({
-  variant = "default",
   type = "full",
   href = "/",
   className,
@@ -30,11 +28,11 @@ export function Logo({
       <Image
         src={src}
         alt="Kisstheplan Logo"
-        width={type === "full" ? 400 : 120}
-        height={type === "full" ? 150 : 120}
+        width={type === "full" ? 500 : 120}
+        height={type === "full" ? 200 : 120}
         className={cn(
           "object-contain",
-          type === "full" ? "h-20 sm:h-28 w-auto scale-125 origin-left" : "h-14 w-auto scale-[1.8]",
+          type === "full" ? "h-24 sm:h-32 w-auto scale-[1.7] md:scale-[2] origin-left" : "h-14 w-auto scale-[1.8]",
         )}
         priority
       />
