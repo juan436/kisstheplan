@@ -25,7 +25,7 @@ export default function LoginPage() {
     setError("");
 
     if (!useRealApi) {
-      router.push("/app");
+      router.push("/app/dashboard");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/app");
+      router.push("/app/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {

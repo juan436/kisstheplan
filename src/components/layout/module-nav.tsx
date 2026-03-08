@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -30,22 +28,25 @@ const modules = [
   { id: "notas", name: "Notas", icon: StickyNote },
 ];
 
-export function ModuleNav() {
-  const searchParams = useSearchParams();
-  const currentTab = searchParams.get("tab") || "dashboard";
-
+export function ModuleNav({ 
+  activeTab, 
+  onTabChange 
+}: { 
+  activeTab: string; 
+  onTabChange: (tab: string) => void;
+}) {
   return (
     <nav className="bg-white border-b border-border">
       <div className="flex overflow-x-auto scrollbar-hide">
         {modules.map((mod) => {
-          const isActive = currentTab === mod.id;
+          const isActive = activeTab === mod.id;
           const Icon = mod.icon;
           return (
-            <Link
+            <button
               key={mod.id}
-              href={`/app?tab=${mod.id}`}
+              onClick={() => onTabChange(mod.id)}
               className={cn(
-                "flex items-center gap-2 px-5 py-3 text-[13px] font-medium whitespace-nowrap transition-all border-b-2 no-underline",
+                "flex items-center gap-2 px-5 py-3 text-[13px] font-medium whitespace-nowrap transition-all border-b-2 outline-none cursor-pointer",
                 isActive
                   ? "text-text border-cta"
                   : "text-brand border-transparent hover:text-accent hover:border-border"
@@ -57,7 +58,7 @@ export function ModuleNav() {
                 <Icon size={16} />
               )}
               {mod.name}
-            </Link>
+            </button>
           );
         })}
       </div>
