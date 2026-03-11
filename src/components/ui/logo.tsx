@@ -6,19 +6,25 @@ interface LogoProps {
   type?: "full" | "short";
   href?: string;
   className?: string;
+  variant?: "beige" | "mocha" | "light";
 }
 
 export function Logo({
   type = "full",
   href = "/",
   className,
+  variant = "beige",
 }: LogoProps) {
   // Las imagenes importadas son:
   // /logos/logo-completo.png -> Logo gREIGE sin fondo.png
   // /logos/logo-abreviado.png -> K no background.png
 
-  const src =
-    type === "full" ? "/logos/logo-completo.png" : "/logos/logo-abreviado.png";
+  const getSrc = () => {
+    if (type === "short") return "/logos/logo-abreviado.png";
+    if (variant === "mocha") return "/logos/logo-mocha-sin-fondo.png";
+    return "/logos/logo-completo.png";
+  };
+  const src = getSrc();
 
   return (
     <Link
