@@ -48,7 +48,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-bg2 flex items-center justify-center p-4">
       <div className="w-full max-w-[440px] animate-fade-up">
-        <Logo variant="mocha" className="mx-auto mb-8" />
+        <div className="flex justify-center mb-8">
+          <Logo variant="mocha" />
+        </div>
 
         <Card variant="elevated" className="p-8">
           <h1 className="font-display text-[28px] text-text text-center mb-1">

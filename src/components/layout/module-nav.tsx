@@ -16,12 +16,12 @@ import {
 import Image from "next/image";
 
 const modules = [
-  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, imgSrc: "/icons/Icono planning mocha.png" },
-  { id: "invitados", name: "Invitados", icon: Users, imgSrc: "/icons/RSVP v3.png" },
-  { id: "presupuesto", name: "Presupuesto", icon: Wallet, imgSrc: "/icons/Proveedores y presupuesto.png" },
-  { id: "tareas", name: "Tareas", icon: CheckSquare, imgSrc: "/icons/Icono planning ap sin editar.png" },
-  { id: "web", name: "Web", icon: Globe, imgSrc: "/icons/Icono web rsvp.png" },
-  { id: "proveedores", name: "Proveedores", icon: Store, imgSrc: "/icons/Proveedores y presupuesto.png" },
+  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
+  { id: "invitados", name: "Invitados", icon: Users },
+  { id: "presupuesto", name: "Presupuesto", icon: Wallet },
+  { id: "tareas", name: "Tareas", icon: CheckSquare },
+  { id: "web", name: "Web", icon: Globe },
+  { id: "proveedores", name: "Proveedores", icon: Store },
   { id: "plano-mesas", name: "Plano mesas", icon: Grid3X3 },
   { id: "calendario", name: "Calendario", icon: Calendar },
   { id: "guion", name: "Guión", icon: FileText },
@@ -52,11 +52,7 @@ export function ModuleNav({
                   : "text-brand border-transparent hover:text-accent hover:border-border"
               )}
             >
-              {mod.imgSrc ? (
-                <Image src={mod.imgSrc} alt={mod.name} width={18} height={18} className={cn(isActive ? "opacity-100" : "opacity-60 grayscale", "object-contain")} />
-              ) : (
-                <Icon size={16} />
-              )}
+              <Icon size={16} />
               {mod.name}
             </button>
           );
