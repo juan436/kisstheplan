@@ -44,6 +44,8 @@ export interface UpdateItemData {
   estimated?: number;
   actual?: number;
   paid?: number;
+  dueDate?: string | null;
+  notes?: string | null;
 }
 
 export interface CreatePaymentData {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import {
   Plus, Trash2, ChevronDown, ChevronRight,
-  Check, FileDown, FileSpreadsheet,
+  Check, CalendarDays, FileDown, FileSpreadsheet,
 } from "lucide-react";
 import type { ExpenseCategory, BudgetSummary, ExpenseItem } from "@/types";
 
@@ -32,6 +32,9 @@ export default function PresupuestoPage() {
   // Payment modal — shows items of the clicked category
   const [showPayments,  setShowPayments]  = useState(false);
   const [paymentCatId,  setPaymentCatId]  = useState<string | null>(null);
+  const [pendingDates,  setPendingDates]  = useState<Record<string, string>>({});
+  const [pendingNotes,  setPendingNotes]  = useState<Record<string, string>>({});
+  const [savingModal,   setSavingModal]   = useState(false);
   const paymentCat = categories.find((c) => c.id === paymentCatId) ?? null;
 
   const loadData = useCallback(async () => {
@@ -92,15 +95,47 @@ export default function PresupuestoPage() {
   const handleDeleteItem = async (catId: string, itemId: string) => { await api.deleteItem(catId, itemId); setDeletingId(null); await loadData(); };
 
   /* ── Payment modal helpers ── */
-  const openPayments  = (catId: string) => { setPaymentCatId(catId); setShowPayments(true); };
-  const closePayments = () => { setShowPayments(false); setPaymentCatId(null); };
+  const openPayments = (catId: string) => {
+    setPaymentCatId(catId);
+    setPendingDates({});
+    setPendingNotes({});
+    setShowPayments(true);
+  };
+  const closePayments = () => {
+    setShowPayments(false);
+    setPaymentCatId(null);
+    setPendingDates({});
+    setPendingNotes({});
+  };
 
   const handleTogglePaid = async (item: ExpenseItem) => {
     if (!paymentCatId) return;
-    // Toggle: fully paid ↔ unpaid
     const newPaid = item.paid > 0 ? 0 : item.real;
     await api.updateItem(paymentCatId, item.id, { paid: newPaid });
     await loadData();
+  };
+
+  const handleSaveModal = async () => {
+    if (!paymentCatId) return;
+    setSavingModal(true);
+    try {
+      const items = paymentCat?.items ?? [];
+      await Promise.all(
+        items.map((item) => {
+          const dueDate = pendingDates[item.id] ?? item.dueDate ?? null;
+          const notes   = pendingNotes[item.id] ?? item.notes ?? null;
+          return api.updateItem(paymentCatId, item.id, {
+            dueDate: dueDate || null,
+            notes:   notes   || null,
+          });
+        })
+      );
+      await loadData();
+      setPendingDates({});
+      setPendingNotes({});
+    } finally {
+      setSavingModal(false);
+    }
   };
 
   /* ── Progress bar ── */
@@ -356,8 +391,8 @@ export default function PresupuestoPage() {
 
         {/* Column headers */}
         {paymentCat && paymentCat.items.length > 0 && (
-          <div className="grid grid-cols-[1fr_100px_36px_90px] gap-3 px-2 mb-1">
-            {["Concepto", "Real", "✓", "Pendiente"].map((h, i) => (
+          <div className="grid grid-cols-[1fr_90px_110px_36px_120px] gap-2 px-2 mb-1">
+            {["Concepto", "Cantidad", "A pagar el", "✓", "Notas"].map((h, i) => (
               <div key={i} className="text-[10px] font-semibold text-brand uppercase tracking-wider">{h}</div>
             ))}
           </div>
@@ -369,24 +404,37 @@ export default function PresupuestoPage() {
         ) : (
           <div className="space-y-1 max-h-[380px] overflow-y-auto pr-1">
             {paymentCat.items.map((item) => {
-              const isPaid  = item.real > 0 && item.paid >= item.real;
-              const pending = Math.max(0, item.real - item.paid);
+              const isPaid    = item.real > 0 && item.paid >= item.real;
+              const dateVal   = pendingDates[item.id] ?? item.dueDate ?? "";
+              const notesVal  = pendingNotes[item.id] ?? item.notes  ?? "";
               return (
-                <div key={item.id} className="grid grid-cols-[1fr_100px_36px_90px] gap-3 items-center px-2 py-3 rounded-xl hover:bg-bg2 transition-colors">
-                  {/* Concept */}
-                  <span className={`text-[13px] ${isPaid ? "line-through text-brand/60" : "text-text"}`}>
+                <div key={item.id} className="grid grid-cols-[1fr_90px_110px_36px_120px] gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-bg2 transition-colors">
+
+                  {/* Concepto */}
+                  <span className={`text-[13px] truncate ${isPaid ? "line-through text-brand/50" : "text-text"}`}>
                     {item.concept}
                   </span>
 
-                  {/* Real amount */}
+                  {/* Cantidad */}
                   <span className="text-right text-[13px] font-semibold text-[#866857]">
                     {formatCurrency(item.real)}
                   </span>
 
+                  {/* A pagar el */}
+                  <div className="flex items-center gap-1.5">
+                    {!dateVal && <CalendarDays size={14} className="text-brand/40 shrink-0" />}
+                    <input
+                      type="date"
+                      value={dateVal}
+                      onChange={(e) => setPendingDates((p) => ({ ...p, [item.id]: e.target.value }))}
+                      className="flex-1 min-w-0 bg-transparent border-b border-border/50 focus:border-cta text-[12px] text-text outline-none py-0.5 cursor-pointer"
+                    />
+                  </div>
+
                   {/* Circle paid toggle */}
                   <button
                     onClick={() => handleTogglePaid(item)}
-                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                       isPaid
                         ? "bg-[#4A773C] border-[#4A773C] text-white"
                         : "border-border hover:border-cta"
@@ -395,10 +443,13 @@ export default function PresupuestoPage() {
                     {isPaid && <Check size={13} strokeWidth={3} />}
                   </button>
 
-                  {/* Pendiente */}
-                  <span className={`text-right text-[13px] font-semibold ${pending > 0 ? "text-cta" : "text-[#4A773C]"}`}>
-                    {formatCurrency(pending)}
-                  </span>
+                  {/* Notas */}
+                  <input
+                    value={notesVal}
+                    onChange={(e) => setPendingNotes((p) => ({ ...p, [item.id]: e.target.value }))}
+                    placeholder="Notas..."
+                    className="bg-transparent border-b border-border/50 focus:border-cta text-[12px] text-text/70 outline-none px-1 py-0.5 transition-colors placeholder:text-text/20 w-full"
+                  />
                 </div>
               );
             })}
@@ -407,16 +458,28 @@ export default function PresupuestoPage() {
 
         {/* Footer */}
         {paymentCat && paymentCat.items.length > 0 && (() => {
+          const totalReal    = paymentCat.items.reduce((s, i) => s + i.real, 0);
           const totalPaid    = paymentCat.items.reduce((s, i) => s + i.paid, 0);
           const totalPending = paymentCat.items.reduce((s, i) => s + Math.max(0, i.real - i.paid), 0);
           const countPaid    = paymentCat.items.filter((i) => i.real > 0 && i.paid >= i.real).length;
+          const hasPending   = Object.keys(pendingDates).length > 0 || Object.keys(pendingNotes).length > 0;
           return (
-            <div className="flex items-center justify-between mt-5 pt-4 border-t border-border">
-              <span className="text-[12px] text-brand">{countPaid} de {paymentCat.items.length} pagados</span>
-              <div className="flex gap-4 text-[12px] font-medium">
-                <span className="text-[#4A773C]">Pagado: {formatCurrency(totalPaid)}</span>
-                <span className="text-cta">Pendiente: {formatCurrency(totalPending)}</span>
+            <div className="mt-5 pt-4 border-t border-border space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-brand">{countPaid} de {paymentCat.items.length} pagados · {formatCurrency(totalReal)} total</span>
+                <div className="flex gap-4 text-[12px] font-medium">
+                  <span className="text-[#4A773C]">Pagado: {formatCurrency(totalPaid)}</span>
+                  <span className="text-cta">Pendiente: {formatCurrency(totalPending)}</span>
+                </div>
               </div>
+              <Button
+                variant="cta"
+                className="w-full"
+                onClick={handleSaveModal}
+                disabled={savingModal || !hasPending}
+              >
+                {savingModal ? "Guardando..." : hasPending ? "Guardar cambios" : "Sin cambios pendientes"}
+              </Button>
             </div>
           );
         })()}

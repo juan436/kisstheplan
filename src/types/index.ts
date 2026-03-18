@@ -71,6 +71,8 @@ export interface ExpenseItem {
   estimated: number;
   real: number;
   paid: number;
+  dueDate?: string | null;
+  notes?: string | null;
 }
 
 export interface BudgetSummary {
