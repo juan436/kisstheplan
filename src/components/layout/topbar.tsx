@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
-import { User, Settings, HelpCircle, LogOut, Menu, X } from "lucide-react";
+import { User, Heart, Settings, HelpCircle, LogOut, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 
 interface TopbarProps {
@@ -54,6 +54,7 @@ export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
               <div className="text-[13px] font-semibold text-text">{userName}</div>
             </div>
             <nav className="py-1">
+              <DropdownItem href="/app/mi-boda" icon={<Heart size={16} />} label="Mi boda" />
               <DropdownItem href="/app/cuenta" icon={<User size={16} />} label="Mi cuenta" />
               <DropdownItem href="/app/colaboradores" icon={<Settings size={16} />} label="Colaboradores" />
               <DropdownItem href="/app/ayuda" icon={<HelpCircle size={16} />} label="Ayuda" />

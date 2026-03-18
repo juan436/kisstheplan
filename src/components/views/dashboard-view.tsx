@@ -40,16 +40,22 @@ export default function DashboardPage() {
         {wedding.partner1Name} & {wedding.partner2Name}
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[240px_1px_1fr_1px_280px] gap-0 lg:gap-5">
         {/* Left */}
         <div>
           <WeddingCard wedding={wedding} budget={budget} />
         </div>
 
+        {/* Divider */}
+        <div className="hidden lg:block bg-border/60 self-stretch" />
+
         {/* Center */}
         <div>
-          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} />
+          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} budget={budget} />
         </div>
+
+        {/* Divider */}
+        <div className="hidden lg:block bg-border/60 self-stretch" />
 
         {/* Right */}
         <div className="space-y-5">

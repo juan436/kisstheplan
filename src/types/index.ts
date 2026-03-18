@@ -8,12 +8,18 @@ export interface User {
 export interface Wedding {
   id: string;
   partner1Name: string;
+  partner1Last?: string;
+  partner1Role?: string;
   partner2Name: string;
+  partner2Last?: string;
+  partner2Role?: string;
   date: string;
   venue: string;
   location: string;
   estimatedGuests: number;
   estimatedBudget: number;
+  currency?: string;
+  timezone?: string;
   photoUrl?: string;
   slug: string;
 }
@@ -25,9 +31,12 @@ export type GuestRole = "groom" | "bride" | "family_groom" | "family_bride" | "c
 export interface Guest {
   id: string;
   name: string;
+  lastName?: string;
   email: string;
   phone?: string;
+  address?: string;
   groupId?: string;
+  listName?: string;
   rsvp: RsvpStatus;
   dish: DishChoice;
   allergies: string;
@@ -73,11 +82,13 @@ export interface BudgetSummary {
 
 export interface PaymentSchedule {
   id: string;
+  categoryId?: string | null;
   vendorName: string;
   concept: string;
   amount: number;
   dueDate: string;
   paid: boolean;
+  notes?: string;
 }
 
 export interface Vendor {
