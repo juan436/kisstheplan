@@ -43,6 +43,7 @@ export interface UpdateItemData {
   concept?: string;
   estimated?: number;
   actual?: number;
+  paid?: number;
 }
 
 export interface CreatePaymentData {
