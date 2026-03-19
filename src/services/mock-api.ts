@@ -1,9 +1,9 @@
 import type { ApiService } from "./api";
-import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, WebPageConfig, PublicWeddingData } from "@/types";
+import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, Task, WebPageConfig, PublicWeddingData, Vendor, ScriptEntry, ScriptArea } from "@/types";
 import { mockUser, mockWedding } from "@/data/mock-wedding";
 import { mockGuests as initialGuests } from "@/data/mock-guests";
 import { mockBudget as initialBudget } from "@/data/mock-budget";
-import { mockTasks } from "@/data/mock-tasks";
+import { mockTasks as initialTasks } from "@/data/mock-tasks";
 import { mockPayments as initialPayments } from "@/data/mock-payments";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -14,12 +14,65 @@ let mockBudget = initialBudget.map((c) => ({ ...c, items: [...c.items] }));
 let mockPaymentsList = [...initialPayments];
 let nextId = 1000;
 
+let mockTasksList: Task[] = initialTasks.map((t) => ({ ...t }));
 let mockGroups: GuestGroup[] = [];
 let mockWebPage: WebPageConfig | null = null;
 
-function genId() {
-  return String(++nextId);
-}
+const genId = () => String(++nextId);
+
+let mockScriptEntries: ScriptEntry[] = [
+  { id: "se1", timeType: "exact", timeStart: "09:00", title: "Maquillaje y peluquería", description: "Preparativos de los novios", style: {}, order: 0 },
+  { id: "se2", timeType: "exact", timeStart: "17:00", title: "Llegada de invitados", description: "Recepción en la entrada", style: {}, order: 1 },
+  { id: "se3", timeType: "range", timeStart: "17:30", timeEnd: "18:15", title: "Ceremonia", description: "Intercambio de votos y anillos", style: {}, order: 2 },
+  { id: "se4", timeType: "range", timeStart: "18:30", timeEnd: "20:00", title: "Banquete y cocktail", description: "Cóctel de bienvenida y aperitivos", style: {}, order: 3 },
+  { id: "se5", timeType: "exact", timeStart: "20:00", title: "Cena", description: "Menú degustación", style: {}, order: 4 },
+  { id: "se6", timeType: "exact", timeStart: "22:30", title: "Corte de tarta", description: "", style: {}, order: 5 },
+  { id: "se7", timeType: "exact", timeStart: "23:00", title: "Fiesta y barra libre", description: "Primer baile y celebración", style: {}, order: 6 },
+];
+let mockScriptAreas: ScriptArea[] = [
+  { id: "sa1", name: "Parking", order: 0 },
+  { id: "sa2", name: "Jardín principal", order: 1 },
+  { id: "sa3", name: "Clastra", order: 2 },
+  { id: "sa4", name: "Sala interior", order: 3 },
+];
+
+let mockVendors: Vendor[] = [
+  {
+    id: "v1", name: "Finca Tagamanent", categories: ["Finca"], status: "confirmed",
+    contactName: "Maria García", email: "info@tagamanent.com", phone: "93 123 45 67",
+    web: "www.tagamanent.com", social: "@tagamanent", contractUrl: undefined,
+    needsStaffMenu: false, notes: "Incluye servicio de parking y jardines.",
+    payments: [
+      { id: "vp1", amount: 3000, dueDate: "2026-03-15", paid: true, notes: "Señal" },
+      { id: "vp2", amount: 3000, dueDate: "2026-07-01", paid: false, notes: "Segundo pago" },
+    ],
+    activity: [
+      { id: "va1", type: "note", content: "Confirmada la fecha con el responsable", author: "Lucía", createdAt: "2026-02-10T10:00:00Z" },
+    ],
+  },
+  {
+    id: "v2", name: "Catering Moments", categories: ["Catering"], status: "confirmed",
+    contactName: "Jordi Puig", email: "jordi@moments.es", phone: "93 456 78 90",
+    web: "www.cateringmoments.es", social: "", contractUrl: undefined,
+    needsStaffMenu: true, staffCount: 8, staffAllergies: "Gluten (2 personas)",
+    notes: "Menú degustación pendiente de confirmar.",
+    payments: [
+      { id: "vp3", amount: 5000, dueDate: "2026-04-01", paid: false, notes: "" },
+      { id: "vp4", amount: 7000, dueDate: "2026-08-15", paid: false, notes: "" },
+    ],
+    activity: [],
+  },
+  {
+    id: "v3", name: "Foto & Film Studio", categories: ["Fotografía", "Vídeo"], status: "considering",
+    contactName: "Ana López", email: "ana@fotostudio.es", phone: "666 123 456",
+    web: "", social: "@fotostudio_es", contractUrl: undefined,
+    needsStaffMenu: false, notes: "",
+    payments: [
+      { id: "vp5", amount: 2500, dueDate: "2026-06-01", paid: false, notes: "Pago único" },
+    ],
+    activity: [],
+  },
+];
 
 export const mockApi: ApiService = {
   async getUser() {
@@ -58,6 +111,12 @@ export const mockApi: ApiService = {
     const pending = mockGuests.filter((g) => g.rsvp === "pending").length;
     const rejected = mockGuests.filter((g) => g.rsvp === "rejected").length;
     return { total, confirmed, pending, rejected };
+  },
+
+  async importGuestsExcel(_file: File) {
+    await delay(600);
+    // Mock: return empty import result (no real xlsx parsing in mock)
+    return { imported: 0, guests: [] as import("@/types").Guest[] };
   },
 
   async createGuest(data): Promise<Guest> {
@@ -217,56 +276,80 @@ export const mockApi: ApiService = {
     return mockPaymentsList;
   },
 
-  async createPayment(data): Promise<PaymentSchedule> {
-    await delay(200);
-    const payment: PaymentSchedule = {
-      id: genId(),
-      vendorName: "",
-      concept: "",
-      amount: data.amount,
-      dueDate: data.dueDate,
-      paid: false,
-    };
-    mockPaymentsList.push(payment);
-    return payment;
-  },
-
-  async updatePayment(id, data): Promise<PaymentSchedule> {
-    await delay(200);
-    const idx = mockPaymentsList.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Pago no encontrado");
-    const existing = mockPaymentsList[idx];
-    mockPaymentsList[idx] = {
-      ...existing,
-      ...(data.vendorName !== undefined ? { vendorName: data.vendorName } : {}),
-      ...(data.concept !== undefined ? { concept: data.concept } : {}),
-      ...(data.amount !== undefined ? { amount: data.amount } : {}),
-      ...(data.dueDate !== undefined ? { dueDate: data.dueDate } : {}),
-      ...(data.paid !== undefined ? { paid: data.paid } : {}),
-      ...(data.paidAt !== undefined ? { paid: !!data.paidAt } : {}),
-    };
-    return mockPaymentsList[idx];
-  },
-
-  async deletePayment(id): Promise<void> {
-    await delay(200);
-    mockPaymentsList = mockPaymentsList.filter((p) => p.id !== id);
-  },
-
   async getUpcomingTasks() {
     await delay(200);
-    return mockTasks
-      .filter((t) => t.status !== "done")
-      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
-      .slice(0, 5);
+    return mockTasksList
+      .filter((t) => t.status !== "done" && t.dueDate)
+      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+  },
+
+  // Task CRUD
+  async getTasks(filters?: Record<string, string>) {
+    await delay(200);
+    let result = [...mockTasksList];
+    if (filters?.status) result = result.filter((t) => t.status === filters.status);
+    if (filters?.category) result = result.filter((t) => t.category === filters.category);
+    if (filters?.stage) result = result.filter((t) => t.stage === filters.stage);
+    return result;
+  },
+
+  async createTask(data) {
+    await delay(200);
+    const task: Task = {
+      id: genId(),
+      title: data.title,
+      status: "pending",
+      category: data.category,
+      stage: data.stage,
+      dueDate: data.dueDate,
+      notes: data.notes,
+    };
+    mockTasksList.push(task);
+    return task;
+  },
+
+  async updateTask(id, data) {
+    await delay(200);
+    const idx = mockTasksList.findIndex((t) => t.id === id);
+    if (idx === -1) throw new Error("Tarea no encontrada");
+    const existing = mockTasksList[idx];
+    mockTasksList[idx] = {
+      ...existing,
+      ...(data.title !== undefined ? { title: data.title } : {}),
+      ...(data.status !== undefined ? { status: data.status } : {}),
+      ...(data.dueDate !== undefined ? { dueDate: data.dueDate } : {}),
+      ...(data.notes !== undefined ? { notes: data.notes } : {}),
+      ...(data.category !== undefined ? { category: data.category } : {}),
+      ...(data.stage !== undefined ? { stage: data.stage } : {}),
+    };
+    return mockTasksList[idx];
+  },
+
+  async deleteTask(id) {
+    await delay(200);
+    mockTasksList = mockTasksList.filter((t) => t.id !== id);
+  },
+
+  async getTaskProgress() {
+    await delay(100);
+    const total = mockTasksList.length;
+    const completed = mockTasksList.filter((t) => t.status === "done").length;
+    return { total, completed, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
   },
 
   async getUpcomingPayments() {
     await delay(200);
     return mockPaymentsList
       .filter((p) => !p.paid)
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-      .slice(0, 5);
+      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  },
+
+  async uploadPhoto(file: File) {
+    await delay(300);
+    const url = URL.createObjectURL(file);
+    // Persist in mock wedding for the session
+    Object.assign(mockWedding, { photoUrl: url });
+    return { url };
   },
 
   // Web Page (mock)
@@ -353,5 +436,131 @@ export const mockApi: ApiService = {
     if (data.allergies !== undefined) guest.allergies = data.allergies;
     if (data.transport !== undefined) guest.transport = data.transport;
     return { success: true, message: "RSVP actualizado" };
+  },
+
+  // Vendors
+  async getVendors() {
+    await delay(200);
+    return [...mockVendors];
+  },
+
+  async createVendor(data) {
+    await delay(200);
+    const vendor: Vendor = {
+      id: genId(), payments: [], activity: [],
+      needsStaffMenu: false, ...data,
+    };
+    mockVendors.push(vendor);
+    return vendor;
+  },
+
+  async updateVendor(id, data) {
+    await delay(200);
+    const idx = mockVendors.findIndex((v) => v.id === id);
+    if (idx === -1) throw new Error("Vendor not found");
+    mockVendors[idx] = { ...mockVendors[idx], ...data };
+    return mockVendors[idx];
+  },
+
+  async deleteVendor(id) {
+    await delay(200);
+    mockVendors = mockVendors.filter((v) => v.id !== id);
+  },
+
+  async addVendorPayment(vendorId, data) {
+    await delay(200);
+    const vendor = mockVendors.find((v) => v.id === vendorId);
+    if (!vendor) throw new Error("Vendor not found");
+    vendor.payments.push({ id: genId(), paid: false, ...data });
+    return vendor;
+  },
+
+  async updateVendorPayment(vendorId, paymentId, data) {
+    await delay(200);
+    const vendor = mockVendors.find((v) => v.id === vendorId);
+    if (!vendor) throw new Error("Vendor not found");
+    const pidx = vendor.payments.findIndex((p) => p.id === paymentId);
+    if (pidx !== -1) vendor.payments[pidx] = { ...vendor.payments[pidx], ...data };
+    return vendor;
+  },
+
+  async deleteVendorPayment(vendorId, paymentId) {
+    await delay(200);
+    const vendor = mockVendors.find((v) => v.id === vendorId);
+    if (!vendor) throw new Error("Vendor not found");
+    vendor.payments = vendor.payments.filter((p) => p.id !== paymentId);
+    return vendor;
+  },
+
+  async addVendorActivity(vendorId, data) {
+    await delay(200);
+    const vendor = mockVendors.find((v) => v.id === vendorId);
+    if (!vendor) throw new Error("Vendor not found");
+    vendor.activity.unshift({
+      id: genId(), author: "Tú", createdAt: new Date().toISOString(), ...data,
+    });
+    return vendor;
+  },
+
+  // Script (Guión del Día) - mock data
+  async getScriptEntries(): Promise<ScriptEntry[]> {
+    await delay(200);
+    return mockScriptEntries;
+  },
+  async createScriptEntry(data): Promise<ScriptEntry> {
+    await delay(200);
+    const entry: ScriptEntry = {
+      id: genId(),
+      timeType: data.timeType ?? "none",
+      timeStart: data.timeStart,
+      timeEnd: data.timeEnd,
+      title: data.title ?? "Nueva entrada",
+      description: data.description,
+      style: data.style ?? {},
+      order: data.order ?? mockScriptEntries.length,
+    };
+    mockScriptEntries.push(entry);
+    return entry;
+  },
+  async updateScriptEntry(id, data): Promise<ScriptEntry> {
+    await delay(200);
+    const idx = mockScriptEntries.findIndex((e) => e.id === id);
+    if (idx === -1) throw new Error("Not found");
+    mockScriptEntries[idx] = { ...mockScriptEntries[idx], ...data };
+    return mockScriptEntries[idx];
+  },
+  async deleteScriptEntry(id): Promise<void> {
+    await delay(200);
+    mockScriptEntries = mockScriptEntries.filter((e) => e.id !== id);
+  },
+  async reorderScriptEntries(ids): Promise<ScriptEntry[]> {
+    await delay(200);
+    ids.forEach((id, index) => {
+      const e = mockScriptEntries.find((x) => x.id === id);
+      if (e) e.order = index;
+    });
+    mockScriptEntries.sort((a, b) => a.order - b.order);
+    return mockScriptEntries;
+  },
+  async getScriptAreas(): Promise<ScriptArea[]> {
+    await delay(200);
+    return mockScriptAreas;
+  },
+  async createScriptArea(data): Promise<ScriptArea> {
+    await delay(200);
+    const area: ScriptArea = { id: genId(), name: data.name, imageUrl: data.imageUrl, order: mockScriptAreas.length };
+    mockScriptAreas.push(area);
+    return area;
+  },
+  async updateScriptArea(id, data): Promise<ScriptArea> {
+    await delay(200);
+    const idx = mockScriptAreas.findIndex((a) => a.id === id);
+    if (idx === -1) throw new Error("Not found");
+    mockScriptAreas[idx] = { ...mockScriptAreas[idx], ...data };
+    return mockScriptAreas[idx];
+  },
+  async deleteScriptArea(id): Promise<void> {
+    await delay(200);
+    mockScriptAreas = mockScriptAreas.filter((a) => a.id !== id);
   },
 };

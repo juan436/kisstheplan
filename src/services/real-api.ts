@@ -174,7 +174,34 @@ export const realApi: ApiService = {
   },
 
   async getUpcomingPayments() {
-    return apiFetch("/budget/payments");
+    return apiFetch("/budget/payments/upcoming");
+  },
+
+  async uploadPhoto(file: File) {
+    const { accessToken } = getTokens();
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${API_URL}/uploads/photo`, {
+      method: "POST",
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+      body: form,
+    });
+    if (!res.ok) throw new Error("Error al subir la imagen");
+    return res.json() as Promise<{ url: string }>;
+  },
+
+  // Guest import
+  async importGuestsExcel(file: File) {
+    const { accessToken } = getTokens();
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_URL}/guests/import`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Error al importar el archivo");
+    return res.json();
   },
 
   // Guest CRUD
@@ -262,23 +289,44 @@ export const realApi: ApiService = {
     return apiFetch("/budget/payments");
   },
 
-  async createPayment(data) {
-    return apiFetch("/budget/payments", {
+  // Task CRUD
+  async getTasks(filters?: Record<string, string>) {
+    const params = filters ? "?" + new URLSearchParams(filters).toString() : "";
+    return apiFetch(`/tasks${params}`);
+  },
+
+  async createTask(data) {
+    return apiFetch("/tasks", {
       method: "POST",
       body: JSON.stringify(data),
     });
   },
 
-  async updatePayment(id, data) {
-    return apiFetch(`/budget/payments/${id}`, {
+  async updateTask(id, data) {
+    return apiFetch(`/tasks/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
   },
 
-  async deletePayment(id) {
-    return apiFetch(`/budget/payments/${id}`, { method: "DELETE" });
+  async deleteTask(id) {
+    return apiFetch(`/tasks/${id}`, { method: "DELETE" });
   },
+
+  async getTaskProgress() {
+    return apiFetch("/tasks/progress");
+  },
+
+  // Script (Guión del Día)
+  async getScriptEntries() { return apiFetch("/script/entries"); },
+  async createScriptEntry(data) { return apiFetch("/script/entries", { method: "POST", body: JSON.stringify(data) }); },
+  async updateScriptEntry(id, data) { return apiFetch(`/script/entries/${id}`, { method: "PATCH", body: JSON.stringify(data) }); },
+  async deleteScriptEntry(id) { return apiFetch(`/script/entries/${id}`, { method: "DELETE" }); },
+  async reorderScriptEntries(ids) { return apiFetch("/script/entries/reorder", { method: "PATCH", body: JSON.stringify({ ids }) }); },
+  async getScriptAreas() { return apiFetch("/script/areas"); },
+  async createScriptArea(data) { return apiFetch("/script/areas", { method: "POST", body: JSON.stringify(data) }); },
+  async updateScriptArea(id, data) { return apiFetch(`/script/areas/${id}`, { method: "PATCH", body: JSON.stringify(data) }); },
+  async deleteScriptArea(id) { return apiFetch(`/script/areas/${id}`, { method: "DELETE" }); },
 
   // Web Page
   async getWebPage() {
@@ -286,16 +334,18 @@ export const realApi: ApiService = {
   },
 
   async createWebPage(data) {
+    const { id: _id, isPublished: _p, publishedAt: _pa, ...payload } = data as Record<string, unknown>;
     return apiFetch("/web-page", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   },
 
   async updateWebPage(data) {
+    const { id: _id, isPublished: _p, publishedAt: _pa, ...payload } = data as Record<string, unknown>;
     return apiFetch("/web-page", {
       method: "PATCH",
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   },
 
@@ -326,4 +376,14 @@ export const realApi: ApiService = {
     }
     return res.json();
   },
+
+  // Vendors
+  async getVendors() { return apiFetch("/vendors"); },
+  async createVendor(data) { return apiFetch("/vendors", { method: "POST", body: JSON.stringify(data) }); },
+  async updateVendor(id, data) { return apiFetch(`/vendors/${id}`, { method: "PATCH", body: JSON.stringify(data) }); },
+  async deleteVendor(id) { return apiFetch(`/vendors/${id}`, { method: "DELETE" }); },
+  async addVendorPayment(vendorId, data) { return apiFetch(`/vendors/${vendorId}/payments`, { method: "POST", body: JSON.stringify(data) }); },
+  async updateVendorPayment(vendorId, paymentId, data) { return apiFetch(`/vendors/${vendorId}/payments/${paymentId}`, { method: "PATCH", body: JSON.stringify(data) }); },
+  async deleteVendorPayment(vendorId, paymentId) { return apiFetch(`/vendors/${vendorId}/payments/${paymentId}`, { method: "DELETE" }); },
+  async addVendorActivity(vendorId, data) { return apiFetch(`/vendors/${vendorId}/activity`, { method: "POST", body: JSON.stringify(data) }); },
 };

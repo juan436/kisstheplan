@@ -8,10 +8,48 @@ import type {
   BudgetSummary,
   Task,
   PaymentSchedule,
+  Vendor,
+  VendorPayment,
+  VendorActivity,
+  VendorStatus,
   WebPageConfig,
   PublicWeddingData,
   RsvpSubmission,
+  ScriptEntry,
+  ScriptArea,
 } from "@/types";
+
+export interface CreateVendorData {
+  name: string;
+  categories: string[];
+  status: VendorStatus;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  web?: string;
+  social?: string;
+  notes?: string;
+}
+
+export type UpdateVendorData = Partial<CreateVendorData> & {
+  contractUrl?: string;
+  needsStaffMenu?: boolean;
+  staffCount?: number;
+  staffAllergies?: string;
+};
+
+export interface CreateVendorPaymentData {
+  amount: number;
+  dueDate?: string | null;
+  notes?: string;
+}
+
+export interface CreateVendorActivityData {
+  type: "note" | "file";
+  content: string;
+  fileUrl?: string;
+  fileName?: string;
+}
 
 export interface CreateGuestData {
   firstName: string;
@@ -46,6 +84,23 @@ export interface UpdateItemData {
   paid?: number;
   dueDate?: string | null;
   notes?: string | null;
+}
+
+export interface CreateTaskData {
+  title: string;
+  category?: string;
+  stage?: string;
+  dueDate?: string;
+  notes?: string;
+}
+
+export interface UpdateTaskData {
+  title?: string;
+  status?: "done" | "pending" | "in-progress";
+  dueDate?: string;
+  notes?: string;
+  category?: string;
+  stage?: string;
 }
 
 export interface CreatePaymentData {
@@ -87,6 +142,10 @@ export interface ApiService {
   getBudgetSummary(): Promise<BudgetSummary>;
   getUpcomingTasks(): Promise<Task[]>;
   getUpcomingPayments(): Promise<PaymentSchedule[]>;
+  uploadPhoto(file: File): Promise<{ url: string }>;
+
+  // Guest import
+  importGuestsExcel(file: File): Promise<{ imported: number; guests: Guest[] }>;
 
   // Guest CRUD
   createGuest(data: CreateGuestData): Promise<Guest>;
@@ -107,9 +166,34 @@ export interface ApiService {
   updateItem(categoryId: string, itemId: string, data: UpdateItemData): Promise<ExpenseCategory>;
   deleteItem(categoryId: string, itemId: string): Promise<void>;
   getPayments(): Promise<PaymentSchedule[]>;
-  createPayment(data: CreatePaymentData): Promise<PaymentSchedule>;
-  updatePayment(id: string, data: Partial<CreatePaymentData> & { paid?: boolean; paidAt?: string | null }): Promise<PaymentSchedule>;
-  deletePayment(id: string): Promise<void>;
+
+  // Task CRUD
+  getTasks(filters?: Record<string, string>): Promise<Task[]>;
+  createTask(data: CreateTaskData): Promise<Task>;
+  updateTask(id: string, data: UpdateTaskData): Promise<Task>;
+  deleteTask(id: string): Promise<void>;
+  getTaskProgress(): Promise<{ total: number; completed: number; percentage: number }>;
+
+  // Vendors
+  getVendors(): Promise<Vendor[]>;
+  createVendor(data: CreateVendorData): Promise<Vendor>;
+  updateVendor(id: string, data: UpdateVendorData): Promise<Vendor>;
+  deleteVendor(id: string): Promise<void>;
+  addVendorPayment(vendorId: string, data: CreateVendorPaymentData): Promise<Vendor>;
+  updateVendorPayment(vendorId: string, paymentId: string, data: Partial<CreateVendorPaymentData> & { paid?: boolean }): Promise<Vendor>;
+  deleteVendorPayment(vendorId: string, paymentId: string): Promise<Vendor>;
+  addVendorActivity(vendorId: string, data: CreateVendorActivityData): Promise<Vendor>;
+
+  // Script (Guión del Día)
+  getScriptEntries(): Promise<ScriptEntry[]>;
+  createScriptEntry(data: Partial<ScriptEntry>): Promise<ScriptEntry>;
+  updateScriptEntry(id: string, data: Partial<ScriptEntry>): Promise<ScriptEntry>;
+  deleteScriptEntry(id: string): Promise<void>;
+  reorderScriptEntries(ids: string[]): Promise<ScriptEntry[]>;
+  getScriptAreas(): Promise<ScriptArea[]>;
+  createScriptArea(data: { name: string; imageUrl?: string }): Promise<ScriptArea>;
+  updateScriptArea(id: string, data: { name?: string; imageUrl?: string }): Promise<ScriptArea>;
+  deleteScriptArea(id: string): Promise<void>;
 
   // Web Page
   getWebPage(): Promise<WebPageConfig | null>;

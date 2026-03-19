@@ -86,6 +86,9 @@ export default function InvitadosPage() {
   const [transportPoints, setTransportPoints] = useState<string[]>([]);
 
   const colMenuRef = useRef<HTMLDivElement>(null);
+  const excelInputRef = useRef<HTMLInputElement>(null);
+  const [importingExcel, setImportingExcel] = useState(false);
+  const [importError, setImportError] = useState("");
 
   const show = (col: ColKey) => !hiddenCols.has(col);
   const toggleCol = (col: ColKey) =>
@@ -117,6 +120,28 @@ export default function InvitadosPage() {
   useEffect(() => { loadData(); loadGroups(); }, [loadData, loadGroups]);
 
   const handleAddGuest = async (data: CreateGuestData) => { await api.createGuest(data); await loadData(); };
+
+  // Excel import
+  const handleExcelFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.match(/\.xlsx?$/i)) {
+      setImportError("Solo se admiten archivos .xlsx o .xls");
+      return;
+    }
+    setImportingExcel(true);
+    setImportError("");
+    try {
+      const result = await api.importGuestsExcel(file);
+      await loadData();
+      if (result.imported === 0) setImportError("No se encontraron invitados en el archivo.");
+    } catch {
+      setImportError("Error al importar. Revisa el formato del archivo.");
+    } finally {
+      setImportingExcel(false);
+      if (excelInputRef.current) excelInputRef.current.value = "";
+    }
+  };
 
   // Quick Add
   const handleQuickAdd = async () => {
@@ -288,12 +313,33 @@ export default function InvitadosPage() {
             <SlidersHorizontal size={14} />
             Platos/Restricciones
           </Button>
-          <Button variant="secondary" size="sm" className="gap-2">
+          <input
+            ref={excelInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleExcelFile}
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            className="gap-2"
+            onClick={() => excelInputRef.current?.click()}
+            disabled={importingExcel}
+          >
             <Upload size={14} />
-            Importar excel
+            {importingExcel ? "Importando..." : "Importar excel"}
           </Button>
         </div>
       </div>
+
+      {/* Import error */}
+      {importError && (
+        <div className="mb-3 flex items-center gap-2 bg-danger/10 border border-danger/30 rounded-lg px-3 py-2">
+          <span className="text-[12px] text-danger">{importError}</span>
+          <button onClick={() => setImportError("")} className="ml-auto text-brand hover:text-danger"><X size={13} /></button>
+        </div>
+      )}
 
       {/* ── Filters + Column toggle ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">

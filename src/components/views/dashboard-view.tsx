@@ -16,12 +16,14 @@ export default function DashboardPage() {
   const [budget, setBudget] = useState<BudgetSummary | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [payments, setPayments] = useState<PaymentSchedule[]>([]);
+  const [taskProgress, setTaskProgress] = useState<{ total: number; completed: number; percentage: number } | null>(null);
 
   useEffect(() => {
     api.getGuestStats().then(setGuestStats);
     api.getBudgetSummary().then(setBudget);
     api.getUpcomingTasks().then(setTasks);
     api.getUpcomingPayments().then(setPayments);
+    api.getTaskProgress().then(setTaskProgress);
   }, []);
 
   if (!wedding || !guestStats || !budget) {
@@ -35,14 +37,14 @@ export default function DashboardPage() {
   const daysLeft = daysUntil(wedding.date);
 
   return (
-    <div className="max-w-[1100px] mx-auto">
+    <div className="max-w-[1600px] mx-auto px-8">
       <h1 className="font-display text-[36px] italic text-text mb-6">
         {wedding.partner1Name} & {wedding.partner2Name}
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1px_1fr_1px_280px] gap-0 lg:gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[40fr_1px_35fr_1px_25fr] gap-0 lg:gap-6">
         {/* Left */}
-        <div>
+        <div className="flex flex-col">
           <WeddingCard wedding={wedding} budget={budget} />
         </div>
 
@@ -51,7 +53,7 @@ export default function DashboardPage() {
 
         {/* Center */}
         <div>
-          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} budget={budget} />
+          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} budget={budget} taskProgress={taskProgress} />
         </div>
 
         {/* Divider */}

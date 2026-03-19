@@ -6,34 +6,87 @@ interface PaymentsPanelProps {
   payments: PaymentSchedule[];
 }
 
+function formatShortDate(iso: string) {
+  return new Date(iso + "T12:00:00").toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function daysUntilPayment(iso: string): { label: string; urgent: boolean } {
+  const diff = Math.ceil(
+    (new Date(iso + "T12:00:00").getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  );
+  if (diff < 0) return { label: "Vencido", urgent: true };
+  if (diff === 0) return { label: "Hoy", urgent: true };
+  return { label: formatShortDate(iso), urgent: diff <= 7 };
+}
+
 export function PaymentsPanel({ payments }: PaymentsPanelProps) {
+  if (payments.length === 0) return null;
+
+  const totalPending = payments.reduce((s, p) => s + p.amount, 0);
+
   return (
-    <Card>
-      <h3 className="text-[11px] font-bold text-accent uppercase tracking-[1px] mb-4">
-        Próximos pagos
-      </h3>
-      <div className="space-y-3">
-        {payments.map((payment) => (
-          <div
-            key={payment.id}
-            className="flex items-center justify-between py-1"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-[13px] text-text font-medium truncate">
-                {payment.vendorName}
-              </p>
-              <p className="text-[11px] text-brand">
-                {new Date(payment.dueDate).toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "short",
-                })}
-              </p>
+    <Card padding="none" className="flex flex-col overflow-hidden">
+      {/* Header fijo */}
+      <div className="px-4 pt-4 pb-3 border-b border-border/50 shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[11px] font-bold text-accent uppercase tracking-[1px]">
+            Próximos pagos
+          </h3>
+          <span className="text-[11px] text-brand font-medium">
+            {formatCurrency(totalPending)}
+          </span>
+        </div>
+      </div>
+
+      {/* Lista scrollable */}
+      <div className="overflow-y-auto max-h-[148px] px-4 py-3 space-y-3 scrollbar-thin">
+        {payments.map((payment) => {
+          const { label, urgent } = daysUntilPayment(payment.dueDate);
+          const concept = payment.concept && payment.concept !== payment.vendorName
+            ? payment.concept
+            : null;
+
+          return (
+            <div key={payment.id} className="flex items-center gap-2.5">
+              {/* Indicador */}
+              <div
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: urgent ? "var(--color-danger)" : "var(--color-cta)" }}
+              />
+
+              {/* Nombre + concepto */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] text-text font-medium truncate leading-tight">
+                  {payment.vendorName}
+                </p>
+                {concept && (
+                  <p className="text-[11px] truncate" style={{ color: "var(--color-brand)" }}>
+                    {concept}
+                  </p>
+                )}
+              </div>
+
+              {/* Importe + fecha */}
+              <div className="text-right shrink-0">
+                <p
+                  className="text-[13px] font-semibold"
+                  style={{ fontFamily: "Playfair Display, serif", color: "var(--color-text)" }}
+                >
+                  {formatCurrency(payment.amount)}
+                </p>
+                <p
+                  className="text-[11px] font-medium"
+                  style={{ color: urgent ? "var(--color-danger)" : "var(--color-brand)" }}
+                >
+                  {label}
+                </p>
+              </div>
             </div>
-            <span className="text-[14px] font-display font-semibold text-text ml-3">
-              {formatCurrency(payment.amount)}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );

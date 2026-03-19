@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Camera, ChevronDown, Check } from "lucide-react";
+import { ArrowLeft, Camera, ChevronDown, Check, X, ImagePlus } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,12 @@ export default function MiBodaPage() {
   const { wedding, refreshUserData } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+  // Sync photo from wedding on load
+  useEffect(() => {
+    if (wedding?.photoUrl) setPhotoUrl(wedding.photoUrl);
+  }, [wedding?.photoUrl]);
 
   const [formData, setFormData] = useState({
     partner1Role: "Novio",
@@ -303,15 +309,20 @@ export default function MiBodaPage() {
           </div>
 
           {/* Section: Portada */}
-          <div className="pt-8">
-            <div className="w-full aspect-[21/9] md:aspect-[3/1] bg-white border-2 border-dashed border-[#e8ded1] rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-[#f9f6f3] transition-colors group">
-              <div className="w-12 h-12 bg-[#f2efe9] rounded-full flex items-center justify-center text-[#866857] group-hover:scale-110 transition-transform">
-                <Camera size={24} />
-              </div>
-              <span className="text-[#a89f91] font-medium tracking-wide">
-                Subir foto de portada
-              </span>
-            </div>
+          <div className="pt-8 space-y-4">
+            <SectionTitle title="Foto de portada" />
+            <CoverPhotoUpload
+              currentUrl={photoUrl}
+              weddingId={wedding?.id ?? ""}
+              onUploaded={(url) => {
+                setPhotoUrl(url);
+                refreshUserData();
+              }}
+              onRemove={() => {
+                setPhotoUrl(null);
+                if (wedding) api.updateWedding(wedding.id, { photoUrl: "" });
+              }}
+            />
           </div>
 
           {/* Submit Button */}
@@ -335,6 +346,148 @@ export default function MiBodaPage() {
           </div>
         </div>
       </Container>
+    </div>
+  );
+}
+
+/* ---------- CoverPhotoUpload ---------- */
+
+function CoverPhotoUpload({
+  currentUrl,
+  weddingId,
+  onUploaded,
+  onRemove,
+}: {
+  currentUrl: string | null;
+  weddingId: string;
+  onUploaded: (url: string) => void;
+  onRemove: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const processFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        setError("Solo se permiten imágenes (jpg, png, webp)");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError("La imagen no puede superar los 5 MB");
+        return;
+      }
+      setError(null);
+      setUploading(true);
+      try {
+        const { url } = await api.uploadPhoto(file);
+        // If real API returns relative path, prepend API base
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+        const staticBase = apiBase.replace(/\/api$/, "");
+        const fullUrl = url.startsWith("http") ? url : `${staticBase}${url}`;
+        await api.updateWedding(weddingId, { photoUrl: fullUrl });
+        onUploaded(fullUrl);
+      } catch {
+        setError("Error al subir la imagen. Inténtalo de nuevo.");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [weddingId, onUploaded],
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file);
+    },
+    [processFile],
+  );
+
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) processFile(file);
+      e.target.value = "";
+    },
+    [processFile],
+  );
+
+  return (
+    <div className="relative w-full">
+      {currentUrl ? (
+        /* Preview mode */
+        <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden group">
+          <img
+            src={currentUrl}
+            alt="Foto de portada"
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="flex items-center gap-2 bg-white/90 hover:bg-white text-[#866857] text-[13px] font-medium px-4 py-2 rounded-xl transition-colors"
+            >
+              <Camera size={16} />
+              Cambiar foto
+            </button>
+            <button
+              onClick={onRemove}
+              className="flex items-center gap-2 bg-white/90 hover:bg-white text-red-500 text-[13px] font-medium px-4 py-2 rounded-xl transition-colors"
+            >
+              <X size={16} />
+              Eliminar
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Drop zone */
+        <div
+          className={`w-full aspect-[3/1] rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 cursor-pointer select-none
+            ${dragging
+              ? "border-[#CBA978] bg-[#fdf6ec] scale-[1.01]"
+              : "border-[#e8ded1] bg-white hover:bg-[#f9f6f3] hover:border-[#d4bfa8]"
+            }`}
+          onClick={() => fileRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+        >
+          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-transform
+            ${dragging ? "bg-[#fbefd8] scale-110" : "bg-[#f2efe9]"}`}>
+            {uploading
+              ? <div className="w-6 h-6 border-2 border-[#CBA978] border-t-transparent rounded-full animate-spin" />
+              : <ImagePlus size={26} className="text-[#866857]" />
+            }
+          </div>
+          <div className="text-center">
+            <p className="text-[#866857] font-medium">
+              {uploading ? "Subiendo imagen…" : dragging ? "Suelta aquí la imagen" : "Arrastra tu foto aquí"}
+            </p>
+            {!uploading && !dragging && (
+              <p className="text-[#a89f91] text-[13px] mt-1">
+                o <span className="underline underline-offset-2">haz clic para seleccionar</span> · JPG, PNG, WEBP · máx. 5 MB
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <p className="mt-2 text-[13px] text-red-500 text-center">{error}</p>
+      )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFileInput}
+      />
     </div>
   );
 }

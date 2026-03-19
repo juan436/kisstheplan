@@ -93,14 +93,43 @@ export interface PaymentSchedule {
   notes?: string;
 }
 
+export type VendorStatus = "confirmed" | "considering";
+
+export interface VendorPayment {
+  id: string;
+  amount: number;
+  dueDate?: string | null;
+  paid: boolean;
+  notes?: string;
+}
+
+export interface VendorActivity {
+  id: string;
+  type: "note" | "file";
+  content: string;
+  fileUrl?: string;
+  fileName?: string;
+  author: string;
+  createdAt: string;
+}
+
 export interface Vendor {
   id: string;
   name: string;
-  category: string;
-  contact: string;
-  phone?: string;
+  categories: string[];
+  status: VendorStatus;
+  contactName?: string;
   email?: string;
+  phone?: string;
+  web?: string;
+  social?: string;
+  contractUrl?: string;
+  needsStaffMenu?: boolean;
+  staffCount?: number;
+  staffAllergies?: string;
   notes?: string;
+  payments: VendorPayment[];
+  activity: VendorActivity[];
 }
 
 export type TaskStatus = "done" | "pending" | "in-progress";
@@ -111,6 +140,8 @@ export interface Task {
   status: TaskStatus;
   dueDate?: string;
   category?: string;
+  stage?: string;
+  notes?: string;
 }
 
 export interface WebPageConfig {
@@ -155,6 +186,30 @@ export interface RsvpSubmission {
   allergies?: string;
   transport?: boolean;
   transportPickupPoint?: string;
+}
+
+export type ScriptTimeType = 'exact' | 'range' | 'none';
+
+export interface ScriptEntry {
+  id: string;
+  timeType: ScriptTimeType;
+  timeStart?: string;
+  timeEnd?: string;
+  title: string;
+  description?: string;
+  style: {
+    bold?: boolean;
+    color?: string;
+    fontSize?: 'sm' | 'base' | 'lg' | 'xl';
+  };
+  order: number;
+}
+
+export interface ScriptArea {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  order: number;
 }
 
 export interface SeatingPlan {
