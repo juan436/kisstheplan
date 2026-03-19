@@ -14,6 +14,7 @@ import {
   Download,
   ZoomIn,
   ZoomOut,
+  Image as ImageIcon,
 } from "lucide-react";
 import { api } from "@/services";
 import type { SeatingPlan, TableSeat, Guest } from "@/types";
@@ -207,6 +208,9 @@ function PlanSelector({ plans, selectedId, onSelect, onNew }: PlanSelectorProps)
 
 // ─── Canvas Tab ───────────────────────────────────────────────────────────────
 
+const WORLD_W = 1200;
+const WORLD_H = 800;
+
 interface CanvasTabProps {
   plan: SeatingPlan;
   guests: Guest[];
@@ -218,10 +222,29 @@ interface CanvasTabProps {
 }
 
 function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
-  const [zoom, setZoom] = useState(1);
+  const [fitZoom, setFitZoom] = useState(0.7);
+  const [zoom, setZoom] = useState(0.7);
   const [dragging, setDragging] = useState<{ tableId: string; startMouseX: number; startMouseY: number; startPosX: number; startPosY: number } | null>(null);
   const [seatingTable, setSeatingTable] = useState<string | null>(null);
+  const [bgImage, setBgImage] = useState<string | null>("/images/venue-floor.svg");
   const canvasRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Calculate fit-zoom so the world fills the container on mount
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const { offsetWidth: w, offsetHeight: h } = canvasRef.current;
+    const fz = Math.min(w / WORLD_W, h / WORLD_H);
+    setFitZoom(fz);
+    setZoom(fz);
+  }, []);
+
+  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setBgImage(url);
+  };
 
   const handleMouseDown = useCallback((e: React.MouseEvent, table: TableSeat) => {
     if (mode !== "layout") return;
@@ -278,20 +301,51 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
       <div
         ref={canvasRef}
         className="relative overflow-hidden rounded-xl border border-[var(--color-border)]"
-        style={{ height: 560, background: "var(--color-bg-2)" }}
+        style={{ height: 560, background: "#EDE4D9" }}
       >
         <div
           style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: "top left",
-            width: "100%",
-            height: "100%",
-            position: "relative",
-            backgroundImage:
-              "linear-gradient(var(--color-fill) 1px, transparent 1px), linear-gradient(90deg, var(--color-fill) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+            position: "absolute",
+            width: WORLD_W,
+            height: WORLD_H,
+            transform: `translate(${Math.max(0, ((canvasRef.current?.offsetWidth ?? WORLD_W) - WORLD_W * zoom) / 2)}px, ${Math.max(0, (560 - WORLD_H * zoom) / 2)}px) scale(${zoom})`,
+            transformOrigin: "0 0",
+            ...(bgImage
+              ? {
+                  backgroundImage: `url('${bgImage}')`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }
+              : { background: "#EDE4D9" }),
           }}
         >
+          {/* No-image banner */}
+          {!bgImage && (
+            <div
+              style={{
+                position: "absolute", inset: 0,
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                border: "2px dashed #C4B7A6",
+                borderRadius: 12,
+                pointerEvents: "none",
+                color: "#8c6f5f",
+              }}
+            >
+              <ImageIcon size={32} style={{ opacity: 0.35, marginBottom: 10 }} />
+              <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.6 }}>Sin plano de fondo</span>
+              <span style={{ fontSize: 12, opacity: 0.45, marginTop: 4 }}>
+                Sube una imagen del espacio · Dimensiones recomendadas: 1200 × 800 px (ratio 3:2)
+              </span>
+            </div>
+          )}
+          {/* Grid overlay */}
+          <div style={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            backgroundImage: "linear-gradient(rgba(196,180,160,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(196,180,160,0.25) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }} />
           {plan.tables.map((table) => {
             const size = tableSize(table.capacity);
             const isRound = table.shape === "round";
@@ -405,7 +459,7 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
             <ZoomIn size={13} />
           </button>
           <button
-            onClick={() => setZoom((z) => Math.max(z - 0.1, 0.3))}
+            onClick={() => setZoom((z) => Math.max(z - 0.1, fitZoom))}
             className="w-7 h-7 rounded-lg bg-white border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]/60 hover:text-[var(--color-text)] hover:border-[var(--color-accent)]/40 transition-colors shadow-sm"
           >
             <ZoomOut size={13} />
@@ -415,7 +469,7 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={() => onAddTable("round")}
           className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] bg-white text-sm text-[var(--color-text)]/70 hover:border-[var(--color-accent)]/50 hover:text-[var(--color-text)] transition-colors"
@@ -430,6 +484,37 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
           <Square size={14} />
           Añadir mesa rectangular
         </button>
+
+        {/* Divider */}
+        <div className="w-px h-5 bg-[var(--color-border)]" />
+
+        {/* Background image upload */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleBgUpload}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] bg-white text-sm text-[var(--color-text)]/70 hover:border-[var(--color-accent)]/50 hover:text-[var(--color-text)] transition-colors"
+          title="Subir fotografía del espacio como fondo"
+        >
+          <ImageIcon size={14} />
+          Cambiar plano de fondo
+        </button>
+        {bgImage && (
+          <button
+            onClick={() => setBgImage(null)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--color-border)] bg-white text-xs text-[var(--color-text)]/50 hover:text-[var(--color-danger)] transition-colors"
+            title="Quitar imagen de fondo"
+          >
+            <X size={12} />
+            Quitar fondo
+          </button>
+        )}
+
         <span className="text-xs text-[var(--color-text)]/40 ml-auto">
           {mode === "layout" ? "Arrastra las mesas para reposicionarlas" : "Haz clic en una mesa para ver los asientos"}
         </span>
