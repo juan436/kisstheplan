@@ -18,6 +18,7 @@ import type {
   ScriptEntry,
   ScriptArea,
   SeatingPlan,
+  Note,
 } from "@/types";
 
 export interface CreateVendorData {
@@ -205,6 +206,19 @@ export interface ApiService {
   updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }>): Promise<SeatingPlan>;
   deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan>;
   assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan>;
+
+  // Notes
+  getNotes(): Promise<Note[]>;
+  getNote(id: string): Promise<Note>;
+  createNote(data: { type: string; title: string; vendorId?: string }): Promise<Note>;
+  updateNote(id: string, data: { title?: string; content?: string }): Promise<Note>;
+  deleteNote(id: string): Promise<void>;
+  addNoteColor(noteId: string, data: { hexColor: string; name?: string }): Promise<Note>;
+  removeNoteColor(noteId: string, colorId: string): Promise<Note>;
+  addNoteCategory(noteId: string, data: { name: string }): Promise<Note>;
+  removeNoteCategory(noteId: string, categoryId: string): Promise<Note>;
+  addNoteCategoryImage(noteId: string, categoryId: string, data: { url: string; caption?: string }): Promise<Note>;
+  removeNoteCategoryImage(noteId: string, categoryId: string, imageId: string): Promise<Note>;
 
   // Web Page
   getWebPage(): Promise<WebPageConfig | null>;

@@ -1,5 +1,5 @@
 import type { ApiService } from "./api";
-import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, Task, WebPageConfig, PublicWeddingData, Vendor, ScriptEntry, ScriptArea, SeatingPlan } from "@/types";
+import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, Task, WebPageConfig, PublicWeddingData, Vendor, ScriptEntry, ScriptArea, SeatingPlan, Note } from "@/types";
 import { mockUser, mockWedding } from "@/data/mock-wedding";
 import { mockGuests as initialGuests } from "@/data/mock-guests";
 import { mockBudget as initialBudget } from "@/data/mock-budget";
@@ -17,6 +17,7 @@ let nextId = 1000;
 let mockTasksList: Task[] = initialTasks.map((t) => ({ ...t }));
 let mockGroups: GuestGroup[] = [];
 let mockWebPage: WebPageConfig | null = null;
+let mockNotesList: Note[] = [];
 
 const genId = () => String(++nextId);
 
@@ -707,5 +708,103 @@ export const mockApi: ApiService = {
   async deleteScriptArea(id): Promise<void> {
     await delay(200);
     mockScriptAreas = mockScriptAreas.filter((a) => a.id !== id);
+  },
+
+  // Notes
+  async getNotes(): Promise<Note[]> {
+    await delay(200);
+    return mockNotesList;
+  },
+  async getNote(id): Promise<Note> {
+    await delay(200);
+    const n = mockNotesList.find((n) => n.id === id);
+    if (!n) throw new Error("Not found");
+    return n;
+  },
+  async createNote(data): Promise<Note> {
+    await delay(200);
+    const now = new Date().toISOString();
+    const note: Note = {
+      id: genId(),
+      type: data.type as Note["type"],
+      title: data.title,
+      vendorId: data.vendorId || null,
+      content: "",
+      colorPalette: [],
+      categories: data.type === "moodboard"
+        ? [
+            { id: genId(), name: "Ceremonia", order: 0, images: [] },
+            { id: genId(), name: "Aperitivo", order: 1, images: [] },
+            { id: genId(), name: "Cena", order: 2, images: [] },
+          ]
+        : [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    mockNotesList.push(note);
+    return note;
+  },
+  async updateNote(id, data): Promise<Note> {
+    await delay(200);
+    const idx = mockNotesList.findIndex((n) => n.id === id);
+    if (idx === -1) throw new Error("Not found");
+    mockNotesList[idx] = { ...mockNotesList[idx], ...data, updatedAt: new Date().toISOString() };
+    return mockNotesList[idx];
+  },
+  async deleteNote(id): Promise<void> {
+    await delay(200);
+    mockNotesList = mockNotesList.filter((n) => n.id !== id);
+  },
+  async addNoteColor(noteId, data): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    note.colorPalette.push({ id: genId(), hexColor: data.hexColor, name: data.name, order: note.colorPalette.length });
+    note.updatedAt = new Date().toISOString();
+    return note;
+  },
+  async removeNoteColor(noteId, colorId): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    note.colorPalette = note.colorPalette.filter((c) => c.id !== colorId);
+    note.updatedAt = new Date().toISOString();
+    return note;
+  },
+  async addNoteCategory(noteId, data): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    note.categories.push({ id: genId(), name: data.name, order: note.categories.length, images: [] });
+    note.updatedAt = new Date().toISOString();
+    return note;
+  },
+  async removeNoteCategory(noteId, categoryId): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    note.categories = note.categories.filter((c) => c.id !== categoryId);
+    note.updatedAt = new Date().toISOString();
+    return note;
+  },
+  async addNoteCategoryImage(noteId, categoryId, data): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    const cat = note.categories.find((c) => c.id === categoryId);
+    if (!cat) throw new Error("Not found");
+    cat.images.push({ id: genId(), url: data.url, caption: data.caption, order: cat.images.length });
+    note.updatedAt = new Date().toISOString();
+    return note;
+  },
+  async removeNoteCategoryImage(noteId, categoryId, imageId): Promise<Note> {
+    await delay(200);
+    const note = mockNotesList.find((n) => n.id === noteId);
+    if (!note) throw new Error("Not found");
+    const cat = note.categories.find((c) => c.id === categoryId);
+    if (!cat) throw new Error("Not found");
+    cat.images = cat.images.filter((img) => img.id !== imageId);
+    note.updatedAt = new Date().toISOString();
+    return note;
   },
 };

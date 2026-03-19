@@ -344,6 +344,19 @@ export const realApi: ApiService = {
   async updateScriptArea(id, data) { return apiFetch(`/script/areas/${id}`, { method: "PATCH", body: JSON.stringify(data) }); },
   async deleteScriptArea(id) { return apiFetch(`/script/areas/${id}`, { method: "DELETE" }); },
 
+  // Notes
+  async getNotes() { return apiFetch("/notes"); },
+  async getNote(id) { return apiFetch(`/notes/${id}`); },
+  async createNote(data) { return apiFetch("/notes", { method: "POST", body: JSON.stringify(data) }); },
+  async updateNote(id, data) { return apiFetch(`/notes/${id}`, { method: "PATCH", body: JSON.stringify(data) }); },
+  async deleteNote(id) { return apiFetch(`/notes/${id}`, { method: "DELETE" }); },
+  async addNoteColor(noteId, data) { return apiFetch(`/notes/${noteId}/colors`, { method: "POST", body: JSON.stringify(data) }); },
+  async removeNoteColor(noteId, colorId) { return apiFetch(`/notes/${noteId}/colors/${colorId}`, { method: "DELETE" }); },
+  async addNoteCategory(noteId, data) { return apiFetch(`/notes/${noteId}/categories`, { method: "POST", body: JSON.stringify(data) }); },
+  async removeNoteCategory(noteId, categoryId) { return apiFetch(`/notes/${noteId}/categories/${categoryId}`, { method: "DELETE" }); },
+  async addNoteCategoryImage(noteId, categoryId, data) { return apiFetch(`/notes/${noteId}/categories/${categoryId}/images`, { method: "POST", body: JSON.stringify(data) }); },
+  async removeNoteCategoryImage(noteId, categoryId, imageId) { return apiFetch(`/notes/${noteId}/categories/${categoryId}/images/${imageId}`, { method: "DELETE" }); },
+
   // Web Page
   async getWebPage() {
     return apiFetch("/web-page");

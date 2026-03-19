@@ -11,7 +11,7 @@ import SuppliersView from "@/components/views/suppliers-view";
 import SeatingView from "@/components/views/seating-view";
 import CalendarView from "@/components/views/calendar-view";
 import { ScriptView } from "@/components/views/script-view";
-import NotesView from "@/components/views/notes-view";
+import { NotesView } from "@/components/views/notes-view";
 
 export default function DashboardAppPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
