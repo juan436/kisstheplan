@@ -212,9 +212,9 @@ export interface ScriptArea {
   order: number;
 }
 
-export interface SeatingPlan {
-  id: string;
-  tables: TableSeat[];
+export interface SeatAssignment {
+  seatNumber: number;
+  guestId?: string;
 }
 
 export interface TableSeat {
@@ -222,12 +222,15 @@ export interface TableSeat {
   name: string;
   shape: "round" | "rectangular";
   capacity: number;
+  posX: number;
+  posY: number;
   assignments: SeatAssignment[];
 }
 
-export interface SeatAssignment {
-  seatNumber: number;
-  guestId?: string;
+export interface SeatingPlan {
+  id: string;
+  name: string;
+  tables: TableSeat[];
 }
 
 export interface Note {

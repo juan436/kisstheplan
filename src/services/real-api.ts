@@ -317,6 +317,22 @@ export const realApi: ApiService = {
     return apiFetch("/tasks/progress");
   },
 
+  // Seating Plans
+  async getSeatingPlans() { return apiFetch("/seating/plans"); },
+  async createSeatingPlan(name) { return apiFetch("/seating/plans", { method: "POST", body: JSON.stringify({ name }) }); },
+  async updateSeatingPlan(planId, name) { return apiFetch(`/seating/plans/${planId}`, { method: "PATCH", body: JSON.stringify({ name }) }); },
+  async deleteSeatingPlan(planId) { return apiFetch(`/seating/plans/${planId}`, { method: "DELETE" }); },
+  async addSeatingTable(planId, data) {
+    const payload = { ...data, shape: data.shape === "rectangular" ? "rect" : data.shape };
+    return apiFetch(`/seating/plans/${planId}/tables`, { method: "POST", body: JSON.stringify(payload) });
+  },
+  async updateSeatingTable(planId, tableId, data) {
+    const payload = data.shape ? { ...data, shape: data.shape === "rectangular" ? "rect" : data.shape } : data;
+    return apiFetch(`/seating/plans/${planId}/tables/${tableId}`, { method: "PATCH", body: JSON.stringify(payload) });
+  },
+  async deleteSeatingTable(planId, tableId) { return apiFetch(`/seating/plans/${planId}/tables/${tableId}`, { method: "DELETE" }); },
+  async assignSeat(planId, tableId, seatNumber, guestId?) { return apiFetch(`/seating/plans/${planId}/tables/${tableId}/seats/${seatNumber}`, { method: "PATCH", body: JSON.stringify({ guestId: guestId ?? null }) }); },
+
   // Script (Guión del Día)
   async getScriptEntries() { return apiFetch("/script/entries"); },
   async createScriptEntry(data) { return apiFetch("/script/entries", { method: "POST", body: JSON.stringify(data) }); },

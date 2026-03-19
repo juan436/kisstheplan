@@ -1,5 +1,5 @@
 import type { ApiService } from "./api";
-import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, Task, WebPageConfig, PublicWeddingData, Vendor, ScriptEntry, ScriptArea } from "@/types";
+import type { GuestStats, BudgetSummary, Guest, GuestGroup, ExpenseCategory, PaymentSchedule, Task, WebPageConfig, PublicWeddingData, Vendor, ScriptEntry, ScriptArea, SeatingPlan } from "@/types";
 import { mockUser, mockWedding } from "@/data/mock-wedding";
 import { mockGuests as initialGuests } from "@/data/mock-guests";
 import { mockBudget as initialBudget } from "@/data/mock-budget";
@@ -34,6 +34,82 @@ let mockScriptAreas: ScriptArea[] = [
   { id: "sa2", name: "Jardín principal", order: 1 },
   { id: "sa3", name: "Clastra", order: 2 },
   { id: "sa4", name: "Sala interior", order: 3 },
+];
+
+let mockSeatingPlans: SeatingPlan[] = [
+  {
+    id: "sp1",
+    name: "Cena",
+    tables: [
+      {
+        id: "t1", name: "Mesa 1", shape: "round", capacity: 8, posX: 80, posY: 80,
+        assignments: [
+          { seatNumber: 1, guestId: "1" },
+          { seatNumber: 2, guestId: "2" },
+          { seatNumber: 3 },
+          { seatNumber: 4 },
+          { seatNumber: 5 },
+          { seatNumber: 6 },
+          { seatNumber: 7 },
+          { seatNumber: 8 },
+        ],
+      },
+      {
+        id: "t2", name: "Mesa 2", shape: "round", capacity: 6, posX: 280, posY: 80,
+        assignments: [
+          { seatNumber: 1, guestId: "3" },
+          { seatNumber: 2, guestId: "4" },
+          { seatNumber: 3 },
+          { seatNumber: 4 },
+          { seatNumber: 5 },
+          { seatNumber: 6 },
+        ],
+      },
+      {
+        id: "t3", name: "Mesa de honor", shape: "rectangular", capacity: 10, posX: 160, posY: 280,
+        assignments: [
+          { seatNumber: 1, guestId: "5" },
+          { seatNumber: 2, guestId: "6" },
+          { seatNumber: 3 },
+          { seatNumber: 4 },
+          { seatNumber: 5 },
+          { seatNumber: 6 },
+          { seatNumber: 7 },
+          { seatNumber: 8 },
+          { seatNumber: 9 },
+          { seatNumber: 10 },
+        ],
+      },
+    ],
+  },
+  {
+    id: "sp2",
+    name: "Aperitivo",
+    tables: [
+      {
+        id: "t4", name: "Cocktail 1", shape: "round", capacity: 4, posX: 100, posY: 120,
+        assignments: [
+          { seatNumber: 1 },
+          { seatNumber: 2 },
+          { seatNumber: 3 },
+          { seatNumber: 4 },
+        ],
+      },
+      {
+        id: "t5", name: "Cocktail 2", shape: "round", capacity: 4, posX: 300, posY: 120,
+        assignments: [
+          { seatNumber: 1 },
+          { seatNumber: 2 },
+          { seatNumber: 3 },
+          { seatNumber: 4 },
+        ],
+      },
+      {
+        id: "t6", name: "Mesa buffet", shape: "rectangular", capacity: 0, posX: 180, posY: 260,
+        assignments: [],
+      },
+    ],
+  },
 ];
 
 let mockVendors: Vendor[] = [
@@ -500,6 +576,75 @@ export const mockApi: ApiService = {
       id: genId(), author: "Tú", createdAt: new Date().toISOString(), ...data,
     });
     return vendor;
+  },
+
+  // Seating Plans
+  async getSeatingPlans(): Promise<SeatingPlan[]> {
+    await delay(200);
+    return mockSeatingPlans.map((p) => ({ ...p, tables: p.tables.map((t) => ({ ...t, assignments: [...t.assignments] })) }));
+  },
+  async createSeatingPlan(name: string): Promise<SeatingPlan> {
+    await delay(200);
+    const plan: SeatingPlan = { id: genId(), name, tables: [] };
+    mockSeatingPlans.push(plan);
+    return plan;
+  },
+  async updateSeatingPlan(planId: string, name: string): Promise<SeatingPlan> {
+    await delay(200);
+    const plan = mockSeatingPlans.find((p) => p.id === planId);
+    if (!plan) throw new Error("Plan no encontrado");
+    plan.name = name;
+    return plan;
+  },
+  async deleteSeatingPlan(planId: string): Promise<void> {
+    await delay(200);
+    mockSeatingPlans = mockSeatingPlans.filter((p) => p.id !== planId);
+  },
+  async addSeatingTable(planId: string, data: { name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }): Promise<SeatingPlan> {
+    await delay(200);
+    const plan = mockSeatingPlans.find((p) => p.id === planId);
+    if (!plan) throw new Error("Plan no encontrado");
+    const assignments = Array.from({ length: data.capacity }, (_, i) => ({ seatNumber: i + 1 }));
+    plan.tables.push({ id: genId(), name: data.name, shape: data.shape, capacity: data.capacity, posX: data.posX, posY: data.posY, assignments });
+    return plan;
+  },
+  async updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }>): Promise<SeatingPlan> {
+    await delay(200);
+    const plan = mockSeatingPlans.find((p) => p.id === planId);
+    if (!plan) throw new Error("Plan no encontrado");
+    const table = plan.tables.find((t) => t.id === tableId);
+    if (!table) throw new Error("Mesa no encontrada");
+    if (data.name !== undefined) table.name = data.name;
+    if (data.shape !== undefined) table.shape = data.shape;
+    if (data.posX !== undefined) table.posX = data.posX;
+    if (data.posY !== undefined) table.posY = data.posY;
+    if (data.capacity !== undefined && data.capacity !== table.capacity) {
+      const newAssignments = Array.from({ length: data.capacity }, (_, i) => {
+        return table.assignments.find((a) => a.seatNumber === i + 1) ?? { seatNumber: i + 1 };
+      });
+      table.assignments = newAssignments;
+      table.capacity = data.capacity;
+    }
+    return plan;
+  },
+  async deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan> {
+    await delay(200);
+    const plan = mockSeatingPlans.find((p) => p.id === planId);
+    if (!plan) throw new Error("Plan no encontrado");
+    plan.tables = plan.tables.filter((t) => t.id !== tableId);
+    return plan;
+  },
+  async assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan> {
+    await delay(200);
+    const plan = mockSeatingPlans.find((p) => p.id === planId);
+    if (!plan) throw new Error("Plan no encontrado");
+    const table = plan.tables.find((t) => t.id === tableId);
+    if (!table) throw new Error("Mesa no encontrada");
+    const seat = table.assignments.find((a) => a.seatNumber === seatNumber);
+    if (seat) {
+      seat.guestId = guestId || undefined;
+    }
+    return plan;
   },
 
   // Script (Guión del Día) - mock data

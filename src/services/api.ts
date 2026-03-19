@@ -17,6 +17,7 @@ import type {
   RsvpSubmission,
   ScriptEntry,
   ScriptArea,
+  SeatingPlan,
 } from "@/types";
 
 export interface CreateVendorData {
@@ -194,6 +195,16 @@ export interface ApiService {
   createScriptArea(data: { name: string; imageUrl?: string }): Promise<ScriptArea>;
   updateScriptArea(id: string, data: { name?: string; imageUrl?: string }): Promise<ScriptArea>;
   deleteScriptArea(id: string): Promise<void>;
+
+  // Seating Plans
+  getSeatingPlans(): Promise<SeatingPlan[]>;
+  createSeatingPlan(name: string): Promise<SeatingPlan>;
+  updateSeatingPlan(planId: string, name: string): Promise<SeatingPlan>;
+  deleteSeatingPlan(planId: string): Promise<void>;
+  addSeatingTable(planId: string, data: { name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }): Promise<SeatingPlan>;
+  updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }>): Promise<SeatingPlan>;
+  deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan>;
+  assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan>;
 
   // Web Page
   getWebPage(): Promise<WebPageConfig | null>;
