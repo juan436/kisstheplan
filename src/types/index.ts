@@ -231,6 +231,8 @@ export interface SeatingPlan {
   id: string;
   name: string;
   tables: TableSeat[];
+  backgroundImageUrl?: string;
+  scaleFactor?: number;
 }
 
 export type NoteType = 'text' | 'pdf' | 'moodboard';

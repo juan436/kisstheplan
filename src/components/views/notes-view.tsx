@@ -8,6 +8,7 @@ import {
   Check, Loader2, Palette,
 } from "lucide-react";
 import { api } from "@/services";
+import { uploadImage, uploadPdf } from "@/lib/upload";
 import type { Note, NoteType, Vendor, MoodboardCategory } from "@/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -263,13 +264,24 @@ function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
   const [title, setTitle] = useState(note.title);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pdfUrl, setPdfUrl] = useState<string>(note.content || "");
+  const [uploading, setUploading] = useState(false);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPdfUrl(url);
-    onSave(url, title);
+
+    setUploading(true);
+    try {
+      // Subir archivo al servidor
+      const url = await uploadPdf(file);
+      setPdfUrl(url);
+      onSave(url, title);
+    } catch (error) {
+      console.error("Error al subir PDF:", error);
+      alert("Error al subir el archivo. Por favor, intenta de nuevo.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -284,13 +296,15 @@ function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
           className="flex-1 bg-transparent font-playfair text-lg text-[var(--color-text)] focus:outline-none"
           placeholder="Título..."
         />
-        <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFile} />
+        <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFile} disabled={uploading} />
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white"
+          disabled={uploading}
+          className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-50"
           style={{ backgroundColor: "#866857" }}
         >
-          {pdfUrl ? "Cambiar PDF" : "Subir PDF"}
+          {uploading && <Loader2 size={14} className="animate-spin" />}
+          {uploading ? "Subiendo..." : pdfUrl ? "Cambiar PDF" : "Subir PDF"}
         </button>
       </div>
       <div className="flex-1 bg-[var(--color-bg-2)]">
@@ -307,10 +321,12 @@ function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-6 py-2.5 rounded-xl text-white font-medium text-sm"
+              disabled={uploading}
+              className="px-6 py-2.5 rounded-xl text-white font-medium text-sm flex items-center gap-2 disabled:opacity-50"
               style={{ backgroundColor: "#866857" }}
             >
-              Subir PDF
+              {uploading && <Loader2 size={16} className="animate-spin" />}
+              {uploading ? "Subiendo..." : "Subir PDF"}
             </button>
           </div>
         )}
@@ -511,11 +527,18 @@ function MoodboardEditor({
               <MoodboardCategorySection
                 key={cat.id}
                 category={cat}
-                onUpload={(e) => {
+                onUpload={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  const url = URL.createObjectURL(file);
-                  onAddImage(cat.id, url);
+
+                  try {
+                    // Subir imagen al servidor
+                    const url = await uploadImage(file);
+                    onAddImage(cat.id, url);
+                  } catch (error) {
+                    console.error("Error al subir imagen:", error);
+                    alert("Error al subir la imagen. Por favor, intenta de nuevo.");
+                  }
                 }}
                 onRemoveImage={(imgId) => onRemoveImage(cat.id, imgId)}
                 onRemoveCategory={() => onRemoveCategory(cat.id)}

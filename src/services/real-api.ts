@@ -320,7 +320,11 @@ export const realApi: ApiService = {
   // Seating Plans
   async getSeatingPlans() { return apiFetch("/seating/plans"); },
   async createSeatingPlan(name) { return apiFetch("/seating/plans", { method: "POST", body: JSON.stringify({ name }) }); },
-  async updateSeatingPlan(planId, name) { return apiFetch(`/seating/plans/${planId}`, { method: "PATCH", body: JSON.stringify({ name }) }); },
+  async updateSeatingPlan(planId, data) {
+    // Support both legacy (planId, name) and new (planId, data) signatures
+    const payload = typeof data === 'string' ? { name: data } : data;
+    return apiFetch(`/seating/plans/${planId}`, { method: "PATCH", body: JSON.stringify(payload) });
+  },
   async deleteSeatingPlan(planId) { return apiFetch(`/seating/plans/${planId}`, { method: "DELETE" }); },
   async addSeatingTable(planId, data) {
     const payload = { ...data, shape: data.shape === "rectangular" ? "rect" : data.shape };

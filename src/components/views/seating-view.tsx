@@ -17,6 +17,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { api } from "@/services";
+import { uploadImage } from "@/lib/upload";
 import type { SeatingPlan, TableSeat, Guest } from "@/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -230,6 +231,13 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load background image from plan
+  useEffect(() => {
+    if (plan?.backgroundImageUrl) {
+      setBgImage(plan.backgroundImageUrl);
+    }
+  }, [plan?.id, plan?.backgroundImageUrl]);
+
   // Calculate fit-zoom so the world fills the container on mount
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -239,11 +247,23 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
     setZoom(fz);
   }, []);
 
-  const handleBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setBgImage(url);
+
+    try {
+      // Subir imagen al servidor
+      const url = await uploadImage(file);
+      setBgImage(url);
+
+      // Guardar URL en el plan si hay un plan activo
+      if (activePlanId) {
+        await api.updateSeatingPlan(activePlanId, { backgroundImageUrl: url });
+      }
+    } catch (error) {
+      console.error("Error al subir imagen de fondo:", error);
+      alert("Error al subir la imagen. Por favor, intenta de nuevo.");
+    }
   };
 
   const handleMouseDown = useCallback((e: React.MouseEvent, table: TableSeat) => {

@@ -590,11 +590,20 @@ export const mockApi: ApiService = {
     mockSeatingPlans.push(plan);
     return plan;
   },
-  async updateSeatingPlan(planId: string, name: string): Promise<SeatingPlan> {
+  async updateSeatingPlan(planId: string, data: string | { name?: string; backgroundImageUrl?: string; scaleFactor?: number }): Promise<SeatingPlan> {
     await delay(200);
     const plan = mockSeatingPlans.find((p) => p.id === planId);
     if (!plan) throw new Error("Plan no encontrado");
-    plan.name = name;
+
+    // Support both legacy (planId, name) and new (planId, data) signatures
+    if (typeof data === 'string') {
+      plan.name = data;
+    } else {
+      if (data.name !== undefined) plan.name = data.name;
+      if (data.backgroundImageUrl !== undefined) plan.backgroundImageUrl = data.backgroundImageUrl;
+      if (data.scaleFactor !== undefined) plan.scaleFactor = data.scaleFactor;
+    }
+
     return plan;
   },
   async deleteSeatingPlan(planId: string): Promise<void> {
