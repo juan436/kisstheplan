@@ -257,8 +257,8 @@ function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteT
       setBgImage(url);
 
       // Guardar URL en el plan si hay un plan activo
-      if (activePlanId) {
-        await api.updateSeatingPlan(activePlanId, { backgroundImageUrl: url });
+      if (plan.id) {
+        await api.updateSeatingPlan(plan.id, { backgroundImageUrl: url });
       }
     } catch (error) {
       console.error("Error al subir imagen de fondo:", error);

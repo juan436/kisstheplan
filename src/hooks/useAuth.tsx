@@ -11,14 +11,14 @@ import {
 import { useRouter } from "next/navigation";
 import type { User, Wedding } from "@/types";
 import {
+  api,
   apiLogin,
   apiRegister,
   apiCreateWedding,
   apiLogout,
   isAuthenticated as checkAuth,
   clearTokens,
-} from "@/services/real-api";
-import { api } from "@/services";
+} from "@/services";
 
 interface AuthContextValue {
   user: User | null;
