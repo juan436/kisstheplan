@@ -2,10 +2,10 @@
 
 import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { useBudget } from "./use-budget";
-import { BudgetTable } from "./budget-table";
-import { PaymentModal } from "./payment-modal";
-import { TotalBox } from "./total-box";
+import { useBudget } from "./hooks/use-budget";
+import { BudgetTable } from "./components/budget-table";
+import { PaymentModal } from "./components/payment-modal";
+import { TotalBox } from "./components/total-box";
 
 export default function PresupuestoPage() {
   const b = useBudget();

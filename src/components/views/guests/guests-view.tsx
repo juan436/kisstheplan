@@ -1,11 +1,11 @@
 "use client";
 
 import { AddGuestModal } from "@/components/features/guests/add-guest-modal";
-import { useGuests } from "./use-guests";
-import { GuestsStatsBar } from "./guests-stats-bar";
-import { GuestsToolbar } from "./guests-toolbar";
-import { GuestsTable } from "./guests-table";
-import { GroupsModal, ConfigModal } from "./groups-modal";
+import { useGuests } from "./hooks/use-guests";
+import { GuestsStatsBar } from "./components/guests-stats-bar";
+import { GuestsToolbar } from "./components/guests-toolbar";
+import { GuestsTable } from "./components/guests-table";
+import { GroupsModal, ConfigModal } from "./components/groups-modal";
 
 export default function InvitadosPage() {
   const g = useGuests();

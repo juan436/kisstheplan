@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
-import type { TabType, ScriptViewProps } from "./script-helpers";
-import { ResumenTab } from "./resumen-tab";
-import { GuionDetalladoTab } from "./guion-detallado-tab";
-import { useScript } from "./use-script";
+import type { TabType, ScriptViewProps } from "./helpers/script.helpers";
+import { ResumenTab } from "./components/resumen-tab";
+import { GuionDetalladoTab } from "./components/guion-detallado-tab";
+import { useScript } from "./hooks/use-script";
 
 function ScriptPanel({
   entries, areas, guestStats,

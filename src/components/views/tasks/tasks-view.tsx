@@ -2,9 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Check, LayoutList, Clock } from "lucide-react";
-import { useTasks } from "./use-tasks";
-import { TaskRow } from "./task-row";
-import { AddTaskForm } from "./add-task-form";
+import { useTasks } from "./hooks/use-tasks";
+import { TaskRow } from "./components/task-row";
+import { AddTaskForm } from "./components/add-task-form";
 
 export default function TasksView() {
   const {

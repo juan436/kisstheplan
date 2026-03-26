@@ -3,12 +3,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, FileText, Loader2 } from "lucide-react";
 import type { NoteType } from "@/types";
-import { useNotes } from "./use-notes";
-import { NoteCard } from "./note-card";
-import { CreateNoteModal } from "./create-note-modal";
-import { TextEditor } from "./text-editor";
-import { PdfViewer } from "./pdf-viewer";
-import { MoodboardEditor } from "./moodboard-editor";
+import { useNotes } from "./hooks/use-notes";
+import { NoteCard } from "./components/note-card";
+import { CreateNoteModal } from "./components/create-note-modal";
+import { TextEditor } from "./components/text-editor";
+import { PdfViewer } from "./components/pdf-viewer";
+import { MoodboardEditor } from "./components/moodboard-editor";
 import { api } from "@/services";
 
 export function NotesView() {

@@ -1,36 +1,24 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { api } from "@/services";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Globe, Link2, Check, ChevronRight, ChevronLeft, Monitor, Smartphone } from "lucide-react";
-import type { WebPageConfig } from "@/types";
-import { STEP_LABELS, SITE_URL } from "./web-constants";
-import { useWebBuilder } from "./use-web-builder";
-import { DesignStep } from "./design-step";
-import { RsvpStep } from "./rsvp-step";
-import { ContentStep } from "./content-step";
-import { LivePreview } from "./live-preview";
+import { STEP_LABELS, SITE_URL } from "./constants/web.constants";
+import { useWebBuilder } from "./hooks/use-web-builder";
+import { DesignStep } from "./components/design-step";
+import { RsvpStep } from "./components/rsvp-step";
+import { ContentStep } from "./components/content-step";
+import { LivePreview } from "./components/live-preview";
 
 export default function WebBuilderPage() {
-  const [page, setPage] = useState<WebPageConfig | null>(null);
-  const [step, setStep] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [step,        setStep]        = useState(0);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
 
-  const loadPage = useCallback(async () => {
-    try { const data = await api.getWebPage(); if (data) { setPage(data); } }
-    catch { /* No page yet */ }
-    finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { loadPage(); }, [loadPage]);
-
   const {
-    wedding, saving, copied, draft, updateDraft, saveDraft, handlePublish, handleCopyLink,
+    page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, handlePublish, handleCopyLink,
     editingSlug, setEditingSlug, slugValue, setSlugValue, slugError, savingSlug, handleSaveSlug,
-  } = useWebBuilder(page, setPage);
+  } = useWebBuilder();
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="text-brand text-[14px]">Cargando...</div></div>;
 

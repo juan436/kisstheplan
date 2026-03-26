@@ -1,3 +1,8 @@
+/**
+ * Constantes y utilidades compartidas para el módulo de tareas.
+ * Usadas tanto en `src/app/app/tasks/` como en `src/components/views/tasks/`.
+ * No duplicar estas constantes en ningún otro archivo — importar desde aquí.
+ */
 import type { Task } from "@/types";
 
 export const CATEGORY_ORDER = [
@@ -46,3 +51,6 @@ export function formatTaskDate(iso: string): string {
   const d = new Date(iso + "T12:00:00");
   return d.toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
 }
+
+/** Alias for formatTaskDate — use this name in view components */
+export const formatDate = formatTaskDate;

@@ -5,11 +5,11 @@ import { api } from "@/services";
 import { Button } from "@/components/ui/button";
 import { FileText, Plus, List, LayoutGrid } from "lucide-react";
 import type { Vendor } from "@/types";
-import { type View } from "./suppliers-constants";
-import { GridView } from "./grid-view";
-import { ListView } from "./list-view";
-import { QuickAddModal } from "./quick-add-modal";
-import { DetailView } from "./detail-view";
+import { type View } from "./constants/suppliers.constants";
+import { GridView } from "./components/grid-view";
+import { ListView } from "./components/list-view";
+import { QuickAddModal } from "./components/quick-add-modal";
+import { DetailView } from "./components/detail-view";
 
 export default function ProveedoresPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);

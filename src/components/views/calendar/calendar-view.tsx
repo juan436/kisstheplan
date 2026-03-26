@@ -3,12 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus, Copy, Check, CalendarDays, CreditCard, Link2 } from "lucide-react";
-import type { ViewMode } from "./calendar-helpers";
-import { MonthView } from "./month-view";
-import { WeekView } from "./week-view";
-import { DayView } from "./day-view";
-import { AddTaskModal } from "./add-task-modal";
-import { useCalendar } from "./use-calendar";
+import type { ViewMode } from "./helpers/calendar.helpers";
+import { MonthView } from "./components/month-view";
+import { WeekView } from "./components/week-view";
+import { DayView } from "./components/day-view";
+import { AddTaskModal } from "./components/add-task-modal";
+import { useCalendar } from "./hooks/use-calendar";
 
 export default function CalendarioPage() {
   const {

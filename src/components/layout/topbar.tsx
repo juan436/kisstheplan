@@ -54,10 +54,10 @@ export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
               <div className="text-[13px] font-semibold text-text">{userName}</div>
             </div>
             <nav className="py-1">
-              <DropdownItem href="/app/mi-boda" icon={<Heart size={16} />} label="Mi boda" />
-              <DropdownItem href="/app/cuenta" icon={<User size={16} />} label="Mi cuenta" />
-              <DropdownItem href="/app/colaboradores" icon={<Settings size={16} />} label="Colaboradores" />
-              <DropdownItem href="/app/ayuda" icon={<HelpCircle size={16} />} label="Ayuda" />
+              <DropdownItem href="/app/wedding" icon={<Heart size={16} />} label="Mi boda" />
+              <DropdownItem href="/app/account" icon={<User size={16} />} label="Mi cuenta" />
+              <DropdownItem href="/app/collaborators" icon={<Settings size={16} />} label="Colaboradores" />
+              <DropdownItem href="/app/help" icon={<HelpCircle size={16} />} label="Ayuda" />
             </nav>
             <div className="border-t border-border py-1">
               <button

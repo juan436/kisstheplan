@@ -1,3 +1,15 @@
+/**
+ * Cliente HTTP base para el backend KissthePlan.
+ *
+ * Características:
+ * - Adjunta el JWT (accessToken) en cada petición como `Authorization: Bearer`.
+ * - Si el backend devuelve 401, intenta refrescar el token automáticamente.
+ * - Si el refresh falla, limpia los tokens (el usuario deberá volver a hacer login).
+ * - Los tokens se guardan en localStorage con clave `ktp_access_token` / `ktp_refresh_token`.
+ *
+ * Todos los métodos de la API usan `apiFetch` — no hacer fetch() directo fuera de este archivo.
+ */
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 export function getApiUrl() {
