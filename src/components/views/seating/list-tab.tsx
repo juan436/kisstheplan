@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Plus, Users, Check } from "lucide-react";
 import type { SeatingPlan, Guest } from "@/types";
@@ -23,8 +23,17 @@ export function ListTab({ plan, guests, onAddTable, onDeleteTable, onRenameTable
   const [dragGuestId, setDragGuestId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const assignedGuestIds = new Set(plan.tables.flatMap((t) => t.assignments.map((a) => a.guestId)).filter(Boolean));
-  const filteredGuests = guests.filter((g) => !search || g.name.toLowerCase().includes(search.toLowerCase()));
+  const { assignedGuestIds, seatInfoMap } = useMemo(() => {
+    const ids = new Set<string>();
+    const map = new Map<string, string>(); // guestId → tableName
+    for (const t of plan.tables) {
+      for (const a of t.assignments) {
+        if (a.guestId) { ids.add(a.guestId); map.set(a.guestId, t.name); }
+      }
+    }
+    return { assignedGuestIds: ids, seatInfoMap: map };
+  }, [plan.tables]);
+  const filteredGuests = useMemo(() => guests.filter((g) => !search || g.name.toLowerCase().includes(search.toLowerCase())), [guests, search]);
   const totalSeated = assignedGuestIds.size;
 
   return (
@@ -44,7 +53,7 @@ export function ListTab({ plan, guests, onAddTable, onDeleteTable, onRenameTable
         <div className="flex-1 overflow-y-auto">
           {filteredGuests.map((guest) => {
             const isSeated = assignedGuestIds.has(guest.id);
-            const seatInfo = isSeated ? plan.tables.flatMap((t) => t.assignments.map((a) => ({ ...a, tableName: t.name }))).find((a) => a.guestId === guest.id) : null;
+            const tableName = seatInfoMap.get(guest.id);
             return (
               <div
                 key={guest.id} draggable
@@ -54,7 +63,7 @@ export function ListTab({ plan, guests, onAddTable, onDeleteTable, onRenameTable
               >
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-[var(--color-text)] truncate">{guest.name}</div>
-                  {isSeated && seatInfo && <div className="text-xs text-[var(--color-success)] truncate">{seatInfo.tableName}</div>}
+                  {tableName && <div className="text-xs text-[var(--color-success)] truncate">{tableName}</div>}
                 </div>
                 {isSeated && <Check size={13} className="text-[var(--color-success)] flex-shrink-0" />}
               </div>

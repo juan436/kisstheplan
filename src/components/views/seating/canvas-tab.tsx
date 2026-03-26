@@ -63,14 +63,12 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, on
   useEffect(() => {
     if (!dragging) return;
     const handleMouseMove = (e: MouseEvent) => {
-      if (!dragging) return;
       const dx = (e.clientX - dragging.startMouseX) / zoom;
       const dy = (e.clientY - dragging.startMouseY) / zoom;
       const el = document.getElementById(`table-${dragging.tableId}`);
       if (el) { el.style.left = `${Math.max(0, dragging.startPosX + dx)}px`; el.style.top = `${Math.max(0, dragging.startPosY + dy)}px`; }
     };
     const handleMouseUp = (e: MouseEvent) => {
-      if (!dragging) return;
       const dx = (e.clientX - dragging.startMouseX) / zoom;
       const dy = (e.clientY - dragging.startMouseY) / zoom;
       onUpdateTablePos(dragging.tableId, Math.max(0, dragging.startPosX + dx), Math.max(0, dragging.startPosY + dy));
