@@ -6,13 +6,19 @@ import type { Wedding, BudgetSummary } from "@/types";
 interface WeddingCardProps {
   wedding: Wedding;
   budget: BudgetSummary;
+  onClick?: () => void;
 }
 
-export function WeddingCard({ wedding, budget }: WeddingCardProps) {
+export function WeddingCard({ wedding, budget, onClick }: WeddingCardProps) {
   const hasPhoto = !!wedding.photoUrl;
 
   return (
-    <div className="relative rounded-xl overflow-hidden shadow-card h-full min-h-[340px] flex flex-col">
+    <div
+      className="relative rounded-xl overflow-hidden shadow-card h-full min-h-[340px] flex flex-col"
+      style={onClick ? { cursor: "pointer" } : undefined}
+      onClick={onClick}
+      title={onClick ? "Configurar mi boda" : undefined}
+    >
 
       {/* Foto / fondo */}
       {hasPhoto ? (

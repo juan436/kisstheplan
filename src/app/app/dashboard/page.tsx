@@ -22,7 +22,7 @@ export default function DashboardAppPage() {
       <div className="flex-1 w-full max-w-full overflow-hidden">
         {activeTab === "dashboard" && (
           <div className="py-6">
-            <DashboardView />
+            <DashboardView onTabChange={setActiveTab} />
           </div>
         )}
         {activeTab === "invitados" && <div className="p-6"><GuestsView /></div>}

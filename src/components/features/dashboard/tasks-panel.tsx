@@ -1,9 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Task } from "@/types";
 
 interface TasksPanelProps {
   tasks: Task[];
+  onTaskToggle?: (taskId: string, done: boolean) => void;
+  onNavigate?: () => void;
+  className?: string;
 }
 
 function timeRemaining(dueDate?: string, stage?: string): { label: string; urgent: boolean } {
@@ -23,24 +27,44 @@ function timeRemaining(dueDate?: string, stage?: string): { label: string; urgen
   return { label: "—", urgent: false };
 }
 
-export function TasksPanel({ tasks }: TasksPanelProps) {
-  if (tasks.length === 0) return null;
-
+export function TasksPanel({ tasks, onTaskToggle, onNavigate, className }: TasksPanelProps) {
   return (
-    <Card padding="none" className="flex flex-col overflow-hidden">
-      {/* Header fijo */}
-      <div className="px-4 pt-4 pb-3 border-b border-border/50 shrink-0">
+    <Card padding="none" className={cn("flex flex-col overflow-hidden", className)}>
+      {/* Header */}
+      <div
+        className="px-4 pt-4 pb-3 border-b border-border/50 shrink-0"
+        style={onNavigate ? { cursor: "pointer" } : undefined}
+        onClick={onNavigate}
+        title={onNavigate ? "Ver todas las tareas" : undefined}
+      >
         <div className="flex items-center justify-between">
           <h3 className="text-[11px] font-bold text-accent uppercase tracking-[1px]">
             Próximas tareas
           </h3>
-          <span className="text-[11px] text-brand font-medium">
-            {tasks.length} pendiente{tasks.length !== 1 ? "s" : ""}
-          </span>
+          {tasks.length > 0 && (
+            <span className="text-[11px] text-brand font-medium">
+              {tasks.length} pendiente{tasks.length !== 1 ? "s" : ""}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Lista scrollable */}
+      {/* Empty state */}
+      {tasks.length === 0 ? (
+        <div className="flex-1 px-4 py-5 flex flex-col items-center justify-center gap-2 text-center min-h-[132px]">
+          <p className="text-[12px] text-brand/70">Sin tareas pendientes</p>
+          {onNavigate && (
+            <button
+              onClick={onNavigate}
+              className="text-[12px] font-medium underline underline-offset-2 transition-colors hover:opacity-80"
+              style={{ color: "var(--color-cta)" }}
+            >
+              Introducir tareas →
+            </button>
+          )}
+        </div>
+      ) : (
+      /* Lista scrollable */
       <div className="overflow-y-auto max-h-[132px] px-4 py-3 space-y-3 scrollbar-thin">
         {tasks.map((task) => {
           const { label, urgent } = timeRemaining(task.dueDate, task.stage);
@@ -48,16 +72,19 @@ export function TasksPanel({ tasks }: TasksPanelProps) {
 
           return (
             <div key={task.id} className="flex items-center gap-2.5">
-              {/* Checkbox no interactivo */}
-              <div
-                className="w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center"
+              {/* Checkbox interactivo */}
+              <button
+                onClick={() => onTaskToggle?.(task.id, !done)}
+                className="w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors"
                 style={{
                   borderColor: done ? "var(--color-accent)" : "var(--color-border)",
                   background: done ? "var(--color-accent)" : "transparent",
+                  cursor: onTaskToggle ? "pointer" : "default",
                 }}
+                aria-label={done ? "Marcar como pendiente" : "Marcar como completada"}
               >
                 {done && <Check size={8} className="text-white" strokeWidth={3} />}
-              </div>
+              </button>
 
               {/* Título */}
               <p
@@ -83,6 +110,7 @@ export function TasksPanel({ tasks }: TasksPanelProps) {
           );
         })}
       </div>
+      )}
     </Card>
   );
 }
