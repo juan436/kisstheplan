@@ -110,4 +110,7 @@ export interface UpdateWeddingData {
   currency?: string;
   timezone?: string;
   photoUrl?: string;
+  mealOptions?: string[];
+  allergyOptions?: string[];
+  transportOptions?: string[];
 }

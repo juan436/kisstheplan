@@ -1,5 +1,5 @@
 export type RsvpStatus = "confirmed" | "pending" | "rejected";
-export type DishChoice = "Carne" | "Pescado" | "Vegetariano" | "Infantil" | "";
+export type DishChoice = string; // multi-value stored as comma-separated
 export type GuestRole = "groom" | "bride" | "family_groom" | "family_bride" | "child" | "baby" | "";
 
 export interface Guest {
@@ -15,6 +15,7 @@ export interface Guest {
   dish: DishChoice;
   allergies: string;
   transport: boolean;
+  transportPickupPoint?: string;
   plusOne: boolean;
   role: GuestRole;
   notes?: string;

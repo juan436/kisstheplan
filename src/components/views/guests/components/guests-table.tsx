@@ -9,6 +9,7 @@ import { Trash2 } from "lucide-react";
 import type { Guest, GuestGroup, GuestRole, RsvpStatus } from "@/types";
 import type { UpdateGuestData } from "@/services/api";
 import { ROLE_OPTIONS, ROLE_LABELS, type ColKey } from "../constants/guests.constants";
+import { TableMultiSelect, MultiSelectDisplay } from "@/components/features/guests/multi-select-chips";
 
 function RsvpDot({ status }: { status: string }) {
   const cfg: Record<string, { color: string; label: string }> = {
@@ -27,7 +28,7 @@ function RsvpDot({ status }: { status: string }) {
 
 interface GuestsTableProps {
   filteredGuests: Guest[]; groups: GuestGroup[]; groupMap: Map<string, string>;
-  mealOptions: string[];
+  mealOptions: string[]; allergyOptions: string[]; transportPoints: string[];
   show: (col: ColKey) => boolean;
   isEditing: (guestId: string, field: string) => boolean;
   editValue: string; setEditValue: (v: string) => void;
@@ -42,7 +43,7 @@ interface GuestsTableProps {
   searchQuery: string; rsvpFilter: string; groupFilter: string;
 }
 
-export function GuestsTable({ filteredGuests, groups, groupMap, mealOptions, show, isEditing, editValue, setEditValue, startEdit, cancelEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, handleDelete, handleAssignGroup, getFirst, getLast, loadData, searchQuery, rsvpFilter, groupFilter }: GuestsTableProps) {
+export function GuestsTable({ filteredGuests, groups, groupMap, mealOptions, allergyOptions, transportPoints, show, isEditing, editValue, setEditValue, startEdit, cancelEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, handleDelete, handleAssignGroup, getFirst, getLast, loadData, searchQuery, rsvpFilter, groupFilter }: GuestsTableProps) {
   const EditCell = ({ guestId, field, value, className = "" }: { guestId: string; field: string; value: string; className?: string }) => (
     <TableCell className={`cursor-pointer ${className}`} onClick={() => !isEditing(guestId, field) && startEdit(guestId, field, value)}>
       {isEditing(guestId, field) ? (
@@ -82,21 +83,36 @@ export function GuestsTable({ filteredGuests, groups, groupMap, mealOptions, sho
               {show("email") && <EditCell guestId={guest.id} field="email" value={guest.email} className="hidden md:table-cell text-brand" />}
               <TableCell className="cursor-pointer" onClick={() => !isEditing(guest.id, "dish") && startEdit(guest.id, "dish", guest.dish)}>
                 {isEditing(guest.id, "dish") ? (
-                  <select autoFocus value={editValue}
-                    onChange={(e) => { api.updateGuest(guest.id, { mealChoice: e.target.value }).then(loadData); cancelEdit(); }}
-                    onBlur={cancelEdit} className="bg-bg2 border border-cta rounded px-2 py-0.5 text-[13px] outline-none">
-                    <option value="">—</option>
-                    {mealOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                ) : (guest.dish || "—")}
+                  <TableMultiSelect initialValue={editValue} options={mealOptions}
+                    onSave={(val) => { api.updateGuest(guest.id, { mealChoice: val }).then(loadData); cancelEdit(); }}
+                    onCancel={cancelEdit} />
+                ) : <MultiSelectDisplay value={guest.dish} />}
               </TableCell>
-              {show("allergies") && <EditCell guestId={guest.id} field="allergies" value={guest.allergies} className="hidden lg:table-cell text-brand" />}
+              {show("allergies") && (
+                <TableCell className="hidden lg:table-cell cursor-pointer" onClick={() => !isEditing(guest.id, "allergies") && startEdit(guest.id, "allergies", guest.allergies)}>
+                  {isEditing(guest.id, "allergies") ? (
+                    <TableMultiSelect initialValue={editValue} options={allergyOptions}
+                      onSave={(val) => { api.updateGuest(guest.id, { allergies: val }).then(loadData); cancelEdit(); }}
+                      onCancel={cancelEdit} />
+                  ) : <MultiSelectDisplay value={guest.allergies} />}
+                </TableCell>
+              )}
               {show("address")   && <EditCell guestId={guest.id} field="address" value={guest.address ?? ""} className="hidden lg:table-cell text-brand" />}
               {show("transport") && (
-                <TableCell className="hidden lg:table-cell">
-                  <input type="checkbox" checked={guest.transport}
-                    onChange={(e) => api.updateGuest(guest.id, { transport: e.target.checked }).then(loadData)}
-                    className="w-3.5 h-3.5 rounded border-border accent-cta cursor-pointer" />
+                <TableCell className="hidden lg:table-cell cursor-pointer" onClick={() => !isEditing(guest.id, "transport") && startEdit(guest.id, "transport", guest.transportPickupPoint || (guest.transport ? "yes" : ""))}>
+                  {isEditing(guest.id, "transport") ? (
+                    <select autoFocus value={editValue}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        api.updateGuest(guest.id, { transport: v !== "", transportPickupPoint: v === "yes" ? "" : v }).then(loadData);
+                        cancelEdit();
+                      }}
+                      onBlur={cancelEdit} className="bg-bg2 border border-cta rounded px-2 py-0.5 text-[13px] outline-none">
+                      <option value="">No</option>
+                      <option value="yes">Sí</option>
+                      {transportPoints.map((p) => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  ) : <span className="text-[13px]">{guest.transportPickupPoint || (guest.transport ? "Sí" : "No")}</span>}
                 </TableCell>
               )}
               {show("list") && (
@@ -130,7 +146,10 @@ export function GuestsTable({ filteredGuests, groups, groupMap, mealOptions, sho
                       <option value="">Sin grupo</option>
                       {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select>
-                  ) : <span className="text-[12px]">{(guest.groupId && groupMap.get(guest.groupId)) || "—"}</span>}
+                  ) : guest.groupId && groupMap.get(guest.groupId)
+                    ? <span className="inline-block max-w-[140px] truncate text-[11px] px-2 py-0.5 rounded-full font-medium bg-bg3 text-accent border border-border/50">{groupMap.get(guest.groupId)}</span>
+                    : <span className="text-[12px] text-brand">—</span>
+                  }
                 </TableCell>
               )}
               <TableCell className="cursor-pointer" onClick={() => !isEditing(guest.id, "rsvp") && startEdit(guest.id, "rsvp", guest.rsvp)}>

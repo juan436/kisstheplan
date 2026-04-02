@@ -1,10 +1,44 @@
 import type { UpdateGuestData } from "@/services/api";
-import type { RsvpStatus, GuestRole } from "@/types";
+import type { RsvpStatus, GuestRole, Guest } from "@/types";
+import type { ColKey } from "../constants/guests.constants";
+
+const LS_HIDDEN_COLS = "ktp_guests_hidden_cols";
+
+export function loadHiddenCols(defaults: ColKey[]): Set<ColKey> {
+  try {
+    const stored = localStorage.getItem(LS_HIDDEN_COLS);
+    if (stored) return new Set(JSON.parse(stored) as ColKey[]);
+  } catch { /* ignore */ }
+  return new Set(defaults);
+}
+
+export function saveHiddenCols(cols: Set<ColKey>): void {
+  try {
+    localStorage.setItem(LS_HIDDEN_COLS, JSON.stringify(Array.from(cols)));
+  } catch { /* ignore */ }
+}
+
+export async function exportGuestsToExcel(guests: Guest[]): Promise<void> {
+  const XLSX = await import("xlsx");
+  const rows = guests.map((g) => ({
+    Nombre: g.name,
+    Apellidos: g.lastName || "",
+    Email: g.email || "",
+    RSVP: g.rsvp,
+    Plato: g.dish || "",
+    Alergias: g.allergies || "",
+    Transporte: g.transport ? "Sí" : "No",
+    Lista: g.listName || "A",
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Invitados");
+  XLSX.writeFile(wb, "invitados.xlsx");
+}
 
 /**
  * Convierte un nombre de campo de celda inline + valor string
  * al objeto UpdateGuestData que espera la API.
- * Centraliza el mapeo en un único lugar (SRP).
  */
 export function buildGuestUpdate(field: string, value: string): UpdateGuestData {
   const u: UpdateGuestData = {};

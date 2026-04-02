@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { api } from "@/services";
 import type { CreateGuestData } from "@/services/api";
 import { AddGuestGroupForm, PersonRow, emptyPerson } from "./add-guest-group-form";
 import { AddGuestSingleForm, SingleFormState } from "./add-guest-single-form";
@@ -11,22 +12,29 @@ interface AddGuestModalProps {
   open: boolean;
   onClose: () => void;
   onAdd: (data: CreateGuestData) => Promise<void>;
+  onGroupCreated?: () => void;
   groups?: { id: string; name: string }[];
   mealOptions?: string[];
+  allergyOptions?: string[];
+  transportPoints?: string[];
 }
 
 const defaultSingle: SingleFormState = {
   firstName: "", lastName: "", email: "", mealChoice: "", allergies: "",
-  transport: false, rsvpStatus: "pending", role: "", listName: "A", singleGroupId: "",
+  transport: false, transportPickupPoint: "",
+  rsvpStatus: "pending", role: "", listName: "A", singleGroupId: "",
 };
 
 export function AddGuestModal({
-  open, onClose, onAdd,
+  open, onClose, onAdd, onGroupCreated,
   groups = [],
   mealOptions = ["Carne", "Pescado", "Vegetariano", "Infantil"],
+  allergyOptions = [],
+  transportPoints = [],
 }: AddGuestModalProps) {
   const [groupMode, setGroupMode] = useState(false);
   const [persons, setPersons] = useState<PersonRow[]>([emptyPerson(), emptyPerson()]);
+  const [groupName, setGroupName] = useState("");
   const [groupId, setGroupId] = useState("");
   const [single, setSingle] = useState<SingleFormState>(defaultSingle);
   const [saving, setSaving] = useState(false);
@@ -35,13 +43,13 @@ export function AddGuestModal({
   const resetForm = () => {
     setGroupMode(false);
     setPersons([emptyPerson(), emptyPerson()]);
-    setGroupId("");
+    setGroupName(""); setGroupId("");
     setSingle(defaultSingle);
     setError("");
   };
   const handleClose = () => { resetForm(); onClose(); };
 
-  const updatePerson = (i: number, field: keyof PersonRow, val: string) =>
+  const updatePerson = (i: number, field: keyof PersonRow, val: string | boolean) =>
     setPersons((prev) => prev.map((p, idx) => idx === i ? { ...p, [field]: val } : p));
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,12 +59,27 @@ export function AddGuestModal({
       if (groupMode) {
         const valid = persons.filter((p) => p.firstName.trim());
         if (!valid.length) { setError("Añade al menos un invitado"); setSaving(false); return; }
+        if (!groupName.trim() && !groupId) { setError("Escribe el nombre del grupo o selecciona uno existente"); setSaving(false); return; }
+
+        // Create new group if name provided, otherwise use selected existing group
+        let resolvedGroupId = groupId;
+        if (groupName.trim()) {
+          const created = await api.createGuestGroup(groupName.trim()) as { id: string };
+          resolvedGroupId = created.id;
+          onGroupCreated?.();
+        }
+
         for (const p of valid) {
           await onAdd({
             firstName: p.firstName.trim(), lastName: p.lastName.trim(),
-            rsvpStatus: "pending", listName: "A",
+            email: p.email.trim() || undefined,
+            mealChoice: p.mealChoice || undefined,
+            allergies: p.allergies.trim() || undefined,
+            transport: p.transport,
+            transportPickupPoint: p.transportPickupPoint || undefined,
+            rsvpStatus: p.rsvpStatus, listName: p.listName,
             role: (p.role || undefined) as CreateGuestData["role"],
-            groupId: groupId || undefined,
+            groupId: resolvedGroupId || undefined,
           });
         }
       } else {
@@ -64,7 +87,8 @@ export function AddGuestModal({
         await onAdd({
           firstName: single.firstName.trim(), lastName: single.lastName.trim(),
           email: single.email.trim() || undefined, mealChoice: single.mealChoice || undefined,
-          allergies: single.allergies.trim() || undefined, transport: single.transport,
+          allergies: single.allergies.trim() || undefined,
+          transport: single.transport, transportPickupPoint: single.transportPickupPoint || undefined,
           rsvpStatus: single.rsvpStatus, role: (single.role || undefined) as CreateGuestData["role"],
           listName: single.listName, groupId: single.singleGroupId || undefined,
         });
@@ -96,17 +120,20 @@ export function AddGuestModal({
       <form onSubmit={handleSubmit}>
         {groupMode ? (
           <AddGuestGroupForm
-            persons={persons} groupId={groupId} groups={groups}
+            persons={persons} groupName={groupName} groupId={groupId} groups={groups}
+            mealOptions={mealOptions} allergyOptions={allergyOptions} transportPoints={transportPoints}
             onUpdatePerson={updatePerson}
             onAddPerson={() => setPersons((p) => [...p, emptyPerson()])}
             onRemovePerson={(i) => setPersons((p) => p.filter((_, idx) => idx !== i))}
-            onSetGroupId={setGroupId}
+            onSetGroupName={setGroupName}
+            onSetGroupId={(v) => { setGroupId(v); if (v) setGroupName(""); }}
           />
         ) : (
           <AddGuestSingleForm
             state={single}
             onChange={(field, val) => setSingle((prev) => ({ ...prev, [field]: val }))}
-            error={error} mealOptions={mealOptions} groups={groups}
+            error={error} mealOptions={mealOptions} allergyOptions={allergyOptions}
+            transportPoints={transportPoints} groups={groups}
           />
         )}
 

@@ -1,18 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Pencil, Check } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import type { Guest, GuestGroup } from "@/types";
 
-export function GroupsModal({ open, onClose, groups, guests, newGroupName, setNewGroupName, deletingGroupId, setDeletingGroupId, handleCreateGroup, handleDeleteGroup }: {
+export function GroupsModal({ open, onClose, groups, guests, newGroupName, setNewGroupName, deletingGroupId, setDeletingGroupId, handleCreateGroup, handleDeleteGroup, handleRenameGroup }: {
   open: boolean; onClose: () => void;
   groups: GuestGroup[]; guests: Guest[];
   newGroupName: string; setNewGroupName: (v: string) => void;
   deletingGroupId: string | null; setDeletingGroupId: (id: string | null) => void;
   handleCreateGroup: () => void; handleDeleteGroup: (id: string) => void;
+  handleRenameGroup: (id: string, name: string) => void;
 }) {
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+
+  const startRename = (group: GuestGroup) => {
+    setRenamingId(group.id); setRenameValue(group.name);
+    setDeletingGroupId(null);
+  };
+  const confirmRename = async () => {
+    if (renamingId && renameValue.trim()) await handleRenameGroup(renamingId, renameValue.trim());
+    setRenamingId(null);
+  };
+
   return (
     <Modal open={open} onClose={onClose} className="max-w-md">
       <h2 className="font-display text-[22px] text-text mb-4">Gestionar Grupos</h2>
@@ -30,19 +43,36 @@ export function GroupsModal({ open, onClose, groups, guests, newGroupName, setNe
         <div className="space-y-2 max-h-[300px] overflow-y-auto">
           {groups.map((group) => {
             const count = guests.filter((g) => g.groupId === group.id).length;
+            const isRenaming = renamingId === group.id;
+            const isDeleting = deletingGroupId === group.id;
             return (
-              <div key={group.id} className="flex items-center justify-between bg-bg2 rounded-lg px-3 py-2.5">
-                <div>
-                  <span className="text-[14px] font-medium text-text">{group.name}</span>
-                  <span className="text-[12px] text-brand ml-2">{count} {count === 1 ? "invitado" : "invitados"}</span>
-                </div>
-                {deletingGroupId === group.id ? (
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => handleDeleteGroup(group.id)} className="text-[12px] text-danger font-medium hover:underline">Eliminar</button>
-                    <button onClick={() => setDeletingGroupId(null)} className="text-[12px] text-brand hover:underline">Cancelar</button>
-                  </div>
+              <div key={group.id} className="flex items-center gap-2 bg-bg2 rounded-lg px-3 py-2.5">
+                {isRenaming ? (
+                  <>
+                    <input autoFocus value={renameValue} onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") confirmRename(); if (e.key === "Escape") setRenamingId(null); }}
+                      className="flex-1 bg-white border border-cta rounded-md px-2 py-1 text-[13px] text-text outline-none" />
+                    <button onClick={confirmRename} className="text-success hover:opacity-70 transition-opacity"><Check size={15} /></button>
+                    <button onClick={() => setRenamingId(null)} className="text-brand hover:text-danger transition-colors"><X size={14} /></button>
+                  </>
                 ) : (
-                  <button onClick={() => setDeletingGroupId(group.id)} className="text-brand hover:text-danger transition-colors"><Trash2 size={14} /></button>
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[14px] font-medium text-text">{group.name}</span>
+                      <span className="text-[12px] text-brand ml-2">{count} {count === 1 ? "invitado" : "invitados"}</span>
+                    </div>
+                    {isDeleting ? (
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button onClick={() => handleDeleteGroup(group.id)} className="text-[12px] text-danger font-medium hover:underline">Eliminar</button>
+                        <button onClick={() => setDeletingGroupId(null)} className="text-[12px] text-brand hover:underline">Cancelar</button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <button onClick={() => startRename(group)} className="text-brand hover:text-cta transition-colors"><Pencil size={13} /></button>
+                        <button onClick={() => { setDeletingGroupId(group.id); setRenamingId(null); }} className="text-brand hover:text-danger transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             );
@@ -56,10 +86,10 @@ export function GroupsModal({ open, onClose, groups, guests, newGroupName, setNe
   );
 }
 
-export function ConfigModal({ open, onClose, mealOptions, allergyOptions, transportPoints, onSaveMeals, onSaveAllergies, onSaveTransport }: {
+export function ConfigModal({ open, onClose, mealOptions, allergyOptions, transportPoints, onSave }: {
   open: boolean; onClose: () => void;
   mealOptions: string[]; allergyOptions: string[]; transportPoints: string[];
-  onSaveMeals: (v: string[]) => void; onSaveAllergies: (v: string[]) => void; onSaveTransport: (v: string[]) => void;
+  onSave: (meals: string[], allergies: string[], transport: string[]) => void;
 }) {
   const [tab,    setTab]    = useState<"meals"|"allergies"|"transport">("meals");
   const [meals,  setMeals]  = useState(mealOptions);
@@ -71,7 +101,7 @@ export function ConfigModal({ open, onClose, mealOptions, allergyOptions, transp
   const setCurrent = tab === "meals" ? setMeals : tab === "allergies" ? setAllerg : setTransp;
   const handleAdd    = () => { const v = newVal.trim(); if (!v || current.includes(v)) return; setCurrent([...current, v]); setNewVal(""); };
   const handleRemove = (item: string) => setCurrent(current.filter((i) => i !== item));
-  const handleSave   = () => { onSaveMeals(meals); onSaveAllergies(allerg); onSaveTransport(transp); onClose(); };
+  const handleSave   = () => { onSave(meals, allerg, transp); onClose(); };
   const tabs = [{ key: "meals" as const, label: "Platos" }, { key: "allergies" as const, label: "Alergias" }, { key: "transport" as const, label: "Transporte" }];
   const placeholders: Record<string, string> = { meals: "Ej: Vegano, Halal...", allergies: "Ej: Nueces, Soja...", transport: "Ej: Calle Mayor, 12..." };
 

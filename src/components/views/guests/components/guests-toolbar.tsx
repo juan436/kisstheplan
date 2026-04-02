@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { UserPlus, Upload, Search, X, Users, SlidersHorizontal, Columns } from "lucide-react";
+import { UserPlus, Upload, Download, Search, X, Users, SlidersHorizontal, Columns } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { GuestGroup } from "@/types";
 import { RSVP_FILTERS, ALL_COLS, type ColKey } from "../constants/guests.constants";
@@ -25,9 +25,10 @@ interface GuestsToolbarProps {
   excelInputRef: React.RefObject<HTMLInputElement | null>;
   importingExcel: boolean; importError: string; setImportError: (v: string) => void;
   handleExcelFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onExportExcel: () => void;
 }
 
-export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, setShowConfigModal, searchQuery, setSearchQuery, rsvpFilter, setRsvpFilter, groupFilter, setGroupFilter, showColMenu, setShowColMenu, show, toggleCol, colMenuRef, showQuickAdd, setShowQuickAdd, quickName, setQuickName, quickGroupId, setQuickGroupId, quickSaving, handleQuickAdd, quickAddRef, excelInputRef, importingExcel, importError, setImportError, handleExcelFile }: GuestsToolbarProps) {
+export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, setShowConfigModal, searchQuery, setSearchQuery, rsvpFilter, setRsvpFilter, groupFilter, setGroupFilter, showColMenu, setShowColMenu, show, toggleCol, colMenuRef, showQuickAdd, setShowQuickAdd, quickName, setQuickName, quickGroupId, setQuickGroupId, quickSaving, handleQuickAdd, quickAddRef, excelInputRef, importingExcel, importError, setImportError, handleExcelFile, onExportExcel }: GuestsToolbarProps) {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
@@ -75,6 +76,9 @@ export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, set
           <input ref={excelInputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleExcelFile} />
           <Button variant="secondary" size="sm" className="gap-2" onClick={() => excelInputRef.current?.click()} disabled={importingExcel}>
             <Upload size={14} />{importingExcel ? "Importando..." : "Importar excel"}
+          </Button>
+          <Button variant="secondary" size="sm" className="gap-2" onClick={onExportExcel}>
+            <Download size={14} />Exportar excel
           </Button>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Guest, GuestGroup, GuestStats } from "@/types";
 import type { CreateGuestData, UpdateGuestData } from "@/services/api";
 import type { ColKey } from "../constants/guests.constants";
-import { buildGuestUpdate } from "../helpers/guests.helpers";
+import { buildGuestUpdate, loadHiddenCols, saveHiddenCols, exportGuestsToExcel } from "../helpers/guests.helpers";
 
 export function useGuests() {
   const { wedding } = useAuth();
@@ -26,7 +26,7 @@ export function useGuests() {
   const [newGroupName, setNewGroupName] = useState("");
   const [deletingGroupId, setDeletingGroupId] = useState<string | null>(null);
   const [showColMenu,  setShowColMenu]  = useState(false);
-  const [hiddenCols,   setHiddenCols]   = useState<Set<ColKey>>(new Set(["address", "role", "group"]));
+  const [hiddenCols,   setHiddenCols]   = useState<Set<ColKey>>(() => loadHiddenCols(["address", "role", "group"]));
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [quickName,    setQuickName]    = useState("");
   const [quickGroupId, setQuickGroupId] = useState("");
@@ -43,7 +43,7 @@ export function useGuests() {
 
   const show = (col: ColKey) => !hiddenCols.has(col);
   const toggleCol = (col: ColKey) =>
-    setHiddenCols((prev) => { const n = new Set(prev); n.has(col) ? n.delete(col) : n.add(col); return n; });
+    setHiddenCols((prev) => { const n = new Set(prev); n.has(col) ? n.delete(col) : n.add(col); saveHiddenCols(n); return n; });
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -65,7 +65,13 @@ export function useGuests() {
     setStats(statsData);
   }, [rsvpFilter, searchQuery]);
 
-  useEffect(() => { if (!wedding) return; loadData(); loadGroups(); }, [wedding, loadData, loadGroups]);
+  useEffect(() => {
+    if (!wedding) return;
+    loadData(); loadGroups();
+    if (wedding.mealOptions?.length)      setMealOptions(wedding.mealOptions);
+    if (wedding.allergyOptions?.length)   setAllergyOptions(wedding.allergyOptions);
+    if (wedding.transportOptions?.length) setTransportPoints(wedding.transportOptions);
+  }, [wedding, loadData, loadGroups]);
 
   const handleAddGuest = async (data: CreateGuestData) => { await api.createGuest(data); await loadData(); };
 
@@ -122,13 +128,24 @@ export function useGuests() {
     await Promise.all([loadGroups(), loadData()]);
   };
 
+  const handleRenameGroup = async (id: string, name: string) => {
+    await api.updateGuestGroup(id, name);
+    await loadGroups();
+  };
+
   const handleAssignGroup = async (guestId: string, groupId: string) => {
     setEditingCell(null);
     await api.updateGuest(guestId, { groupId: groupId || undefined } as UpdateGuestData);
     await loadData();
   };
 
+  const handleSaveConfig = async (meals: string[], allergies: string[], transport: string[]) => {
+    setMealOptions(meals); setAllergyOptions(allergies); setTransportPoints(transport);
+    if (wedding) await api.updateWedding(wedding.id, { mealOptions: meals, allergyOptions: allergies, transportOptions: transport });
+  };
+
   const filteredGuests = groupFilter ? guests.filter((g) => g.groupId === groupFilter) : guests;
+  const handleExportExcel = () => exportGuestsToExcel(filteredGuests);
   const groupMap = new Map(groups.map((g) => [g.id, g.name]));
   const getFirst = (g: Guest) => g.name.split(" ")[0] ?? g.name;
   const getLast  = (g: Guest) => g.lastName ?? g.name.split(" ").slice(1).join(" ");
@@ -140,11 +157,12 @@ export function useGuests() {
     editingCell, editValue, setEditValue, isEditing, startEdit, cancelEdit, saveEdit, handleKeyDown,
     deletingId, setDeletingId, handleDelete,
     newGroupName, setNewGroupName, deletingGroupId, setDeletingGroupId,
-    handleAddGuest, handleCreateGroup, handleDeleteGroup, handleAssignGroup,
+    handleAddGuest, handleCreateGroup, handleDeleteGroup, handleRenameGroup, handleAssignGroup, loadGroups,
     showColMenu, setShowColMenu, show, toggleCol, colMenuRef,
     showQuickAdd, setShowQuickAdd, quickName, setQuickName, quickGroupId, setQuickGroupId,
     quickSaving, handleQuickAdd, quickAddRef,
-    mealOptions, setMealOptions, allergyOptions, setAllergyOptions, transportPoints, setTransportPoints,
+    mealOptions, allergyOptions, transportPoints,
+    handleSaveConfig, handleExportExcel,
     excelInputRef, importingExcel, importError, setImportError, handleExcelFile,
   };
 }

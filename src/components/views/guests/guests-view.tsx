@@ -32,11 +32,13 @@ export default function InvitadosPage() {
         excelInputRef={g.excelInputRef}
         importingExcel={g.importingExcel} importError={g.importError}
         setImportError={g.setImportError} handleExcelFile={g.handleExcelFile}
+        onExportExcel={g.handleExportExcel}
       />
 
       <GuestsTable
         filteredGuests={g.filteredGuests} groups={g.groups} groupMap={g.groupMap}
-        mealOptions={g.mealOptions} show={g.show}
+        mealOptions={g.mealOptions} allergyOptions={g.allergyOptions} transportPoints={g.transportPoints}
+        show={g.show}
         isEditing={g.isEditing} editValue={g.editValue} setEditValue={g.setEditValue}
         startEdit={g.startEdit} cancelEdit={g.cancelEdit} saveEdit={g.saveEdit}
         handleKeyDown={g.handleKeyDown}
@@ -48,7 +50,8 @@ export default function InvitadosPage() {
 
       <AddGuestModal
         open={g.showAddModal} onClose={() => g.setShowAddModal(false)}
-        onAdd={g.handleAddGuest} groups={g.groups} mealOptions={g.mealOptions}
+        onAdd={g.handleAddGuest} onGroupCreated={g.loadGroups} groups={g.groups} mealOptions={g.mealOptions}
+        allergyOptions={g.allergyOptions} transportPoints={g.transportPoints}
       />
 
       <GroupsModal
@@ -57,12 +60,13 @@ export default function InvitadosPage() {
         newGroupName={g.newGroupName} setNewGroupName={g.setNewGroupName}
         deletingGroupId={g.deletingGroupId} setDeletingGroupId={g.setDeletingGroupId}
         handleCreateGroup={g.handleCreateGroup} handleDeleteGroup={g.handleDeleteGroup}
+        handleRenameGroup={g.handleRenameGroup}
       />
 
       <ConfigModal
         open={g.showConfigModal} onClose={() => g.setShowConfigModal(false)}
         mealOptions={g.mealOptions} allergyOptions={g.allergyOptions} transportPoints={g.transportPoints}
-        onSaveMeals={g.setMealOptions} onSaveAllergies={g.setAllergyOptions} onSaveTransport={g.setTransportPoints}
+        onSave={g.handleSaveConfig}
       />
     </div>
   );

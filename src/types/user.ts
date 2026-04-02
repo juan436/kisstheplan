@@ -22,4 +22,7 @@ export interface Wedding {
   timezone?: string;
   photoUrl?: string;
   slug: string;
+  mealOptions?: string[];
+  allergyOptions?: string[];
+  transportOptions?: string[];
 }
