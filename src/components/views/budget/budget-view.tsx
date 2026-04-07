@@ -70,6 +70,7 @@ export default function PresupuestoPage() {
         handleAddItem={b.handleAddItem} handleDeleteCat={b.handleDeleteCat} handleDeleteItem={b.handleDeleteItem}
         openPayments={b.openPayments} showAddCat={b.showAddCat} newCatName={b.newCatName}
         setShowAddCat={b.setShowAddCat} setNewCatName={b.setNewCatName} handleAddCat={b.handleAddCat}
+        loadData={b.loadData}
       />
 
       {/* Footer totals */}
@@ -81,10 +82,8 @@ export default function PresupuestoPage() {
       </div>
 
       <PaymentModal
-        open={b.showPayments} onClose={b.closePayments} paymentCat={b.paymentCat}
-        pendingDates={b.pendingDates} pendingNotes={b.pendingNotes}
-        setPendingDates={b.setPendingDates} setPendingNotes={b.setPendingNotes}
-        savingModal={b.savingModal} handleTogglePaid={b.handleTogglePaid} handleSaveModal={b.handleSaveModal}
+        open={b.showPayments} onClose={b.closePayments}
+        paymentCat={b.paymentCat} onRefresh={b.loadData}
       />
     </div>
   );

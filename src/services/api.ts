@@ -8,6 +8,8 @@ import type {
   BudgetSummary,
   Task,
   PaymentSchedule,
+  ItemPayment,
+  VendorBudgetPaymentsResult,
   Vendor,
   WebPageConfig,
   PublicWeddingData,
@@ -35,6 +37,26 @@ import type {
 
 export * from "./api-types";
 
+export interface AuditChange {
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+}
+
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  source: 'GUEST_WEB' | 'ADMIN_PANEL';
+  changedBy?: string;
+  changes: AuditChange[];
+}
+
+export interface GuestHistory {
+  guestId: string;
+  name: string;
+  auditLog: AuditEntry[];
+}
+
 export interface ApiService {
   // Read
   getUser(): Promise<User>;
@@ -55,6 +77,7 @@ export interface ApiService {
   createGuest(data: CreateGuestData): Promise<Guest>;
   updateGuest(id: string, data: UpdateGuestData): Promise<Guest>;
   deleteGuest(id: string): Promise<void>;
+  getGuestHistory(id: string): Promise<GuestHistory>;
 
   // Guest Groups
   getGuestGroups(): Promise<GuestGroup[]>;
@@ -70,6 +93,11 @@ export interface ApiService {
   updateItem(categoryId: string, itemId: string, data: UpdateItemData): Promise<ExpenseCategory>;
   deleteItem(categoryId: string, itemId: string): Promise<void>;
   getPayments(): Promise<PaymentSchedule[]>;
+  getItemPayments(catId: string, itemId: string): Promise<ItemPayment[]>;
+  createItemPayment(catId: string, itemId: string, data: { concept: string; amount: number; dueDate: string; notes?: string }): Promise<ItemPayment>;
+  updateBudgetPayment(paymentId: string, data: { concept?: string; amount?: number; dueDate?: string; paid?: boolean; notes?: string }): Promise<ItemPayment>;
+  deleteBudgetPayment(paymentId: string): Promise<void>;
+  getVendorBudgetPayments(vendorId: string): Promise<VendorBudgetPaymentsResult>;
 
   // Task CRUD
   getTasks(filters?: Record<string, string>): Promise<Task[]>;

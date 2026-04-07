@@ -1,10 +1,14 @@
 "use client";
 
-import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { api } from "@/services";
 import type { ExpenseCategory } from "@/types";
+import type { Vendor } from "@/types";
 import { NumCell } from "./num-cell";
+import { BudgetItemRow } from "./budget-item-row";
 
 interface BudgetTableProps {
   categories: ExpenseCategory[];
@@ -31,19 +35,38 @@ interface BudgetTableProps {
   setShowAddCat: (v: boolean) => void;
   setNewCatName: (v: string) => void;
   handleAddCat: () => void;
+  loadData: () => void;
 }
 
-export function BudgetTable({ categories, collapsed, toggleCollapse, isEditing, editValue, setEditValue, startEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, addingItemToCat, newItemName, setAddingItemToCat, setNewItemName, handleAddItem, handleDeleteCat, handleDeleteItem, openPayments, showAddCat, newCatName, setShowAddCat, setNewCatName, handleAddCat }: BudgetTableProps) {
+export function BudgetTable(props: BudgetTableProps) {
+  const { categories, collapsed, toggleCollapse, isEditing, editValue, setEditValue,
+    startEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, addingItemToCat,
+    newItemName, setAddingItemToCat, setNewItemName, handleAddItem, handleDeleteCat,
+    handleDeleteItem, openPayments, showAddCat, newCatName, setShowAddCat, setNewCatName,
+    handleAddCat, loadData } = props;
+
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+
+  useEffect(() => {
+    api.getVendors().then((data) => setVendors(data as Vendor[])).catch(() => {});
+  }, []);
+
+  const handleLinkVendor = async (catId: string, itemId: string, vendorId: string | null, vendorName: string | null) => {
+    await api.updateItem(catId, itemId, { vendorId, vendorName });
+    loadData();
+  };
+
   return (
     <div className="space-y-3">
       {categories.map((cat) => {
         const catEst  = cat.items.reduce((s, i) => s + i.estimated, 0);
-        const catReal = cat.items.reduce((s, i) => s + i.real,      0);
-        const catPaid = cat.items.reduce((s, i) => s + i.paid,      0);
+        const catReal = cat.items.reduce((s, i) => s + i.real, 0);
+        const catPaid = cat.items.reduce((s, i) => s + i.paid, 0);
         const catDiff = catEst - catReal;
         const isOpen  = !collapsed.has(cat.id);
         return (
           <div key={cat.id} className="bg-white rounded-2xl border border-border shadow-card overflow-hidden group/card">
+            {/* Category header */}
             <div className="flex items-center gap-2 px-4 py-3 bg-bg2 relative">
               <button onClick={() => toggleCollapse(cat.id)} className="text-brand hover:text-text transition-colors">
                 {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -76,44 +99,16 @@ export function BudgetTable({ categories, collapsed, toggleCollapse, isEditing, 
 
             {isOpen && (
               <div>
-                {cat.items.map((item) => {
-                  const diff    = item.estimated - item.real;
-                  const pending = item.real - item.paid;
-                  return (
-                    <div key={item.id} className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2.5 border-b border-border/50 hover:bg-bg2 transition-colors group/item items-center">
-                      <div className="flex items-center gap-2 pl-6">
-                        {isEditing(item.id, "concept") ? (
-                          <input autoFocus value={editValue} onChange={(e) => setEditValue(e.target.value)}
-                            onBlur={saveEdit} onKeyDown={handleKeyDown}
-                            className="bg-white border border-cta rounded px-2 py-0.5 text-[13px] outline-none flex-1" />
-                        ) : (
-                          <span className="text-[13px] text-[#866857] cursor-pointer hover:text-cta transition-colors flex-1"
-                            onClick={() => startEdit(item.id, "concept", item.concept)}>{item.concept}</span>
-                        )}
-                        {deletingId === `item-${item.id}` ? (
-                          <span className="flex items-center gap-1">
-                            <button onClick={() => handleDeleteItem(cat.id, item.id)} className="text-[11px] text-danger font-medium hover:underline">Sí</button>
-                            <button onClick={() => setDeletingId(null)} className="text-[11px] text-brand hover:underline">No</button>
-                          </span>
-                        ) : (
-                          <button onClick={() => setDeletingId(`item-${item.id}`)} className="opacity-0 group-hover/item:opacity-100 text-brand hover:text-danger transition-all">
-                            <Trash2 size={12} />
-                          </button>
-                        )}
-                      </div>
-                      <NumCell value={item.estimated} isEditing={isEditing(item.id, "estimated")} editValue={editValue}
-                        onStart={() => startEdit(item.id, "estimated", item.estimated)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
-                      <NumCell value={item.real} isEditing={isEditing(item.id, "actual")} editValue={editValue}
-                        onStart={() => startEdit(item.id, "actual", item.real)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
-                      <div className="text-right text-[13px] font-medium pr-2" style={{ color: diff < 0 ? "var(--color-danger)" : diff > 0 ? "var(--color-success)" : "var(--color-text)" }}>
-                        {diff > 0 ? "+" : ""}{formatCurrency(diff)}
-                      </div>
-                      <div className="text-right text-[13px] text-[#866857] pr-2">{formatCurrency(item.paid)}</div>
-                      <div className="text-right text-[13px] text-[#866857] pr-2">{formatCurrency(pending)}</div>
-                    </div>
-                  );
-                })}
+                {cat.items.map((item) => (
+                  <BudgetItemRow key={item.id} item={item} catId={cat.id} vendors={vendors}
+                    isEditing={isEditing} editValue={editValue} setEditValue={setEditValue}
+                    startEdit={startEdit} saveEdit={saveEdit} handleKeyDown={handleKeyDown}
+                    deletingId={deletingId} setDeletingId={setDeletingId}
+                    handleDeleteItem={handleDeleteItem} openPayments={openPayments}
+                    onLinkVendor={(itemId, vendorId, vendorName) => handleLinkVendor(cat.id, itemId, vendorId, vendorName)} />
+                ))}
 
+                {/* Add item row */}
                 <div className="px-4 py-2 pl-10 border-b border-border/50">
                   {addingItemToCat === cat.id ? (
                     <div className="flex items-center gap-2">
@@ -131,6 +126,7 @@ export function BudgetTable({ categories, collapsed, toggleCollapse, isEditing, 
                   )}
                 </div>
 
+                {/* Subtotal row */}
                 <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2 bg-bg2 items-center">
                   <div className="pl-6 text-[12px] font-semibold text-accent">Subtotal</div>
                   <div className="text-right text-[12px] font-semibold text-accent pr-2">{formatCurrency(catEst)}</div>
@@ -138,8 +134,8 @@ export function BudgetTable({ categories, collapsed, toggleCollapse, isEditing, 
                   <div className="text-right text-[12px] font-semibold pr-2" style={{ color: catDiff < 0 ? "var(--color-danger)" : catDiff > 0 ? "var(--color-success)" : "var(--color-accent)" }}>
                     {catDiff > 0 ? "+" : ""}{formatCurrency(catDiff)}
                   </div>
-                  <div className="text-right text-[12px] font-semibold text-accent pr-2">{formatCurrency(catPaid)}</div>
-                  <div className="text-right text-[12px] font-semibold text-accent pr-2">{formatCurrency(catReal - catPaid)}</div>
+                  <div className="text-right text-[12px] font-semibold text-accent pr-2 cursor-pointer hover:text-cta transition-colors" onClick={() => openPayments(cat.id)} title="Ver calendario de pagos">{formatCurrency(catPaid)}</div>
+                  <div className="text-right text-[12px] font-semibold text-accent pr-2 cursor-pointer hover:text-cta transition-colors" onClick={() => openPayments(cat.id)} title="Ver calendario de pagos">{formatCurrency(catReal - catPaid)}</div>
                 </div>
               </div>
             )}

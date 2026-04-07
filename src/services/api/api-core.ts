@@ -47,6 +47,7 @@ export const coreMethods = {
     return apiFetch(`/guests/${id}`, { method: "PATCH", body: JSON.stringify(data) });
   },
   async deleteGuest(id: string) { return apiFetch(`/guests/${id}`, { method: "DELETE" }); },
+  async getGuestHistory(id: string) { return apiFetch(`/guests/${id}/history`); },
   async getGuestGroups() { return apiFetch("/guests/groups"); },
   async createGuestGroup(name: string) {
     return apiFetch("/guests/groups", { method: "POST", body: JSON.stringify({ name }) });
@@ -76,4 +77,20 @@ export const coreMethods = {
     return apiFetch(`/budget/categories/${categoryId}/items/${itemId}`, { method: "DELETE" });
   },
   async getPayments() { return apiFetch("/budget/payments"); },
+
+  async getItemPayments(catId: string, itemId: string) {
+    return apiFetch(`/budget/categories/${catId}/items/${itemId}/payments`);
+  },
+  async createItemPayment(catId: string, itemId: string, data: object) {
+    return apiFetch(`/budget/categories/${catId}/items/${itemId}/payments`, { method: "POST", body: JSON.stringify(data) });
+  },
+  async updateBudgetPayment(paymentId: string, data: object) {
+    return apiFetch(`/budget/payments/${paymentId}`, { method: "PATCH", body: JSON.stringify(data) });
+  },
+  async deleteBudgetPayment(paymentId: string) {
+    return apiFetch(`/budget/payments/${paymentId}`, { method: "DELETE" });
+  },
+  async getVendorBudgetPayments(vendorId: string) {
+    return apiFetch(`/budget/vendor/${vendorId}/payments`);
+  },
 };

@@ -1,7 +1,9 @@
 "use client";
 
 import { AddGuestModal } from "@/components/features/guests/add-guest-modal";
+import { GuestHistoryModal } from "@/components/features/guests/guest-history-modal";
 import { useGuests } from "./hooks/use-guests";
+import { useGuestHistory } from "./hooks/use-guest-history";
 import { GuestsStatsBar } from "./components/guests-stats-bar";
 import { GuestsToolbar } from "./components/guests-toolbar";
 import { GuestsTable } from "./components/guests-table";
@@ -9,6 +11,7 @@ import { GroupsModal, ConfigModal } from "./components/groups-modal";
 
 export default function InvitadosPage() {
   const g = useGuests();
+  const h = useGuestHistory();
 
   return (
     <div className="max-w-[1300px] mx-auto">
@@ -44,6 +47,7 @@ export default function InvitadosPage() {
         handleKeyDown={g.handleKeyDown}
         deletingId={g.deletingId} setDeletingId={g.setDeletingId}
         handleDelete={g.handleDelete} handleAssignGroup={g.handleAssignGroup}
+        onHistoryClick={h.openHistory}
         getFirst={g.getFirst} getLast={g.getLast} loadData={g.loadData}
         searchQuery={g.searchQuery} rsvpFilter={g.rsvpFilter} groupFilter={g.groupFilter}
       />
@@ -67,6 +71,12 @@ export default function InvitadosPage() {
         open={g.showConfigModal} onClose={() => g.setShowConfigModal(false)}
         mealOptions={g.mealOptions} allergyOptions={g.allergyOptions} transportPoints={g.transportPoints}
         onSave={g.handleSaveConfig}
+      />
+
+      <GuestHistoryModal
+        open={h.open} onClose={h.closeHistory}
+        history={h.history} loading={h.loading}
+        sortedLog={h.sortedLog} overriddenFields={h.overriddenFields}
       />
     </div>
   );

@@ -1,10 +1,13 @@
 import { CalendarDays, Plus, Trash2, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import type { Vendor, VendorPayment } from "@/types";
+import { DetailLinkedPayments } from "./detail-linked-payments";
+import type { Vendor, VendorPayment, VendorBudgetPaymentsResult } from "@/types";
 import type { CreateVendorPaymentData } from "@/services/api";
 
 interface DetailPaymentsProps {
   vendor: Vendor;
+  linkedBudget: VendorBudgetPaymentsResult | null;
+  onRefreshLinked: () => void;
   addingPayment: boolean;
   setAddingPayment: (v: boolean) => void;
   newPayment: Partial<CreateVendorPaymentData>;
@@ -17,9 +20,20 @@ interface DetailPaymentsProps {
 }
 
 export function DetailPayments({
-  vendor, addingPayment, setAddingPayment, newPayment, setNewPayment,
-  onTogglePaid, onUpdateDate, onUpdateNotes, onAddPayment, onDeletePayment,
+  vendor, linkedBudget, onRefreshLinked, addingPayment, setAddingPayment,
+  newPayment, setNewPayment, onTogglePaid, onUpdateDate, onUpdateNotes,
+  onAddPayment, onDeletePayment,
 }: DetailPaymentsProps) {
+  if (linkedBudget?.isLinked) {
+    return (
+      <DetailLinkedPayments
+        linkedItems={linkedBudget.linkedItems}
+        payments={linkedBudget.payments}
+        onRefresh={onRefreshLinked}
+      />
+    );
+  }
+
   const total = vendor.payments.reduce((s, p) => s + p.amount, 0);
 
   return (
@@ -46,21 +60,18 @@ export function DetailPayments({
                 <td className="py-2 pr-3 text-[13px] text-text font-medium">{formatCurrency(p.amount)}</td>
                 <td className="py-2 pr-3">
                   {p.dueDate ? (
-                    <input type="date" defaultValue={p.dueDate}
-                      onBlur={(e) => onUpdateDate(p.id, e.target.value)}
+                    <input type="date" defaultValue={p.dueDate} onBlur={(e) => onUpdateDate(p.id, e.target.value)}
                       className="text-[12px] text-text bg-transparent border-b border-border/50 outline-none focus:border-cta" />
                   ) : (
                     <div className="flex items-center gap-1">
                       <CalendarDays size={13} className="text-brand" />
-                      <input type="date"
-                        onBlur={(e) => e.target.value && onUpdateDate(p.id, e.target.value)}
+                      <input type="date" onBlur={(e) => e.target.value && onUpdateDate(p.id, e.target.value)}
                         className="text-[12px] text-brand bg-transparent outline-none w-0 opacity-0 focus:w-auto focus:opacity-100 transition-all" />
                     </div>
                   )}
                 </td>
                 <td className="py-2 pr-3">
-                  <button onClick={() => onTogglePaid(p)}
-                    className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                  <button onClick={() => onTogglePaid(p)} className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
                     style={{ borderColor: p.paid ? "#4A773C" : "#D4C9B8", backgroundColor: p.paid ? "#4A773C" : "transparent" }}>
                     {p.paid && <Check size={11} className="text-white" />}
                   </button>
@@ -106,8 +117,7 @@ export function DetailPayments({
 
       {!addingPayment && (
         <button onClick={() => setAddingPayment(true)} className="flex items-center gap-1 text-[12px] text-brand hover:text-cta transition-colors">
-          <Plus size={12} />
-          Añadir pago
+          <Plus size={12} />Añadir pago
         </button>
       )}
     </div>

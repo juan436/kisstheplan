@@ -65,6 +65,8 @@ export interface UpdateItemData {
   paid?: number;
   dueDate?: string | null;
   notes?: string | null;
+  vendorId?: string | null;
+  vendorName?: string | null;
 }
 
 export interface CreateTaskData {

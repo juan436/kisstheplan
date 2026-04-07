@@ -13,6 +13,8 @@ export interface ExpenseItem {
   paid: number;
   dueDate?: string | null;
   notes?: string | null;
+  vendorId?: string | null;
+  vendorName?: string | null;
 }
 
 export interface BudgetSummary {
@@ -31,4 +33,28 @@ export interface PaymentSchedule {
   dueDate: string;
   paid: boolean;
   notes?: string;
+}
+
+export interface LinkedBudgetItem {
+  catId: string;
+  itemId: string;
+  concept: string;
+  real: number;
+}
+
+export interface VendorBudgetPaymentsResult {
+  isLinked: boolean;
+  linkedItems: LinkedBudgetItem[];
+  payments: ItemPayment[];
+}
+
+export interface ItemPayment {
+  id: string;
+  itemId: string | null;
+  categoryId: string | null;
+  concept: string;
+  amount: number;
+  dueDate: string;
+  paid: boolean;
+  notes?: string | null;
 }

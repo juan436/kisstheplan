@@ -21,6 +21,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
     vendor, chatInput, setChatInput, sending,
     addingPayment, setAddingPayment, newPayment, setNewPayment,
     confirmDelete, setConfirmDelete, activityEndRef,
+    linkedBudget, loadLinkedBudget,
     save, handleFieldBlur, handleTogglePaid,
     handleUpdatePaymentDate, handleUpdatePaymentNotes,
     handleAddPayment, handleDeletePayment, handleSendChat,
@@ -53,7 +54,8 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
 
         <DetailContact vendor={vendor} onFieldBlur={handleFieldBlur} />
         <DetailPayments
-          vendor={vendor} addingPayment={addingPayment} setAddingPayment={setAddingPayment}
+          vendor={vendor} linkedBudget={linkedBudget} onRefreshLinked={loadLinkedBudget}
+          addingPayment={addingPayment} setAddingPayment={setAddingPayment}
           newPayment={newPayment} setNewPayment={setNewPayment}
           onTogglePaid={handleTogglePaid} onUpdateDate={handleUpdatePaymentDate}
           onUpdateNotes={handleUpdatePaymentNotes} onAddPayment={handleAddPayment}

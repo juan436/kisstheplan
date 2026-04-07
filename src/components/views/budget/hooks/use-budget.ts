@@ -4,8 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { useModal } from "@/hooks/use-modal";
-import { usePendingMap } from "@/hooks/use-pending-map";
-import type { ExpenseCategory, BudgetSummary, ExpenseItem } from "@/types";
+import type { ExpenseCategory, BudgetSummary } from "@/types";
 
 export function useBudget() {
   const { wedding } = useAuth();
@@ -21,15 +20,11 @@ export function useBudget() {
   const [newItemName,     setNewItemName]     = useState("");
   const [showAddCat,      setShowAddCat]      = useState(false);
   const [newCatName,      setNewCatName]      = useState("");
-  const [savingModal,     setSavingModal]     = useState(false);
 
-  const paymentsModal = useModal<string>();   // payload = catId
-  const pendingDates  = usePendingMap<string>();
-  const pendingNotes  = usePendingMap<string>();
-
-  const paymentCatId = paymentsModal.payload ?? null;
-  const showPayments = paymentsModal.open;
-  const paymentCat   = categories.find((c) => c.id === paymentCatId) ?? null;
+  const paymentsModal = useModal<string>();  // payload = catId
+  const paymentCatId  = paymentsModal.payload ?? null;
+  const showPayments  = paymentsModal.open;
+  const paymentCat    = categories.find((c) => c.id === paymentCatId) ?? null;
 
   const loadData = useCallback(async () => {
     const [cats, sum] = await Promise.all([api.getBudgetCategories(), api.getBudgetSummary()]);
@@ -87,28 +82,8 @@ export function useBudget() {
   const handleDeleteCat  = async (id: string) => { await api.deleteCategory(id); setDeletingId(null); await loadData(); };
   const handleDeleteItem = async (catId: string, itemId: string) => { await api.deleteItem(catId, itemId); setDeletingId(null); await loadData(); };
 
-  const openPayments  = (catId: string) => { pendingDates.clear(); pendingNotes.clear(); paymentsModal.openWith(catId); };
-  const closePayments = () => { paymentsModal.close(); pendingDates.clear(); pendingNotes.clear(); };
-
-  const handleTogglePaid = async (item: ExpenseItem) => {
-    if (!paymentCatId) return;
-    await api.updateItem(paymentCatId, item.id, { paid: item.paid > 0 ? 0 : item.real });
-    await loadData();
-  };
-
-  const handleSaveModal = async () => {
-    if (!paymentCatId) return;
-    setSavingModal(true);
-    try {
-      const items = paymentCat?.items ?? [];
-      await Promise.all(items.map((item) => api.updateItem(paymentCatId, item.id, {
-        dueDate: pendingDates.get(item.id) ?? item.dueDate ?? null,
-        notes:   pendingNotes.get(item.id) ?? item.notes   ?? null,
-      })));
-      await loadData();
-      pendingDates.clear(); pendingNotes.clear();
-    } finally { setSavingModal(false); }
-  };
+  const openPayments  = (catId: string) => paymentsModal.openWith(catId);
+  const closePayments = () => paymentsModal.close();
 
   const paidPct    = totalBudget > 0 ? Math.min((summary?.totalPaid ?? 0) / totalBudget * 100, 100) : 0;
   const enteredPct = totalBudget > 0 ? Math.min((summary?.totalReal ?? 0) / totalBudget * 100, 100) : 0;
@@ -119,9 +94,7 @@ export function useBudget() {
     deletingId, setDeletingId, addingItemToCat, newItemName, setAddingItemToCat, setNewItemName,
     showAddCat, newCatName, setShowAddCat, setNewCatName, handleAddCat, handleAddItem,
     handleDeleteCat, handleDeleteItem, openPayments, closePayments,
-    showPayments, paymentCat,
-    pendingDates: pendingDates.map, pendingNotes: pendingNotes.map,
-    setPendingDates: pendingDates.setMap, setPendingNotes: pendingNotes.setMap,
-    savingModal, handleTogglePaid, handleSaveModal, paidPct, enteredPct,
+    showPayments, paymentCat, loadData,
+    paidPct, enteredPct,
   };
 }

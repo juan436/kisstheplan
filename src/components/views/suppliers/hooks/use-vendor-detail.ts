@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { api } from "@/services";
-import type { Vendor, VendorPayment } from "@/types";
+import type { Vendor, VendorPayment, VendorBudgetPaymentsResult } from "@/types";
 import type { CreateVendorPaymentData } from "@/services/api";
 
 export function useVendorDetail(
@@ -15,7 +15,19 @@ export function useVendorDetail(
   const [addingPayment, setAddingPayment] = useState(false);
   const [newPayment, setNewPayment] = useState<Partial<CreateVendorPaymentData>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [linkedBudget, setLinkedBudget] = useState<VendorBudgetPaymentsResult | null>(null);
   const activityEndRef = useRef<HTMLDivElement>(null);
+
+  const loadLinkedBudget = useCallback(async () => {
+    try {
+      const data = await api.getVendorBudgetPayments(vendor.id);
+      setLinkedBudget(data);
+    } catch {
+      setLinkedBudget({ isLinked: false, linkedItems: [], payments: [] });
+    }
+  }, [vendor.id]);
+
+  useEffect(() => { loadLinkedBudget(); }, [loadLinkedBudget]);
 
   const save = useCallback(async (data: Parameters<typeof api.updateVendor>[1]) => {
     const updated = await api.updateVendor(vendor.id, data);
@@ -82,7 +94,7 @@ export function useVendorDetail(
     addingPayment, setAddingPayment,
     newPayment, setNewPayment,
     confirmDelete, setConfirmDelete,
-    activityEndRef,
+    activityEndRef, linkedBudget, loadLinkedBudget,
     save, handleFieldBlur, handleTogglePaid,
     handleUpdatePaymentDate, handleUpdatePaymentNotes,
     handleAddPayment, handleDeletePayment, handleSendChat,
