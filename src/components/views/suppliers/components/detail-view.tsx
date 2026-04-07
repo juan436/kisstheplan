@@ -5,7 +5,7 @@ import type { Vendor } from "@/types";
 import { STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
 import { useVendorDetail } from "../hooks/use-vendor-detail";
 import { DetailContact } from "./detail-contact";
-import { DetailPayments } from "./detail-payments";
+import { DetailBudgetSection } from "./detail-budget-section";
 import { DetailStaff } from "./detail-staff";
 import { DetailActivity } from "./detail-activity";
 
@@ -19,13 +19,8 @@ interface DetailViewProps {
 export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }: DetailViewProps) {
   const {
     vendor, chatInput, setChatInput, sending,
-    addingPayment, setAddingPayment, newPayment, setNewPayment,
     confirmDelete, setConfirmDelete, activityEndRef,
-    linkedBudget, loadLinkedBudget,
-    save, handleFieldBlur, handleTogglePaid,
-    handleUpdatePaymentDate, handleUpdatePaymentNotes,
-    handleAddPayment, handleDeletePayment, handleSendChat,
-    handleUpdateTotalAmount,
+    save, handleFieldBlur, handleSendChat,
   } = useVendorDetail(initialVendor, onUpdate);
 
   const barColor = STATUS_COLOR[vendor.status];
@@ -54,14 +49,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
         </div>
 
         <DetailContact vendor={vendor} onFieldBlur={handleFieldBlur} />
-        <DetailPayments
-          vendor={vendor} linkedBudget={linkedBudget} onRefreshLinked={loadLinkedBudget}
-          addingPayment={addingPayment} setAddingPayment={setAddingPayment}
-          newPayment={newPayment} setNewPayment={setNewPayment}
-          onTogglePaid={handleTogglePaid} onUpdateDate={handleUpdatePaymentDate}
-          onUpdateNotes={handleUpdatePaymentNotes} onAddPayment={handleAddPayment}
-          onDeletePayment={handleDeletePayment} onUpdateTotalAmount={handleUpdateTotalAmount}
-        />
+        <DetailBudgetSection vendor={vendor} />
         <DetailStaff
           vendor={vendor} confirmDelete={confirmDelete} setConfirmDelete={setConfirmDelete}
           onSave={save} onFieldBlur={handleFieldBlur} onDelete={onDelete}

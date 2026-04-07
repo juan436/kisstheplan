@@ -11,10 +11,11 @@ interface PaymentItemRowProps {
   item: ExpenseItem;
   catId: string;
   onPaidChange: () => void;
+  defaultExpanded?: boolean;
 }
 
-export function PaymentItemRow({ item, catId, onPaidChange }: PaymentItemRowProps) {
-  const [expanded, setExpanded] = useState(false);
+export function PaymentItemRow({ item, catId, onPaidChange, defaultExpanded = false }: PaymentItemRowProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const hook = useItemPayments(catId, item.id, item.real);
 
   useEffect(() => {

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Plus } from "lucide-react";
 import { api } from "@/services";
 import { Button } from "@/components/ui/button";
-import type { Vendor, VendorStatus } from "@/types";
+import type { Vendor, VendorStatus, ExpenseCategory } from "@/types";
 import type { CreateVendorData } from "@/services/api";
-import { VENDOR_CATEGORIES, STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
+import { STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
 
 interface QuickAddModalProps {
   onClose: () => void;
@@ -17,6 +17,13 @@ export function QuickAddModal({ onClose, onCreate }: QuickAddModalProps) {
   const [status, setStatus] = useState<VendorStatus>("considering");
   const [saving, setSaving] = useState(false);
   const [customCat, setCustomCat] = useState("");
+  const [dbCategories, setDbCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    api.getBudgetCategories()
+      .then((cats: ExpenseCategory[]) => setDbCategories(cats.map((c) => c.name)))
+      .catch(() => {});
+  }, []);
 
   const toggleCat = (cat: string) =>
     setSelectedCats((prev) => prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]);
@@ -49,13 +56,13 @@ export function QuickAddModal({ onClose, onCreate }: QuickAddModalProps) {
           <div>
             <label className="text-[11px] font-semibold text-brand uppercase tracking-wider block mb-2">Categorías</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
-              {VENDOR_CATEGORIES.map((cat) => (
+              {dbCategories.map((cat) => (
                 <button key={cat} onClick={() => toggleCat(cat)}
                   className={`px-3 py-1 rounded-full text-[12px] font-medium border transition-all ${selectedCats.includes(cat) ? "bg-accent text-white border-accent" : "bg-bg2 text-text border-border hover:border-accent"}`}>
                   {cat}
                 </button>
               ))}
-              {selectedCats.filter((c) => !VENDOR_CATEGORIES.includes(c)).map((cat) => (
+              {selectedCats.filter((c) => !dbCategories.includes(c)).map((cat) => (
                 <button key={cat} onClick={() => toggleCat(cat)}
                   className="px-3 py-1 rounded-full text-[12px] font-medium border bg-cta/20 text-text border-cta/50">
                   {cat}

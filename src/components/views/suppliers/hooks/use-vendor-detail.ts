@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { api } from "@/services";
-import type { Vendor, VendorPayment, VendorBudgetPaymentsResult } from "@/types";
-import type { CreateVendorPaymentData } from "@/services/api";
+import type { Vendor } from "@/types";
 
 export function useVendorDetail(
   initialVendor: Vendor,
@@ -12,22 +11,8 @@ export function useVendorDetail(
   const [vendor, setVendor] = useState(initialVendor);
   const [chatInput, setChatInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [addingPayment, setAddingPayment] = useState(false);
-  const [newPayment, setNewPayment] = useState<Partial<CreateVendorPaymentData>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [linkedBudget, setLinkedBudget] = useState<VendorBudgetPaymentsResult | null>(null);
   const activityEndRef = useRef<HTMLDivElement>(null);
-
-  const loadLinkedBudget = useCallback(async () => {
-    try {
-      const data = await api.getVendorBudgetPayments(vendor.id);
-      setLinkedBudget(data);
-    } catch {
-      setLinkedBudget({ isLinked: false, linkedItems: [], payments: [] });
-    }
-  }, [vendor.id]);
-
-  useEffect(() => { loadLinkedBudget(); }, [loadLinkedBudget]);
 
   const save = useCallback(async (data: Parameters<typeof api.updateVendor>[1]) => {
     const updated = await api.updateVendor(vendor.id, data);
@@ -38,44 +23,6 @@ export function useVendorDetail(
   const handleFieldBlur = useCallback((field: string, value: string | boolean | number) => {
     save({ [field]: value });
   }, [save]);
-
-  const handleTogglePaid = useCallback(async (payment: VendorPayment) => {
-    const updated = await api.updateVendorPayment(vendor.id, payment.id, { paid: !payment.paid });
-    setVendor(updated);
-    onUpdate(updated);
-  }, [vendor.id, onUpdate]);
-
-  const handleUpdatePaymentDate = useCallback(async (paymentId: string, dueDate: string) => {
-    if (!dueDate) return;
-    const updated = await api.updateVendorPayment(vendor.id, paymentId, { dueDate });
-    setVendor(updated);
-    onUpdate(updated);
-  }, [vendor.id, onUpdate]);
-
-  const handleUpdatePaymentNotes = useCallback(async (paymentId: string, notes: string) => {
-    const updated = await api.updateVendorPayment(vendor.id, paymentId, { notes });
-    setVendor(updated);
-    onUpdate(updated);
-  }, [vendor.id, onUpdate]);
-
-  const handleAddPayment = useCallback(async () => {
-    if (!newPayment.amount) return;
-    const updated = await api.addVendorPayment(vendor.id, {
-      amount: newPayment.amount,
-      dueDate: newPayment.dueDate || null,
-      notes: newPayment.notes || "",
-    });
-    setVendor(updated);
-    onUpdate(updated);
-    setNewPayment({});
-    setAddingPayment(false);
-  }, [vendor.id, newPayment, onUpdate]);
-
-  const handleDeletePayment = useCallback(async (paymentId: string) => {
-    const updated = await api.deleteVendorPayment(vendor.id, paymentId);
-    setVendor(updated);
-    onUpdate(updated);
-  }, [vendor.id, onUpdate]);
 
   const handleSendChat = useCallback(async () => {
     const text = chatInput.trim();
@@ -89,22 +36,10 @@ export function useVendorDetail(
     setTimeout(() => activityEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }, [vendor.id, chatInput, onUpdate]);
 
-  const handleUpdateTotalAmount = useCallback(async (amount: number) => {
-    if (isNaN(amount)) return;
-    const updated = await api.updateVendor(vendor.id, { totalAmount: amount });
-    setVendor(updated);
-    onUpdate(updated);
-  }, [vendor.id, onUpdate]);
-
   return {
     vendor, chatInput, setChatInput, sending,
-    addingPayment, setAddingPayment,
-    newPayment, setNewPayment,
     confirmDelete, setConfirmDelete,
-    activityEndRef, linkedBudget, loadLinkedBudget,
-    save, handleFieldBlur, handleTogglePaid,
-    handleUpdatePaymentDate, handleUpdatePaymentNotes,
-    handleAddPayment, handleDeletePayment, handleSendChat,
-    handleUpdateTotalAmount,
+    activityEndRef,
+    save, handleFieldBlur, handleSendChat,
   };
 }

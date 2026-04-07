@@ -57,6 +57,8 @@ export interface CreateItemData {
   concept: string;
   estimated?: number;
   actual?: number;
+  vendorId?: string | null;
+  vendorName?: string | null;
 }
 
 export interface UpdateItemData {
