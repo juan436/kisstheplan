@@ -4,19 +4,35 @@ export interface WebPageConfig {
   colorPalette: Record<string, string>;
   fontTitle: string;
   fontBody: string;
+  // Fotos
+  heroImage?: string;
+  galleryImages?: string[];
+  // RSVP
   rsvpEnabled: boolean;
   rsvpDeadline: string | null;
   mealOptions: string[];
   transportOptions: string[];
+  confirmMessage?: string;
+  rejectMessage?: string;
+  // Contenido
   heroTitle: string;
   heroSubtitle: string;
+  storyTitle?: string;
   storyText: string;
+  scheduleTitle?: string;
   scheduleText: string;
+  locationTitle?: string;
   locationText: string;
+  transportTitle?: string;
   transportText: string;
+  accommodationTitle?: string;
   accommodationText: string;
+  dressCodeTitle?: string;
   dressCode: string;
   customSections: Array<{ title: string; content: string }>;
+  // Visibilidad
+  visibleSections?: Record<string, boolean>;
+  // Publicación
   isPublished: boolean;
   publishedAt: string | null;
 }

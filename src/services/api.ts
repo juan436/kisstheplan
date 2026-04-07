@@ -69,6 +69,7 @@ export interface ApiService {
   getUpcomingTasks(): Promise<Task[]>;
   getUpcomingPayments(): Promise<PaymentSchedule[]>;
   uploadPhoto(file: File): Promise<{ url: string }>;
+  checkSlug(slug: string): Promise<{ available: boolean }>;
 
   // Guest import
   importGuestsExcel(file: File): Promise<{ imported: number; guests: Guest[] }>;

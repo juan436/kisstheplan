@@ -16,6 +16,9 @@ export const coreMethods = {
   async getBudgetSummary(): Promise<BudgetSummary> { return apiFetch("/budget/summary"); },
   async getUpcomingTasks() { return apiFetch("/tasks/upcoming"); },
   async getUpcomingPayments() { return apiFetch("/budget/payments/upcoming"); },
+  async checkSlug(slug: string): Promise<{ available: boolean }> {
+    return apiFetch(`/weddings/check-slug/${encodeURIComponent(slug)}`);
+  },
   async uploadPhoto(file: File) {
     const { accessToken } = getTokens();
     const form = new FormData();

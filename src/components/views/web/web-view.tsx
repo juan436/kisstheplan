@@ -17,7 +17,8 @@ export default function WebBuilderPage() {
 
   const {
     page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, handlePublish, handleCopyLink,
-    editingSlug, setEditingSlug, slugValue, setSlugValue, slugError, savingSlug, handleSaveSlug,
+    editingSlug, setEditingSlug, slugValue, slugStatus, slugError,
+    savingSlug, handleSaveSlug, handleCheckSlug, handleSlugInputChange,
   } = useWebBuilder();
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="text-brand text-[14px]">Cargando...</div></div>;
@@ -32,19 +33,33 @@ export default function WebBuilderPage() {
               <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                 <span className="text-[12px] text-brand">{SITE_URL}/</span>
                 {editingSlug ? (
-                  <div className="flex items-center gap-1">
-                    <input autoFocus value={slugValue} onChange={(e) => setSlugValue(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                      className="bg-white border border-cta rounded px-2 py-0.5 text-[12px] text-text outline-none w-32"
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveSlug(); if (e.key === "Escape") setEditingSlug(false); }} />
-                    <Button variant="cta" size="sm" onClick={handleSaveSlug} disabled={savingSlug}>{savingSlug ? "..." : "OK"}</Button>
-                    <Button variant="ghost" size="sm" onClick={() => setEditingSlug(false)}>✕</Button>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <input autoFocus value={slugValue}
+                        onChange={(e) => handleSlugInputChange(e.target.value)}
+                        className="bg-white border border-cta rounded px-2 py-0.5 text-[12px] text-text outline-none w-32"
+                        onKeyDown={(e) => { if (e.key === "Escape") setEditingSlug(false); }} />
+                      <button onClick={handleCheckSlug} disabled={slugStatus === "checking"}
+                        className="text-[11px] text-brand hover:text-cta border border-border hover:border-cta rounded px-1.5 py-0.5 transition-colors disabled:opacity-50">
+                        {slugStatus === "checking" ? "..." : "Verificar"}
+                      </button>
+                      {slugStatus === "available" && (
+                        <Button variant="cta" size="sm" onClick={handleSaveSlug} disabled={savingSlug}>
+                          {savingSlug ? "..." : "Guardar"}
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={() => setEditingSlug(false)}>✕</Button>
+                    </div>
+                    {slugStatus === "available" && <span className="text-[11px] text-success">✅ Disponible</span>}
+                    {slugStatus === "taken" && <span className="text-[11px] text-danger">❌ Ya está en uso</span>}
+                    {slugError && slugStatus === "idle" && <p className="text-[11px] text-danger">{slugError}</p>}
                   </div>
                 ) : (
-                  <button onClick={() => { setEditingSlug(true); setSlugValue(wedding.slug); }} className="text-[12px] text-cta font-medium hover:underline">{wedding.slug}</button>
+                  <button onClick={() => { setEditingSlug(true); handleSlugInputChange(wedding.slug); }}
+                    className="text-[12px] text-cta font-medium hover:underline">{wedding.slug}</button>
                 )}
               </div>
             )}
-            {slugError && <p className="text-[11px] text-danger mt-0.5">{slugError}</p>}
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {wedding?.slug && (

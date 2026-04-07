@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Trash2, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { useNavigation } from "@/hooks/useNavigation";
 import { NumCell } from "./num-cell";
 import type { ExpenseItem } from "@/types";
 import type { Vendor } from "@/types";
@@ -28,7 +29,8 @@ export function BudgetItemRow({
   item, catId, vendors, isEditing, editValue, setEditValue, startEdit, saveEdit,
   handleKeyDown, deletingId, setDeletingId, handleDeleteItem, openPayments, onLinkVendor,
 }: BudgetItemRowProps) {
-  const router = useRouter();
+  const { navigateTo } = useNavigation();
+  const [changingVendor, setChangingVendor] = useState(false);
   const diff    = item.estimated - item.real;
   const pending = item.real - item.paid;
 
@@ -45,20 +47,35 @@ export function BudgetItemRow({
             <span className="text-[13px] text-[#866857] cursor-pointer hover:text-cta transition-colors block truncate"
               onClick={() => startEdit(item.id, "concept", item.concept)}>{item.concept}</span>
           )}
-          {item.vendorName && (
-            <button onClick={() => router.push("/app/proveedores")}
-              className="text-[11px] text-cta hover:underline cursor-pointer leading-tight mt-0.5 block truncate">
-              {item.vendorName}
-            </button>
-          )}
-          {!item.vendorName && vendors.length > 0 && (
-            <select value=""
+          {item.vendorName && !changingVendor ? (
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <button
+                onClick={() => navigateTo("proveedores", item.vendorId ?? undefined)}
+                className="text-[11px] text-cta hover:underline cursor-pointer leading-tight block truncate">
+                {item.vendorName}
+              </button>
+              <button
+                onClick={() => setChangingVendor(true)}
+                className="text-[#866857]/50 hover:text-accent transition-colors shrink-0">
+                <Pencil size={10} />
+              </button>
+            </div>
+          ) : vendors.length > 0 && (
+            <select
+              value=""
               onChange={(e) => {
-                const v = vendors.find((x) => x.id === e.target.value);
-                onLinkVendor(item.id, v?.id ?? null, v?.name ?? null);
+                if (e.target.value === "__unlink__") {
+                  onLinkVendor(item.id, null, null);
+                } else if (e.target.value) {
+                  const v = vendors.find((x) => x.id === e.target.value);
+                  if (v) onLinkVendor(item.id, v.id, v.name);
+                }
+                setChangingVendor(false);
               }}
+              onBlur={() => setChangingVendor(false)}
               className="text-[11px] text-brand/50 bg-transparent outline-none cursor-pointer hover:text-cta transition-colors mt-0.5">
-              <option value="">Vincular proveedor...</option>
+              <option value="">{item.vendorName ? "Seleccionar..." : "Añadir proveedor..."}</option>
+              {item.vendorName && <option value="__unlink__">— Sin proveedor —</option>}
               {vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
           )}

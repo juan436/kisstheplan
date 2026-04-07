@@ -17,12 +17,13 @@ interface DetailPaymentsProps {
   onUpdateNotes: (paymentId: string, notes: string) => void;
   onAddPayment: () => void;
   onDeletePayment: (id: string) => void;
+  onUpdateTotalAmount: (amount: number) => void;
 }
 
 export function DetailPayments({
   vendor, linkedBudget, onRefreshLinked, addingPayment, setAddingPayment,
   newPayment, setNewPayment, onTogglePaid, onUpdateDate, onUpdateNotes,
-  onAddPayment, onDeletePayment,
+  onAddPayment, onDeletePayment, onUpdateTotalAmount,
 }: DetailPaymentsProps) {
   if (linkedBudget?.isLinked) {
     return (
@@ -34,14 +35,44 @@ export function DetailPayments({
     );
   }
 
+  const paid = vendor.payments.filter((p) => p.paid).reduce((s, p) => s + p.amount, 0);
   const total = vendor.payments.reduce((s, p) => s + p.amount, 0);
+  const contracted = vendor.totalAmount ?? 0;
+  const remaining = contracted > 0 ? contracted - paid : total - paid;
 
   return (
     <div className="bg-white rounded-xl p-5 mb-5 shadow-card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[11px] font-bold text-brand uppercase tracking-widest">Calendario de pagos</h3>
-        {total > 0 && <span className="font-display text-[18px] italic text-text">{formatCurrency(total)}</span>}
+      <h3 className="text-[11px] font-bold text-brand uppercase tracking-widest mb-4">Calendario de pagos</h3>
+
+      {/* Importe total contratado */}
+      <div className="mb-4">
+        <label className="text-[11px] text-brand block mb-1">Importe total contratado</label>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] text-text">€</span>
+          <input type="number" defaultValue={contracted || ""}
+            onBlur={(e) => onUpdateTotalAmount(Number(e.target.value))}
+            placeholder="0"
+            className="w-32 text-[14px] font-display italic text-text bg-bg2 border border-border rounded-lg px-3 py-1.5 outline-none focus:border-cta transition-colors" />
+        </div>
       </div>
+
+      {/* Summary cards */}
+      {(contracted > 0 || total > 0) && (
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-bg2 rounded-lg p-3 text-center">
+            <p className="text-[10px] text-brand uppercase tracking-wider mb-0.5">Contratado</p>
+            <p className="font-display text-[16px] italic text-text">{formatCurrency(contracted || total)}</p>
+          </div>
+          <div className="bg-bg2 rounded-lg p-3 text-center">
+            <p className="text-[10px] text-brand uppercase tracking-wider mb-0.5">Pagado</p>
+            <p className="font-display text-[16px] italic" style={{ color: "#4A773C" }}>{formatCurrency(paid)}</p>
+          </div>
+          <div className="bg-bg2 rounded-lg p-3 text-center">
+            <p className="text-[10px] text-brand uppercase tracking-wider mb-0.5">Restante</p>
+            <p className="font-display text-[16px] italic" style={{ color: remaining > 0 ? "#c47a7a" : "#4A773C" }}>{formatCurrency(Math.max(0, remaining))}</p>
+          </div>
+        </div>
+      )}
 
       {vendor.payments.length === 0 && !addingPayment ? (
         <p className="text-[13px] text-brand text-center py-4">Sin pagos registrados</p>

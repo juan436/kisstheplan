@@ -16,3 +16,4 @@ export const STATUS_LABEL: Record<VendorStatus, string> = {
 };
 
 export type View = "grid" | "list" | "detail";
+export type GridMode = "category" | "flat";

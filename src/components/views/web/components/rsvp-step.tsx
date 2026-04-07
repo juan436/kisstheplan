@@ -1,3 +1,5 @@
+"use client";
+
 import { Plus, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,16 +10,18 @@ interface RsvpStepProps {
   updateDraft: (u: Partial<WebPageConfig>) => void;
 }
 
+const ta = "w-full bg-bg2 border-[1.5px] border-border rounded-md px-3 py-2.5 text-[13px] text-text placeholder:text-brand outline-none focus:border-cta focus:bg-white transition-all";
+
 export function RsvpStep({ draft, updateDraft }: RsvpStepProps) {
   const addMealOption = () => updateDraft({ mealOptions: [...(draft.mealOptions || []), ""] });
-  const updateMealOption = (i: number, value: string) => {
-    const options = [...(draft.mealOptions || [])]; options[i] = value; updateDraft({ mealOptions: options });
+  const updateMealOption = (i: number, v: string) => {
+    const opts = [...(draft.mealOptions || [])]; opts[i] = v; updateDraft({ mealOptions: opts });
   };
   const removeMealOption = (i: number) => updateDraft({ mealOptions: (draft.mealOptions || []).filter((_, idx) => idx !== i) });
 
   const addTransportOption = () => updateDraft({ transportOptions: [...(draft.transportOptions || []), ""] });
-  const updateTransportOption = (i: number, value: string) => {
-    const options = [...(draft.transportOptions || [])]; options[i] = value; updateDraft({ transportOptions: options });
+  const updateTransportOption = (i: number, v: string) => {
+    const opts = [...(draft.transportOptions || [])]; opts[i] = v; updateDraft({ transportOptions: opts });
   };
   const removeTransportOption = (i: number) => updateDraft({ transportOptions: (draft.transportOptions || []).filter((_, idx) => idx !== i) });
 
@@ -63,6 +67,18 @@ export function RsvpStep({ draft, updateDraft }: RsvpStepProps) {
                 <Plus size={12} /> Añadir punto de recogida
               </button>
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="confirmMessage">Mensaje de confirmación</Label>
+            <textarea id="confirmMessage" value={draft.confirmMessage || ""} onChange={(e) => updateDraft({ confirmMessage: e.target.value })}
+              placeholder="Ej: ¡Nos vemos allí! Gracias por confirmar 🎉" rows={2} className={ta} />
+          </div>
+
+          <div>
+            <Label htmlFor="rejectMessage">Mensaje si no pueden asistir</Label>
+            <textarea id="rejectMessage" value={draft.rejectMessage || ""} onChange={(e) => updateDraft({ rejectMessage: e.target.value })}
+              placeholder="Ej: ¡Te echaremos de menos! Gracias por avisarnos." rows={2} className={ta} />
           </div>
         </>
       )}

@@ -25,6 +25,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
     save, handleFieldBlur, handleTogglePaid,
     handleUpdatePaymentDate, handleUpdatePaymentNotes,
     handleAddPayment, handleDeletePayment, handleSendChat,
+    handleUpdateTotalAmount,
   } = useVendorDetail(initialVendor, onUpdate);
 
   const barColor = STATUS_COLOR[vendor.status];
@@ -59,7 +60,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
           newPayment={newPayment} setNewPayment={setNewPayment}
           onTogglePaid={handleTogglePaid} onUpdateDate={handleUpdatePaymentDate}
           onUpdateNotes={handleUpdatePaymentNotes} onAddPayment={handleAddPayment}
-          onDeletePayment={handleDeletePayment}
+          onDeletePayment={handleDeletePayment} onUpdateTotalAmount={handleUpdateTotalAmount}
         />
         <DetailStaff
           vendor={vendor} confirmDelete={confirmDelete} setConfirmDelete={setConfirmDelete}

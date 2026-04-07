@@ -14,15 +14,18 @@ interface RsvpFormProps {
 }
 
 export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
-  const [guestName, setGuestName] = useState("");
-  const [rsvpStatus, setRsvpStatus] = useState<"confirmed" | "rejected">("confirmed");
-  const [mealChoice, setMealChoice] = useState("");
-  const [allergies, setAllergies] = useState("");
-  const [transport, setTransport] = useState(false);
+  const [guestName,            setGuestName]            = useState("");
+  const [rsvpStatus,           setRsvpStatus]           = useState<"confirmed" | "rejected">("confirmed");
+  const [mealChoice,           setMealChoice]           = useState("");
+  const [allergies,            setAllergies]            = useState("");
+  const [transport,            setTransport]            = useState(false);
   const [transportPickupPoint, setTransportPickupPoint] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
+  const [submitting,           setSubmitting]           = useState(false);
+  const [submitted,            setSubmitted]            = useState(false);
+  const [error,                setError]                = useState("");
+
+  const mealOptions      = page.mealOptions      || [];
+  const transportOptions = page.transportOptions || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +35,13 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
       const res = await fetch(`${API_URL}/public/rsvp/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestName: guestName.trim(), rsvpStatus, mealChoice: mealChoice || undefined, allergies: allergies.trim() || undefined, transport, transportPickupPoint: transportPickupPoint || undefined }),
+        body: JSON.stringify({
+          guestName: guestName.trim(), rsvpStatus,
+          mealChoice: mealChoice || undefined,
+          allergies: allergies.trim() || undefined,
+          transport,
+          transportPickupPoint: transportPickupPoint || undefined,
+        }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({ message: "Error" })); throw new Error(d.message); }
       setSubmitted(true);
@@ -42,17 +51,17 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
   };
 
   if (submitted) {
+    const msg = rsvpStatus === "confirmed"
+      ? (page.confirmMessage || "¡Nos vemos allí! Tu confirmación ha sido registrada.")
+      : (page.rejectMessage  || "¡Te echaremos de menos! Gracias por avisarnos.");
+    const heading = rsvpStatus === "confirmed" ? "¡Hasta pronto!" : "Gracias por avisarnos";
     return (
       <div className="text-center py-4">
         <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ backgroundColor: colors.accent + "20" }}>
           <Check size={32} style={{ color: colors.accent }} />
         </div>
-        <h2 className="text-[28px] mb-3" style={{ fontFamily: page.fontTitle, fontStyle: "italic" }}>
-          {rsvpStatus === "confirmed" ? "Nos vemos alli!" : "Te echaremos de menos"}
-        </h2>
-        <p className="text-[15px] opacity-60">
-          {rsvpStatus === "confirmed" ? "Tu confirmacion ha sido registrada. Gracias!" : "Lamentamos que no puedas asistir. Gracias por avisarnos."}
-        </p>
+        <h2 className="text-[28px] mb-3" style={{ fontFamily: page.fontTitle, fontStyle: "italic" }}>{heading}</h2>
+        <p className="text-[15px] opacity-60">{msg}</p>
       </div>
     );
   }
@@ -82,12 +91,12 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
         </div>
         {rsvpStatus === "confirmed" && (
           <>
-            {page.mealOptions.length > 0 && (
+            {mealOptions.length > 0 && (
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2 opacity-50">Eleccion de plato</label>
+                <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2 opacity-50">Elección de plato</label>
                 <select value={mealChoice} onChange={(e) => setMealChoice(e.target.value)} className="w-full bg-white/80 backdrop-blur border-[1.5px] rounded-xl px-4 py-3 text-[14px] outline-none transition-colors" style={{ borderColor: mealChoice ? colors.accent : colors.primary + "30", color: colors.text }}>
-                  <option value="">Selecciona una opcion</option>
-                  {page.mealOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  <option value="">Selecciona una opción</option>
+                  {mealOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
             )}
@@ -103,12 +112,12 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
                 <span className="text-[14px]">Necesito transporte</span>
               </label>
             </div>
-            {transport && page.transportOptions.length > 0 && (
+            {transport && transportOptions.length > 0 && (
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-widest mb-2 opacity-50">Punto de recogida</label>
                 <select value={transportPickupPoint} onChange={(e) => setTransportPickupPoint(e.target.value)} className="w-full bg-white/80 backdrop-blur border-[1.5px] rounded-xl px-4 py-3 text-[14px] outline-none transition-colors" style={{ borderColor: transportPickupPoint ? colors.accent : colors.primary + "30", color: colors.text }}>
                   <option value="">Selecciona un punto</option>
-                  {page.transportOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  {transportOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
             )}
@@ -116,7 +125,7 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
         )}
         {error && <p className="text-[13px] text-center" style={{ color: "#c47a7a" }}>{error}</p>}
         <button type="submit" disabled={submitting} className="w-full py-3.5 rounded-xl text-white text-[15px] font-medium transition-all hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: colors.accent }}>
-          {submitting ? "Enviando..." : "Enviar confirmacion"}
+          {submitting ? "Enviando..." : "Enviar confirmación"}
         </button>
       </form>
     </div>

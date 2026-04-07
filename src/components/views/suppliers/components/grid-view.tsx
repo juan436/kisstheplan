@@ -11,9 +11,11 @@ interface GridViewProps {
 export function GridView({ vendors, onOpen, onDelete }: GridViewProps) {
   const grouped: Record<string, Vendor[]> = {};
   for (const v of vendors) {
-    const cat = v.categories[0] || "Sin categoría";
-    if (!grouped[cat]) grouped[cat] = [];
-    grouped[cat].push(v);
+    const cats = v.categories.length > 0 ? v.categories : ["Sin categoría"];
+    for (const cat of cats) {
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(v);
+    }
   }
 
   if (vendors.length === 0) {

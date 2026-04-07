@@ -36,8 +36,7 @@ export default function TasksView() {
             <motion.div className="h-full rounded-full" style={{ background: "var(--color-accent)" }}
               initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, ease: "easeOut" }} />
           </div>
-          <div className="flex justify-between mt-1">
-            <span className="text-xs text-text/40">0%</span>
+          <div className="flex justify-end mt-1">
             <span className="text-xs font-medium" style={{ color: "var(--color-accent)" }}>{pct}% completado</span>
           </div>
         </div>

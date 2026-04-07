@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModuleNav } from "@/components/layout/module-nav";
+import { useNavigation } from "@/hooks/useNavigation";
 import DashboardView from "@/components/views/dashboard-view";
 import GuestsView from "@/components/views/guests";
 import BudgetView from "@/components/views/budget";
@@ -15,6 +16,14 @@ import { NotesView } from "@/components/views/notes";
 
 export default function DashboardAppPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { pendingTab, clearPendingTab } = useNavigation();
+
+  useEffect(() => {
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      clearPendingTab();
+    }
+  }, [pendingTab, clearPendingTab]);
 
   return (
     <div className="flex flex-col h-full min-h-full">

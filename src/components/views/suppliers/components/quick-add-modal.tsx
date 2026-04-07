@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { api } from "@/services";
 import { Button } from "@/components/ui/button";
 import type { Vendor, VendorStatus } from "@/types";
@@ -16,9 +16,17 @@ export function QuickAddModal({ onClose, onCreate }: QuickAddModalProps) {
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [status, setStatus] = useState<VendorStatus>("considering");
   const [saving, setSaving] = useState(false);
+  const [customCat, setCustomCat] = useState("");
 
   const toggleCat = (cat: string) =>
     setSelectedCats((prev) => prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]);
+
+  const addCustomCat = () => {
+    const trimmed = customCat.trim();
+    if (!trimmed) return;
+    if (!selectedCats.includes(trimmed)) setSelectedCats((prev) => [...prev, trimmed]);
+    setCustomCat("");
+  };
 
   const handleAdd = async () => {
     if (!name.trim() || selectedCats.length === 0) return;
@@ -40,13 +48,29 @@ export function QuickAddModal({ onClose, onCreate }: QuickAddModalProps) {
           </div>
           <div>
             <label className="text-[11px] font-semibold text-brand uppercase tracking-wider block mb-2">Categorías</label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 mb-2">
               {VENDOR_CATEGORIES.map((cat) => (
                 <button key={cat} onClick={() => toggleCat(cat)}
                   className={`px-3 py-1 rounded-full text-[12px] font-medium border transition-all ${selectedCats.includes(cat) ? "bg-accent text-white border-accent" : "bg-bg2 text-text border-border hover:border-accent"}`}>
                   {cat}
                 </button>
               ))}
+              {selectedCats.filter((c) => !VENDOR_CATEGORIES.includes(c)).map((cat) => (
+                <button key={cat} onClick={() => toggleCat(cat)}
+                  className="px-3 py-1 rounded-full text-[12px] font-medium border bg-cta/20 text-text border-cta/50">
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5">
+              <input value={customCat} onChange={(e) => setCustomCat(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addCustomCat()}
+                placeholder="Añadir categoría personalizada..."
+                className="flex-1 bg-bg2 border border-border rounded-lg px-3 py-1.5 text-[12px] text-text outline-none focus:border-cta transition-colors" />
+              <button onClick={addCustomCat} disabled={!customCat.trim()}
+                className="w-8 h-8 rounded-lg bg-bg2 border border-border flex items-center justify-center text-brand hover:border-accent hover:text-cta transition-all disabled:opacity-40">
+                <Plus size={13} />
+              </button>
             </div>
           </div>
           <div>

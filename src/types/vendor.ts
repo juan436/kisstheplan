@@ -23,6 +23,7 @@ export interface Vendor {
   name: string;
   categories: string[];
   status: VendorStatus;
+  totalAmount?: number;
   contactName?: string;
   email?: string;
   phone?: string;

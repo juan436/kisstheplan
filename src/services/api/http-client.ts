@@ -73,5 +73,8 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     const error = await res.json().catch(() => ({ message: "Error de red" }));
     throw new Error(error.message || `Error ${res.status}`);
   }
+  if (res.status === 204 || res.headers.get("content-length") === "0") {
+    return undefined as unknown as T;
+  }
   return res.json();
 }

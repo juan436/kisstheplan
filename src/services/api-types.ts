@@ -17,6 +17,7 @@ export type UpdateVendorData = Partial<CreateVendorData> & {
   needsStaffMenu?: boolean;
   staffCount?: number;
   staffAllergies?: string;
+  totalAmount?: number;
 };
 
 export interface CreateVendorPaymentData {

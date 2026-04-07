@@ -89,6 +89,13 @@ export function useVendorDetail(
     setTimeout(() => activityEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }, [vendor.id, chatInput, onUpdate]);
 
+  const handleUpdateTotalAmount = useCallback(async (amount: number) => {
+    if (isNaN(amount)) return;
+    const updated = await api.updateVendor(vendor.id, { totalAmount: amount });
+    setVendor(updated);
+    onUpdate(updated);
+  }, [vendor.id, onUpdate]);
+
   return {
     vendor, chatInput, setChatInput, sending,
     addingPayment, setAddingPayment,
@@ -98,5 +105,6 @@ export function useVendorDetail(
     save, handleFieldBlur, handleTogglePaid,
     handleUpdatePaymentDate, handleUpdatePaymentNotes,
     handleAddPayment, handleDeletePayment, handleSendChat,
+    handleUpdateTotalAmount,
   };
 }
