@@ -17,8 +17,8 @@ export function ItemPaymentModal({ open, onClose, item, catId, onRefresh }: Item
   const invoiceAmount = item.real > 0 ? item.real : item.estimated;
 
   return (
-    <Modal open={open} onClose={onClose} className="max-w-lg">
-      <div className="flex items-start justify-between mb-5">
+    <Modal open={open} onClose={onClose} className="max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-5 shrink-0">
         <div>
           <h2 className="font-display text-[22px] text-text">Pagos parciales</h2>
           <p className="text-[13px] text-brand mt-0.5 italic truncate max-w-[240px]">{item.concept}</p>
@@ -31,12 +31,14 @@ export function ItemPaymentModal({ open, onClose, item, catId, onRefresh }: Item
         </div>
       </div>
 
-      <PaymentItemRow
-        item={item}
-        catId={catId}
-        onPaidChange={onRefresh}
-        defaultExpanded={true}
-      />
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+        <PaymentItemRow
+          item={item}
+          catId={catId}
+          onPaidChange={onRefresh}
+          defaultExpanded={true}
+        />
+      </div>
     </Modal>
   );
 }

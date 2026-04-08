@@ -18,8 +18,8 @@ export function PaymentModal({ open, onClose, paymentCat, onRefresh }: PaymentMo
   const totalPending = Math.max(0, totalReal - totalPaid);
 
   return (
-    <Modal open={open} onClose={onClose} className="max-w-xl">
-      <div className="flex items-start justify-between mb-5">
+    <Modal open={open} onClose={onClose} className="max-w-xl max-h-[80vh] flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-5 shrink-0">
         <div>
           <h2 className="font-display text-[22px] text-text">Calendario de pagos</h2>
           {paymentCat && (
@@ -35,9 +35,9 @@ export function PaymentModal({ open, onClose, paymentCat, onRefresh }: PaymentMo
       </div>
 
       {!paymentCat || paymentCat.items.length === 0 ? (
-        <p className="text-[14px] text-brand text-center py-8">No hay conceptos en esta categoría</p>
+        <p className="text-[14px] text-brand text-center py-8 shrink-0">No hay conceptos en esta categoría</p>
       ) : (
-        <div className="max-h-[420px] overflow-y-auto pr-1 space-y-0.5">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-0.5">
           {paymentCat.items.map((item) => (
             <PaymentItemRow key={item.id} item={item} catId={paymentCat.id} onPaidChange={onRefresh} />
           ))}
@@ -45,7 +45,7 @@ export function PaymentModal({ open, onClose, paymentCat, onRefresh }: PaymentMo
       )}
 
       {paymentCat && paymentCat.items.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between shrink-0">
           <span className="text-[12px] text-brand">{paymentCat.items.length} conceptos</span>
           <div className="flex gap-4 text-[12px] font-medium">
             <span className="text-[#4A773C]">Pagado: {formatCurrency(totalPaid)}</span>
