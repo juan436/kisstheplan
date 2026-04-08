@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { CalendarDays } from "lucide-react";
 import { api } from "@/services";
 import { useVendorBudget } from "../hooks/use-vendor-budget";
 import { VendorCategoryBlock } from "./vendor-category-block";
 import { VendorPaymentModal } from "./vendor-payment-modal";
+import { VendorAllPaymentsModal } from "./vendor-all-payments-modal";
 import type { Vendor } from "@/types";
 
 interface DetailBudgetSectionProps {
@@ -19,6 +21,7 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
   );
   const [vendors, setVendors]       = useState<Vendor[]>([]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
+  const [allPaymentsOpen, setAllPaymentsOpen] = useState(false);
 
   useEffect(() => {
     api.getVendors().then((data) => setVendors(data as Vendor[])).catch(() => {});
@@ -27,7 +30,18 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
 
   return (
     <div className="mb-5">
-      <h3 className="text-[11px] font-bold text-brand uppercase tracking-widest mb-3">Presupuesto</h3>
+      <div className="flex items-center justify-start gap-4 mb-3">
+        <h3 className="text-[11px] font-bold text-brand uppercase tracking-widest">Presupuesto</h3>
+        {!loading && categories.length > 0 && (
+          <button
+            onClick={() => setAllPaymentsOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cta/10 hover:bg-cta/20 border border-cta/30 hover:border-cta/60 text-cta text-[11px] font-semibold uppercase tracking-wider transition-all group"
+          >
+            <CalendarDays size={12} className="transition-transform group-hover:scale-110" />
+            Pagos
+          </button>
+        )}
+      </div>
 
       {!loading && categories.length > 0 && (
         <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 mb-2">
@@ -65,6 +79,17 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
           onClose={() => setSelectedCatId(null)}
           category={selectedCat}
           currentVendorId={vendor.id}
+          onRefresh={refresh}
+        />
+      )}
+
+      {allPaymentsOpen && (
+        <VendorAllPaymentsModal
+          open={true}
+          onClose={() => setAllPaymentsOpen(false)}
+          categories={categories}
+          currentVendorId={vendor.id}
+          vendorName={vendor.name}
           onRefresh={refresh}
         />
       )}
