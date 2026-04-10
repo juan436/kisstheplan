@@ -79,6 +79,10 @@ export function useCanvasDrag({
       const el    = document.getElementById(domId);
       if (!el) return;
 
+      // Preserve table rotation stored in data-rotation attribute
+      const rot    = Number((el as HTMLElement).dataset.rotation ?? "0");
+      const rotStr = rot !== 0 ? ` rotate(${rot})` : "";
+
       // Dynamic scale: if the object crossed a zone boundary, rescale it in-flight
       // so Pixels = PhysicalMeters × LocalScale remains true at the new position.
       const currentScale = getEffectiveScale(x, y, zonesRef.current, fallbackScaleRef.current);
@@ -87,8 +91,8 @@ export function useCanvasDrag({
       el.setAttribute(
         "transform",
         scaleRatio !== 1
-          ? `translate(${x},${y}) scale(${scaleRatio})`
-          : `translate(${x},${y})`,
+          ? `translate(${x},${y})${rotStr} scale(${scaleRatio})`
+          : `translate(${x},${y})${rotStr}`,
       );
     };
 

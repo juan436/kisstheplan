@@ -10,7 +10,14 @@ export const ZONE_GRID_MAX_LINES = 150; // safety cap per zone
 
 export const DEFAULT_SCALE = 60;       // px por metro
 export const GRID_SIZE = 40;
+
+// Dimensiones físicas de la silla en metros (estándar banquetero)
+export const CHAIR_RADIUS_M = 0.22;   // radio del asiento (diámetro ~44 cm)
+export const CHAIR_GAP_M    = 0.10;   // espacio mínimo de aire entre sillas
+
+/** @deprecated Use CHAIR_RADIUS_M × scale instead */
 export const CHAIR_RADIUS = 6;
+/** @deprecated Use CHAIR_GAP_M × scale instead */
 export const CHAIR_GAP = 8;
 
 // Dimensiones físicas por defecto en metros

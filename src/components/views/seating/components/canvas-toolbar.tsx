@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle, Square, Image as ImageIcon, X, Grid3x3, Hand, MapPin, Trash2, Ruler, Maximize2 } from "lucide-react";
+import { Circle, Square, Image as ImageIcon, X, Grid3x3, Hand, MapPin, Trash2, Ruler, Maximize2, Eye } from "lucide-react";
 import type { DecorationType } from "@/types";
 import { DECORATION_META } from "../constants/seating.constants";
 
@@ -15,6 +15,7 @@ interface CanvasToolbarProps {
   panMode: boolean;
   resizeMode: boolean;
   deleteMode: boolean;
+  previewEnabled: boolean;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onAddTable: (shape: "round" | "rectangular") => void;
   onAddDecoration: (type: DecorationType) => void;
@@ -28,6 +29,7 @@ interface CanvasToolbarProps {
   onTogglePan: () => void;
   onToggleResize: () => void;
   onToggleDelete: () => void;
+  onTogglePreview: () => void;
 }
 
 const btnBase = "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors";
@@ -39,9 +41,9 @@ const btnDanger = `${btnBase} border-[var(--color-border)] bg-white text-[var(--
 const btnDelete = `${btnBase} border-[var(--color-danger)] bg-[var(--color-danger)]/10 text-[var(--color-danger)]`;
 
 export function CanvasToolbar({
-  mode, bgImage, snapEnabled, zoningMode, hasZones, rulersEnabled, hasGuides, panMode, resizeMode, deleteMode,
+  mode, bgImage, snapEnabled, zoningMode, hasZones, rulersEnabled, hasGuides, panMode, resizeMode, deleteMode, previewEnabled,
   fileInputRef, onAddTable, onAddDecoration, onBgUpload, onClearBg,
-  onToggleSnap, onToggleZone, onClearZones, onToggleRulers, onClearGuides, onTogglePan, onToggleResize, onToggleDelete,
+  onToggleSnap, onToggleZone, onClearZones, onToggleRulers, onClearGuides, onTogglePan, onToggleResize, onToggleDelete, onTogglePreview,
 }: CanvasToolbarProps) {
   if (mode !== "layout") {
     return <p className="text-xs text-[var(--color-text)]/40 text-right">Haz clic en una mesa para ver los asientos</p>;
@@ -82,6 +84,10 @@ export function CanvasToolbar({
         <button onClick={onToggleDelete} className={deleteMode ? btnDelete : btnOff}
           title="Modo borrar: haz clic en cualquier mesa u objeto para eliminarlo del plano">
           <Trash2 size={13} /> {deleteMode ? "Borrando..." : "Borrar objeto"}
+        </button>
+        <button onClick={onTogglePreview} className={previewEnabled ? btnOn : btnOff}
+          title="Mostrar panel de inspección en la esquina superior derecha del lienzo">
+          <Eye size={13} /> {previewEnabled ? "Inspeccionando" : "Inspeccionar"}
         </button>
         <button onClick={onToggleRulers} className={rulersEnabled ? btnOn : btnOff}
           title="Mostrar reglas graduadas. Arrastra desde la regla para crear líneas guía">

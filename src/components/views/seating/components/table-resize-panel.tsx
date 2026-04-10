@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Check } from "lucide-react";
+import { X, Check, RotateCw } from "lucide-react";
 import type { TableSeat } from "@/types";
 import { getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
 
@@ -11,14 +11,15 @@ interface TableResizePanelProps {
   screenY: number;
   canvasH: number;
   onApply: (tableId: string, physicalDiameter?: number, physicalWidth?: number, physicalHeight?: number) => void;
+  onRotate: (tableId: string) => void;
   onClose: () => void;
 }
 
 const PANEL_W = 184;
-const PANEL_H_ROUND = 118;
-const PANEL_H_RECT  = 148;
+const PANEL_H_ROUND = 148;
+const PANEL_H_RECT  = 178;
 
-export function TableResizePanel({ table, screenX, screenY, canvasH, onApply, onClose }: TableResizePanelProps) {
+export function TableResizePanel({ table, screenX, screenY, canvasH, onApply, onRotate, onClose }: TableResizePanelProps) {
   const isRound  = table.shape === "round";
   const defaultD = table.physicalDiameter ?? getTableDiameter(table.capacity);
   const defaultW = table.physicalWidth    ?? getRectTableDims().width;
@@ -87,11 +88,18 @@ export function TableResizePanel({ table, screenX, screenY, canvasH, onApply, on
         </>
       )}
 
-      <button onClick={handleApply}
-        className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-[11px] font-medium transition-opacity hover:opacity-90"
-        style={{ backgroundColor: "var(--color-accent)" }}>
-        <Check size={11} /> Aplicar
-      </button>
+      <div className="flex gap-2">
+        <button onClick={() => onRotate(table.id)}
+          className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg border border-[var(--color-border)] text-[11px] text-[var(--color-text)]/60 hover:border-[var(--color-accent)]/50 hover:text-[var(--color-accent)] transition-colors flex-1"
+          title="Girar 90° en sentido horario">
+          <RotateCw size={11} /> Rotar 90°
+        </button>
+        <button onClick={handleApply}
+          className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-white text-[11px] font-medium transition-opacity hover:opacity-90 flex-1"
+          style={{ backgroundColor: "var(--color-accent)" }}>
+          <Check size={11} /> Aplicar
+        </button>
+      </div>
     </div>
   );
 }

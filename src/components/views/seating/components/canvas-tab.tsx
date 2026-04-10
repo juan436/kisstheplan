@@ -20,6 +20,7 @@ import { SeatingPanel } from "./seating-panel";
 import { ZoomControls } from "./zoom-controls";
 import { DecorationResizePanel } from "./decoration-resize-panel";
 import { TableResizePanel } from "./table-resize-panel";
+import { TablePreviewPanel } from "./table-preview-panel";
 
 interface CanvasTabProps {
   plan: SeatingPlan;
@@ -27,12 +28,13 @@ interface CanvasTabProps {
   mode: "layout" | "seating";
   onUpdateTablePos: (tableId: string, posX: number, posY: number) => void;
   onUpdateTableSize: (tableId: string, physicalDiameter?: number, physicalWidth?: number, physicalHeight?: number) => void;
+  onRotateTable: (tableId: string) => void;
   onAddTable: (shape: "round" | "rectangular") => void;
   onDeleteTable: (tableId: string) => void;
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;
 }
 
-export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableSize, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
+export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableSize, onRotateTable, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
   const [zoom, setZoom] = useState(1.0);
   const [fitZoom, setFitZoom] = useState(0.7);
   const [snapEnabled, setSnapEnabled] = useState(false);
@@ -41,6 +43,8 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
   const [deleteMode, setDeleteMode] = useState(false);
   const [seatingTable, setSeatingTable] = useState<string | null>(null);
   const [tableResizePanel, setTableResizePanel] = useState<{ tableId: string; screenX: number; screenY: number } | null>(null);
+  const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
   const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
   const [canvasDims, setCanvasDims] = useState({ w: WORLD_W, h: 600 });
   const canvasRef  = useRef<HTMLDivElement>(null);
@@ -141,8 +145,26 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
     if (mode === "seating") setSeatingTable(id === seatingTable ? null : id);
   }, [deleteMode, resizeMode, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
 
+  const handleTableHover = useCallback((tableId: string) => {
+    if (deleteMode || resizeMode || panMode || zones.zoningMode) return;
+    setHoveredTableId(tableId);
+  }, [deleteMode, resizeMode, panMode, zones.zoningMode]);
+
+  const handleTableHoverEnd = useCallback(() => setHoveredTableId(null), []);
+
+  // Panel shows hovered table first; falls back to selected seating table
+  const previewTableId = hoveredTableId ?? seatingTable;
+  const previewTable   = previewEnabled
+    ? (previewTableId ? plan.tables.find((t) => t.id === previewTableId) ?? null : null)
+    : null;
+
   const activeTable = seatingTable ? plan.tables.find((t) => t.id === seatingTable) : null;
   const isZoning = zones.zoningMode || !!zones.pendingPoints;
+  // LOD: hide table labels when zoom makes them smaller than ~30 px on screen.
+  // Formula: physicalDiameter(1.8m) × scale(px/m) × zoom ≥ 30 → zoom ≥ 0.28
+  const showLabels = zoom >= 0.28;
+  // LOD inner gate: at scale=60px/m, zoom=0.55 → table screen ⌀ ≈ 59px (legible for name text)
+  const showName   = zoom >= 0.55;
   const cursor = isZoning ? "crosshair" : panMode ? (isPanning ? "grabbing" : "grab") : deleteMode ? "crosshair" : undefined;
 
   return (
@@ -169,7 +191,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                 plan={plan} guests={guests} scale={plan.scaleFactor ?? DEFAULT_SCALE} mode={mode}
                 bgImage={bgImage} seatingTable={seatingTable} snapEnabled={snapEnabled}
                 zones={zones.zones} zonePoints={zones.zonePoints} guides={guides.guides}
-                zoningActive={isZoning} resizeMode={resizeMode} deleteMode={deleteMode}
+                zoningActive={isZoning} resizeMode={resizeMode} showLabels={showLabels} showName={showName} deleteMode={deleteMode}
                 decorations={decos.decorations} selectedDecoId={decos.selectedDecoId} calibPoints={[]}
                 onTableMouseDown={handleTableMouseDown}
                 onTableClick={handleTableClick}
@@ -183,6 +205,9 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                 onSvgClick={handleSvgClick}
                 onGuideMouseDown={(e, id) => { e.stopPropagation(); guides.startDrag(id, toWorld); }}
                 onGuideDoubleClick={guides.removeGuide}
+                onTableRotate={onRotateTable}
+                onTableHover={handleTableHover}
+                onTableHoverEnd={handleTableHoverEnd}
               />
             </div>
 
@@ -201,6 +226,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                   screenX={tableResizePanel.screenX} screenY={tableResizePanel.screenY}
                   canvasH={canvasDims.h}
                   onApply={(id, d, w, h) => { onUpdateTableSize(id, d, w, h); setTableResizePanel(null); }}
+                  onRotate={(id) => { onRotateTable(id); }}
                   onClose={() => setTableResizePanel(null)} />
               ) : null;
             })()}
@@ -215,6 +241,11 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
             })()}
 
             <ZoomControls zoom={zoom} fitZoom={fitZoom} onZoomChange={setZoom} onCenter={handleCenter} />
+
+            {/* Fixed inspection panel — top-right corner, visible when toggle is ON */}
+            {previewEnabled && (
+              <TablePreviewPanel table={previewTable ?? null} guests={guests} />
+            )}
 
             {isZoning && (
               <ZoneCreationOverlay pointCount={zones.zonePoints.length} pendingPoints={zones.pendingPoints}
@@ -240,7 +271,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
         mode={mode} bgImage={bgImage} snapEnabled={snapEnabled}
         zoningMode={zones.zoningMode} hasZones={zones.zones.length > 0}
         rulersEnabled={rulersEnabled} hasGuides={guides.guides.length > 0} panMode={panMode}
-        resizeMode={resizeMode}
+        resizeMode={resizeMode} previewEnabled={previewEnabled}
         fileInputRef={fileInputRef}
         onAddTable={onAddTable} onAddDecoration={decos.handleAddDecoration}
         onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
@@ -252,6 +283,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
         onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
         deleteMode={deleteMode}
         onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
+        onTogglePreview={() => setPreviewEnabled((v) => !v)}
       />
 
       {mode === "seating" && <DietLegend plan={plan} guests={guests} />}

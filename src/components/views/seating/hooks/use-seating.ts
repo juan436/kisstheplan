@@ -89,6 +89,25 @@ export function useSeating() {
     setPlans((prev) => prev.map((p) => (p.id === selectedPlanId ? updated : p)));
   };
 
+  const handleRotateTable = async (tableId: string) => {
+    if (!selectedPlanId) return;
+    setPlans((prev) =>
+      prev.map((p) =>
+        p.id === selectedPlanId
+          ? {
+              ...p,
+              tables: p.tables.map((t) =>
+                t.id === tableId ? { ...t, rotation: ((t.rotation ?? 0) + 90) % 360 } : t
+              ),
+            }
+          : p
+      )
+    );
+    const next = plans.find((p) => p.id === selectedPlanId)?.tables.find((t) => t.id === tableId);
+    const newRot = ((next?.rotation ?? 0) + 90) % 360;
+    await api.updateSeatingTable(selectedPlanId, tableId, { rotation: newRot });
+  };
+
   const handleUpdateTableSize = async (
     tableId: string,
     physicalDiameter?: number,
@@ -133,7 +152,7 @@ export function useSeating() {
     showAddTable, setShowAddTable,
     selectedPlan,
     handleCreatePlan, handleDeletePlan,
-    handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleDeleteTable,
+    handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleRotateTable, handleDeleteTable,
     handleRenameTable, handleAssignSeat,
   };
 }

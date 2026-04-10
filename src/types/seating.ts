@@ -13,6 +13,7 @@ export interface TableSeat {
   physicalDiameter?: number; // metros (mesas redondas)
   physicalWidth?: number;    // metros (mesas rectangulares)
   physicalHeight?: number;   // metros (mesas rectangulares)
+  rotation?: number;         // grados (0 | 90 | 180 | 270)
   assignments: SeatAssignment[];
 }
 

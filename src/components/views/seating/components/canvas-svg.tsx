@@ -25,12 +25,17 @@ interface CanvasSvgProps {
   guides: Guide[];
   zoningActive: boolean;
   resizeMode: boolean;
+  showLabels: boolean;
+  showName: boolean;
   decorations: DecorationObject[];
   selectedDecoId: string | null;
   calibPoints: { x: number; y: number }[];
   deleteMode: boolean;
   onTableMouseDown: (e: React.MouseEvent, tableId: string) => void;
   onTableClick: (tableId: string) => void;
+  onTableRotate: (tableId: string) => void;
+  onTableHover: (tableId: string) => void;
+  onTableHoverEnd: () => void;
   onDecoMouseDown: (e: React.MouseEvent, id: string) => void;
   onDecoClick: (id: string, clientX: number, clientY: number) => void;
   onSvgClick: (e: React.MouseEvent<SVGSVGElement>) => void;
@@ -76,8 +81,8 @@ function ZoneNeonGrid({ zone }: { zone: CalibZone }) {
 
 export function CanvasSvg({
   plan, guests, scale, mode, bgImage, seatingTable, snapEnabled,
-  zones, zonePoints, guides, zoningActive, resizeMode, deleteMode, decorations, selectedDecoId, calibPoints,
-  onTableMouseDown, onTableClick,
+  zones, zonePoints, guides, zoningActive, resizeMode, showLabels, showName, deleteMode, decorations, selectedDecoId, calibPoints,
+  onTableMouseDown, onTableClick, onTableRotate, onTableHover, onTableHoverEnd,
   onDecoMouseDown, onDecoClick, onSvgClick,
   onGuideMouseDown, onGuideDoubleClick,
 }: CanvasSvgProps) {
@@ -204,9 +209,12 @@ export function CanvasSvg({
         <SvgTable key={table.id} table={table} guests={guests}
           scale={getEffectiveScale(table.posX, table.posY, zones, scale)}
           mode={mode} resizeMode={resizeMode} deleteMode={deleteMode}
-          isSelected={seatingTable === table.id}
+          showLabels={showLabels} showName={showName} isSelected={seatingTable === table.id}
           onMouseDown={(e) => onTableMouseDown(e, table.id)}
           onClick={() => onTableClick(table.id)}
+          onRotate={() => onTableRotate(table.id)}
+          onHover={() => onTableHover(table.id)}
+          onHoverEnd={onTableHoverEnd}
         />
       ))}
 
