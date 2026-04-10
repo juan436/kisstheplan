@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { NavigationProvider } from "@/hooks/useNavigation";
 import { Topbar } from "@/components/layout/topbar";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -35,9 +36,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const userName = user?.name || "Usuario";
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col overflow-x-hidden">
-      <Topbar weddingName={weddingName} userName={userName} onLogout={logout} />
-      <main className="flex-1 flex flex-col">{children}</main>
-    </div>
+    <NavigationProvider>
+      <div className="min-h-screen bg-bg flex flex-col overflow-x-hidden">
+        <Topbar weddingName={weddingName} userName={userName} onLogout={logout} />
+        <main className="flex-1 flex flex-col">{children}</main>
+      </div>
+    </NavigationProvider>
   );
 }

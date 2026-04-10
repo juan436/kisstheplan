@@ -8,129 +8,54 @@ import type {
   BudgetSummary,
   Task,
   PaymentSchedule,
+  ItemPayment,
+  VendorBudgetPaymentsResult,
   Vendor,
-  VendorPayment,
-  VendorActivity,
-  VendorStatus,
   WebPageConfig,
   PublicWeddingData,
   RsvpSubmission,
   ScriptEntry,
   ScriptArea,
   SeatingPlan,
+  DecorationObject,
   Note,
 } from "@/types";
 
-export interface CreateVendorData {
+import type {
+  CreateVendorData,
+  UpdateVendorData,
+  CreateVendorPaymentData,
+  CreateVendorActivityData,
+  CreateGuestData,
+  UpdateGuestData,
+  CreateCategoryData,
+  CreateItemData,
+  UpdateItemData,
+  CreateTaskData,
+  UpdateTaskData,
+  UpdateWeddingData,
+} from "./api-types";
+
+export * from "./api-types";
+
+export interface AuditChange {
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+}
+
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  source: 'GUEST_WEB' | 'ADMIN_PANEL';
+  changedBy?: string;
+  changes: AuditChange[];
+}
+
+export interface GuestHistory {
+  guestId: string;
   name: string;
-  categories: string[];
-  status: VendorStatus;
-  contactName?: string;
-  email?: string;
-  phone?: string;
-  web?: string;
-  social?: string;
-  notes?: string;
-}
-
-export type UpdateVendorData = Partial<CreateVendorData> & {
-  contractUrl?: string;
-  needsStaffMenu?: boolean;
-  staffCount?: number;
-  staffAllergies?: string;
-};
-
-export interface CreateVendorPaymentData {
-  amount: number;
-  dueDate?: string | null;
-  notes?: string;
-}
-
-export interface CreateVendorActivityData {
-  type: "note" | "file";
-  content: string;
-  fileUrl?: string;
-  fileName?: string;
-}
-
-export interface CreateGuestData {
-  firstName: string;
-  lastName: string;
-  email?: string;
-  mealChoice?: string;
-  allergies?: string;
-  transport?: boolean;
-  transportPickupPoint?: string;
-  listName?: string;
-  groupId?: string;
-  rsvpStatus?: "confirmed" | "pending" | "rejected";
-  role?: "groom" | "bride" | "family_groom" | "family_bride" | "child" | "baby" | "";
-}
-
-export type UpdateGuestData = Partial<CreateGuestData>;
-
-export interface CreateCategoryData {
-  name: string;
-}
-
-export interface CreateItemData {
-  concept: string;
-  estimated?: number;
-  actual?: number;
-}
-
-export interface UpdateItemData {
-  concept?: string;
-  estimated?: number;
-  actual?: number;
-  paid?: number;
-  dueDate?: string | null;
-  notes?: string | null;
-}
-
-export interface CreateTaskData {
-  title: string;
-  category?: string;
-  stage?: string;
-  dueDate?: string;
-  notes?: string;
-}
-
-export interface UpdateTaskData {
-  title?: string;
-  status?: "done" | "pending" | "in-progress";
-  dueDate?: string;
-  notes?: string;
-  category?: string;
-  stage?: string;
-}
-
-export interface CreatePaymentData {
-  vendorName?: string;
-  concept?: string;
-  categoryId?: string;
-  vendorId?: string;
-  amount: number;
-  dueDate: string;
-  notes?: string;
-}
-
-export interface UpdateWeddingData {
-  slug?: string;
-  partner1Name?: string;
-  partner1Last?: string;
-  partner1Role?: string;
-  partner2Name?: string;
-  partner2Last?: string;
-  partner2Role?: string;
-  date?: string;
-  venue?: string;
-  location?: string;
-  estimatedGuests?: number;
-  estimatedBudget?: number;
-  currency?: string;
-  timezone?: string;
-  photoUrl?: string;
+  auditLog: AuditEntry[];
 }
 
 export interface ApiService {
@@ -145,6 +70,7 @@ export interface ApiService {
   getUpcomingTasks(): Promise<Task[]>;
   getUpcomingPayments(): Promise<PaymentSchedule[]>;
   uploadPhoto(file: File): Promise<{ url: string }>;
+  checkSlug(slug: string): Promise<{ available: boolean }>;
 
   // Guest import
   importGuestsExcel(file: File): Promise<{ imported: number; guests: Guest[] }>;
@@ -153,6 +79,7 @@ export interface ApiService {
   createGuest(data: CreateGuestData): Promise<Guest>;
   updateGuest(id: string, data: UpdateGuestData): Promise<Guest>;
   deleteGuest(id: string): Promise<void>;
+  getGuestHistory(id: string): Promise<GuestHistory>;
 
   // Guest Groups
   getGuestGroups(): Promise<GuestGroup[]>;
@@ -168,6 +95,11 @@ export interface ApiService {
   updateItem(categoryId: string, itemId: string, data: UpdateItemData): Promise<ExpenseCategory>;
   deleteItem(categoryId: string, itemId: string): Promise<void>;
   getPayments(): Promise<PaymentSchedule[]>;
+  getItemPayments(catId: string, itemId: string): Promise<ItemPayment[]>;
+  createItemPayment(catId: string, itemId: string, data: { concept: string; amount: number; dueDate: string; notes?: string }): Promise<ItemPayment>;
+  updateBudgetPayment(paymentId: string, data: { concept?: string; amount?: number; dueDate?: string; paid?: boolean; notes?: string }): Promise<ItemPayment>;
+  deleteBudgetPayment(paymentId: string): Promise<void>;
+  getVendorBudgetPayments(vendorId: string): Promise<VendorBudgetPaymentsResult>;
 
   // Task CRUD
   getTasks(filters?: Record<string, string>): Promise<Task[]>;
@@ -200,10 +132,10 @@ export interface ApiService {
   // Seating Plans
   getSeatingPlans(): Promise<SeatingPlan[]>;
   createSeatingPlan(name: string): Promise<SeatingPlan>;
-  updateSeatingPlan(planId: string, name: string): Promise<SeatingPlan>;
+  updateSeatingPlan(planId: string, data: string | Partial<SeatingPlan>): Promise<SeatingPlan>;
   deleteSeatingPlan(planId: string): Promise<void>;
   addSeatingTable(planId: string, data: { name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }): Promise<SeatingPlan>;
-  updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }>): Promise<SeatingPlan>;
+  updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number; physicalDiameter: number; physicalWidth: number; physicalHeight: number; rotation: number }>): Promise<SeatingPlan>;
   deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan>;
   assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan>;
 

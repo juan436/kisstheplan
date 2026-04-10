@@ -1,5 +1,20 @@
 "use client";
 
+/**
+ * Contexto global de autenticación.
+ *
+ * Uso en cualquier componente o hook:
+ *   const { user, wedding, login, logout } = useAuth();
+ *
+ * `wedding` puede ser null si el usuario aún no ha completado el onboarding.
+ * Los hooks de módulos deben guardar su carga inicial con `if (!wedding) return`.
+ *
+ * Para añadir Google OAuth:
+ *   1. Añadir `loginWithGoogle(code: string)` que llame a `apiGoogleCallback` de auth-helpers.ts
+ *   2. Añadir la función al AuthContextValue interface y al Provider value.
+ *   3. Crear `src/app/api/auth/google/callback/route.ts` para manejar el redirect OAuth.
+ */
+
 import {
   createContext,
   useContext,
@@ -11,14 +26,14 @@ import {
 import { useRouter } from "next/navigation";
 import type { User, Wedding } from "@/types";
 import {
+  api,
   apiLogin,
   apiRegister,
   apiCreateWedding,
   apiLogout,
   isAuthenticated as checkAuth,
   clearTokens,
-} from "@/services/real-api";
-import { api } from "@/services";
+} from "@/services";
 
 interface AuthContextValue {
   user: User | null;

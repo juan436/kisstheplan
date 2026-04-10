@@ -1,20 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModuleNav } from "@/components/layout/module-nav";
+import { useNavigation } from "@/hooks/useNavigation";
 import DashboardView from "@/components/views/dashboard-view";
-import GuestsView from "@/components/views/guests-view";
-import BudgetView from "@/components/views/budget-view";
-import TasksView from "@/components/views/tasks-view";
-import WebView from "@/components/views/web-view";
-import SuppliersView from "@/components/views/suppliers-view";
-import SeatingView from "@/components/views/seating-view";
-import CalendarView from "@/components/views/calendar-view";
-import { ScriptView } from "@/components/views/script-view";
-import { NotesView } from "@/components/views/notes-view";
+import GuestsView from "@/components/views/guests";
+import BudgetView from "@/components/views/budget";
+import TasksView from "@/components/views/tasks";
+import WebView from "@/components/views/web";
+import SuppliersView from "@/components/views/suppliers";
+import SeatingView from "@/components/views/seating";
+import CalendarView from "@/components/views/calendar";
+import { ScriptView } from "@/components/views/script";
+import { NotesView } from "@/components/views/notes";
 
 export default function DashboardAppPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { pendingTab, clearPendingTab } = useNavigation();
+
+  useEffect(() => {
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      clearPendingTab();
+    }
+  }, [pendingTab, clearPendingTab]);
 
   return (
     <div className="flex flex-col h-full min-h-full">
@@ -22,7 +31,7 @@ export default function DashboardAppPage() {
       <div className="flex-1 w-full max-w-full overflow-hidden">
         {activeTab === "dashboard" && (
           <div className="py-6">
-            <DashboardView />
+            <DashboardView onTabChange={setActiveTab} />
           </div>
         )}
         {activeTab === "invitados" && <div className="p-6"><GuestsView /></div>}
