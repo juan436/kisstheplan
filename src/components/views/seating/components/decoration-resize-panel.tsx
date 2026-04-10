@@ -18,19 +18,24 @@ const PANEL_W = 176;
 const PANEL_H = 158;
 
 export function DecorationResizePanel({ deco, screenX, screenY, canvasH, onApply, onClose }: DecorationResizePanelProps) {
-  const m = DECORATION_META[deco.type];
-  const [w, setW] = useState(deco.physicalWidth ?? m.physicalW);
-  const [h, setH] = useState(deco.physicalHeight ?? m.physicalH);
+  const m = deco.type !== "custom_emoji" ? DECORATION_META[deco.type] : null;
+  const defaultW = m?.physicalW ?? 1;
+  const defaultH = m?.physicalH ?? 1;
+  const [w, setW] = useState(deco.physicalWidth ?? defaultW);
+  const [h, setH] = useState(deco.physicalHeight ?? defaultH);
 
   // Clamp so panel stays inside canvas
   const left = Math.min(screenX + 16, window.innerWidth - PANEL_W - 16);
   const top  = Math.max(4, Math.min(screenY - PANEL_H / 2, canvasH - PANEL_H - 4));
 
   const handleApply = () => {
-    const pw = Math.max(0.5, Math.min(20, parseFloat(String(w)) || m.physicalW));
-    const ph = Math.max(0.5, Math.min(20, parseFloat(String(h)) || m.physicalH));
+    const pw = Math.max(0.5, Math.min(20, parseFloat(String(w)) || defaultW));
+    const ph = Math.max(0.5, Math.min(20, parseFloat(String(h)) || defaultH));
     onApply(deco.id, pw, ph);
   };
+
+  const displayEmoji = deco.customEmoji ?? m?.emoji ?? "?";
+  const displayLabel = deco.label ?? m?.label ?? deco.type;
 
   return (
     <div
@@ -42,7 +47,7 @@ export function DecorationResizePanel({ deco, screenX, screenY, canvasH, onApply
       {/* Header */}
       <div className="flex items-center justify-between gap-1">
         <span className="text-[11px] font-semibold text-[var(--color-text)] truncate">
-          {m.emoji} {deco.label ?? m.label}
+          {displayEmoji} {displayLabel}
         </span>
         <button onClick={onClose} className="shrink-0 text-[var(--color-text)]/40 hover:text-[var(--color-text)] transition-colors">
           <X size={12} />

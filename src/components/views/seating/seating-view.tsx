@@ -44,7 +44,7 @@ export default function SeatingView() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="px-8 py-4 w-full max-w-[1600px] mx-auto">
       <div className="flex items-center gap-4 mb-5 flex-wrap">
         <PlanSelector plans={plans} selectedId={selectedPlanId} onSelect={setSelectedPlanId} onNew={() => setShowNewPlan(true)} />
 
