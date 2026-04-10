@@ -13,7 +13,14 @@ interface AddTableModalProps {
 export function AddTableModal({ onClose, onAdd, defaultShape = "round" }: AddTableModalProps) {
   const [name, setName] = useState("");
   const [shape, setShape] = useState<"round" | "rectangular">(defaultShape);
-  const [capacity, setCapacity] = useState(8);
+  const [capacity, setCapacity] = useState(defaultShape === "rectangular" ? 8 : 8);
+
+  const maxCapacity = shape === "rectangular" ? 8 : 20;
+
+  const switchShape = (s: "round" | "rectangular") => {
+    setShape(s);
+    if (s === "rectangular") setCapacity((c) => Math.min(c, 8));
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -49,7 +56,7 @@ export function AddTableModal({ onClose, onAdd, defaultShape = "round" }: AddTab
             <label className="block text-sm font-medium text-[var(--color-text)]/70 mb-1.5">Forma</label>
             <div className="flex gap-3">
               <button
-                onClick={() => setShape("round")}
+                onClick={() => switchShape("round")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                   shape === "round"
                     ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
@@ -60,7 +67,7 @@ export function AddTableModal({ onClose, onAdd, defaultShape = "round" }: AddTab
                 Redonda
               </button>
               <button
-                onClick={() => setShape("rectangular")}
+                onClick={() => switchShape("rectangular")}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                   shape === "rectangular"
                     ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
@@ -76,14 +83,17 @@ export function AddTableModal({ onClose, onAdd, defaultShape = "round" }: AddTab
           <div>
             <label className="block text-sm font-medium text-[var(--color-text)]/70 mb-1.5">
               Capacidad: <span className="text-[var(--color-accent)] font-semibold">{capacity} personas</span>
+              {shape === "rectangular" && (
+                <span className="ml-2 text-[11px] text-[var(--color-text)]/40">(máx. 8 — 4 por lado)</span>
+              )}
             </label>
             <input
-              type="range" min={1} max={20} value={capacity}
+              type="range" min={1} max={maxCapacity} value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
               className="w-full accent-[var(--color-accent)]"
             />
             <div className="flex justify-between text-xs text-[var(--color-text)]/40 mt-1">
-              <span>1</span><span>20</span>
+              <span>1</span><span>{maxCapacity}</span>
             </div>
           </div>
         </div>

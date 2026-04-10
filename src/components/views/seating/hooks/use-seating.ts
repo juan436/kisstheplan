@@ -89,6 +89,23 @@ export function useSeating() {
     setPlans((prev) => prev.map((p) => (p.id === selectedPlanId ? updated : p)));
   };
 
+  const handleUpdateTableSize = async (
+    tableId: string,
+    physicalDiameter?: number,
+    physicalWidth?: number,
+    physicalHeight?: number,
+  ) => {
+    if (!selectedPlanId) return;
+    setPlans((prev) =>
+      prev.map((p) =>
+        p.id === selectedPlanId
+          ? { ...p, tables: p.tables.map((t) => (t.id === tableId ? { ...t, physicalDiameter, physicalWidth, physicalHeight } : t)) }
+          : p
+      )
+    );
+    await api.updateSeatingTable(selectedPlanId, tableId, { physicalDiameter, physicalWidth, physicalHeight });
+  };
+
   const handleAssignSeat = async (tableId: string, seatNumber: number, guestId?: string) => {
     if (!selectedPlanId) return;
     setPlans((prev) =>
@@ -116,7 +133,7 @@ export function useSeating() {
     showAddTable, setShowAddTable,
     selectedPlan,
     handleCreatePlan, handleDeletePlan,
-    handleAddTable, handleUpdateTablePos, handleDeleteTable,
+    handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleDeleteTable,
     handleRenameTable, handleAssignSeat,
   };
 }

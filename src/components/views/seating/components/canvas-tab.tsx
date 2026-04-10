@@ -2,153 +2,257 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
-import { ZoomIn, ZoomOut } from "lucide-react";
-import { api } from "@/services";
 import { uploadImage } from "@/lib/upload";
-import type { SeatingPlan, TableSeat, Guest, DecorationObject, DecorationType } from "@/types";
-import { WORLD_W, WORLD_H, CANVAS_H, DEFAULT_SCALE } from "../constants/seating.constants";
+import type { SeatingPlan, Guest } from "@/types";
+import { WORLD_W, WORLD_H, DEFAULT_SCALE } from "../constants/seating.constants";
 import { useCanvasDrag } from "../hooks/use-canvas-drag";
+import { useCanvasPan } from "../hooks/use-canvas-pan";
+import { useCanvasZoom } from "../hooks/use-canvas-zoom";
+import { useCanvasZones } from "../hooks/use-canvas-zones";
+import { useCanvasDecorations } from "../hooks/use-canvas-decorations";
+import { useCanvasGuides } from "../hooks/use-canvas-guides";
 import { CanvasSvg } from "./canvas-svg";
 import { CanvasToolbar } from "./canvas-toolbar";
-import { CalibrationOverlay } from "./calibration-overlay";
+import { RulerCorner, RulerTop, RulerLeft, RULER_SIZE } from "./canvas-rulers";
+import { ZoneCreationOverlay } from "./zone-creation-overlay";
 import { DietLegend } from "./diet-legend";
 import { SeatingPanel } from "./seating-panel";
+import { ZoomControls } from "./zoom-controls";
+import { DecorationResizePanel } from "./decoration-resize-panel";
+import { TableResizePanel } from "./table-resize-panel";
 
 interface CanvasTabProps {
   plan: SeatingPlan;
   guests: Guest[];
   mode: "layout" | "seating";
   onUpdateTablePos: (tableId: string, posX: number, posY: number) => void;
+  onUpdateTableSize: (tableId: string, physicalDiameter?: number, physicalWidth?: number, physicalHeight?: number) => void;
   onAddTable: (shape: "round" | "rectangular") => void;
   onDeleteTable: (tableId: string) => void;
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;
 }
 
-export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
+export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableSize, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
+  const [zoom, setZoom] = useState(1.0);
   const [fitZoom, setFitZoom] = useState(0.7);
-  const [zoom, setZoom] = useState(0.7);
   const [snapEnabled, setSnapEnabled] = useState(false);
-  const [calibrating, setCalibrating] = useState(false);
-  const [calibPoints, setCalibPoints] = useState<{ x: number; y: number }[]>([]);
-  const [scale, setScale] = useState(plan.calibrationScale ?? DEFAULT_SCALE);
+  const [rulersEnabled, setRulersEnabled] = useState(false);
+  const [resizeMode, setResizeMode] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
   const [seatingTable, setSeatingTable] = useState<string | null>(null);
-  const [bgImage, setBgImage] = useState<string | null>("/images/venue-floor.svg");
-  const [decorations, setDecorations] = useState<DecorationObject[]>([]);
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const [tableResizePanel, setTableResizePanel] = useState<{ tableId: string; screenX: number; screenY: number } | null>(null);
+  const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
+  const [canvasDims, setCanvasDims] = useState({ w: WORLD_W, h: 600 });
+  const canvasRef  = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { if (plan?.backgroundImageUrl) setBgImage(plan.backgroundImageUrl); }, [plan?.id]);
-  useEffect(() => { if (plan?.calibrationScale) setScale(plan.calibrationScale); }, [plan?.calibrationScale]);
+  const { panMode, togglePanMode, panOffset, onPanMouseDown, resetPan, isPanning, setPanOffset } = useCanvasPan();
+  const { transitioning, handleCenter } = useCanvasZoom({ canvasRef, fitZoom, zoom, setZoom, panOffset, setPanOffset, resetPan });
+  const zones  = useCanvasZones(plan);
+  const decos  = useCanvasDecorations(plan);
+  const guides = useCanvasGuides();
+
+  // Track canvas pixel dimensions for rulers
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const fz = Math.min(canvasRef.current.offsetWidth / WORLD_W, CANVAS_H / WORLD_H);
-    setFitZoom(fz); setZoom(fz);
+    const el = canvasRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(() => setCanvasDims({ w: el.offsetWidth, h: el.offsetHeight }));
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
-  const canvasW = canvasRef.current?.offsetWidth ?? WORLD_W;
-  const offsetX = Math.max(0, (canvasW - WORLD_W * zoom) / 2);
-  const offsetY = Math.max(0, (CANVAS_H - WORLD_H * zoom) / 2);
+  const offsetX = Math.max(0, (canvasDims.w - WORLD_W * zoom) / 2);
+  const offsetY = Math.max(0, (canvasDims.h - WORLD_H * zoom) / 2);
 
+  // Init zoom+pan on mount
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const fz = Math.min(el.offsetWidth / WORLD_W, el.offsetHeight / WORLD_H);
+    setFitZoom(fz);
+    setZoom(1.0);
+    setPanOffset({ x: Math.min(0, (el.offsetWidth - WORLD_W) / 2), y: Math.min(0, (el.offsetHeight - WORLD_H) / 2) });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (plan.backgroundImageUrl) setBgImage(plan.backgroundImageUrl);
+  }, [plan.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // toWorld uses the canvas div's bounding rect — rulers are outside, so no offset correction needed
   const toWorld = useCallback((cx: number, cy: number) => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    const r = canvasRef.current.getBoundingClientRect();
-    return { x: (cx - r.left - offsetX) / zoom, y: (cy - r.top - offsetY) / zoom };
-  }, [zoom, offsetX, offsetY]);
+    const r = canvasRef.current?.getBoundingClientRect();
+    if (!r) return { x: 0, y: 0 };
+    return { x: (cx - r.left - offsetX - panOffset.x) / zoom, y: (cy - r.top - offsetY - panOffset.y) / zoom };
+  }, [zoom, offsetX, offsetY, panOffset.x, panOffset.y]);
 
-  const onUpdateDecoPos = useCallback((id: string, x: number, y: number) => {
-    setDecorations((prev) => prev.map((d) => d.id === id ? { ...d, posX: x, posY: y } : d));
-  }, []);
-
-  const { setDragging } = useCanvasDrag({ zoom, snapEnabled, onUpdateTablePos, onUpdateDecoPos });
+  const { setDragging } = useCanvasDrag({
+    zoom, snapEnabled, zones: zones.zones,
+    fallbackScale: plan.scaleFactor ?? DEFAULT_SCALE,
+    snapToGuides: guides.snapToGuides,
+    onUpdateTablePos, onUpdateDecoPos: decos.onUpdateDecoPos,
+  });
 
   const handleTableMouseDown = useCallback((e: React.MouseEvent, tableId: string) => {
-    if (mode !== "layout" || calibrating) return;
+    if (mode !== "layout" || zones.zoningMode || panMode || deleteMode) return;
     const t = plan.tables.find((t) => t.id === tableId);
     if (!t) return;
     e.preventDefault();
     setDragging({ kind: "table", id: tableId, startMouseX: e.clientX, startMouseY: e.clientY, startPosX: t.posX, startPosY: t.posY });
-  }, [mode, calibrating, plan.tables, setDragging]);
+  }, [mode, zones.zoningMode, panMode, deleteMode, plan.tables, setDragging]);
 
   const handleDecoMouseDown = useCallback((e: React.MouseEvent, id: string) => {
-    if (mode !== "layout" || calibrating) return;
-    const d = decorations.find((d) => d.id === id);
+    if (mode !== "layout" || zones.zoningMode || panMode || deleteMode) return;
+    const d = decos.decorations.find((d) => d.id === id);
     if (!d) return;
     e.preventDefault();
+    decos.closeDecoPanel();
     setDragging({ kind: "deco", id, startMouseX: e.clientX, startMouseY: e.clientY, startPosX: d.posX, startPosY: d.posY });
-  }, [mode, calibrating, decorations, setDragging]);
+  }, [mode, zones.zoningMode, panMode, deleteMode, decos, setDragging]);
 
   const handleSvgClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    if (!calibrating) return;
-    const pos = toWorld(e.clientX, e.clientY);
-    setCalibPoints((prev) => {
-      const next = [...prev, pos].slice(0, 2);
-      return next;
-    });
-  }, [calibrating, toWorld]);
-
-  const handleCalibConfirm = async (meters: number) => {
-    const [p1, p2] = calibPoints;
-    const newScale = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) / meters;
-    setScale(newScale);
-    setCalibrating(false); setCalibPoints([]);
-    if (plan.id) await api.updateSeatingPlan(plan.id, { scaleFactor: newScale });
-  };
+    decos.closeDecoPanel();
+    let pos = toWorld(e.clientX, e.clientY);
+    if (e.shiftKey && zones.zonePoints.length > 0) {
+      const last = zones.zonePoints[zones.zonePoints.length - 1];
+      const dx = Math.abs(pos.x - last.x), dy = Math.abs(pos.y - last.y);
+      pos = dx >= dy ? { x: pos.x, y: last.y } : { x: last.x, y: pos.y };
+    }
+    if (zones.handleZoneClick(pos)) return;
+  }, [toWorld, zones, decos]);
 
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const url = await uploadImage(file);
-      setBgImage(url);
-      if (plan.id) await api.updateSeatingPlan(plan.id, { backgroundImageUrl: url });
-    } catch { alert("Error al subir la imagen."); }
+    try { setBgImage(await uploadImage(file)); }
+    catch { alert("Error al subir la imagen."); }
   };
 
-  const handleAddDecoration = (type: DecorationType) => {
-    setDecorations((prev) => [...prev, { id: `deco-${Date.now()}`, type, posX: WORLD_W / 2, posY: WORLD_H / 2 }]);
-  };
+  const handleTableClick = useCallback((id: string) => {
+    if (deleteMode && mode === "layout") { onDeleteTable(id); return; }
+    if (resizeMode && mode === "layout") {
+      const tbl = plan.tables.find((t) => t.id === id);
+      if (tbl) {
+        const sx = offsetX + panOffset.x + tbl.posX * zoom;
+        const sy = offsetY + panOffset.y + tbl.posY * zoom;
+        setTableResizePanel({ tableId: id, screenX: sx, screenY: sy });
+      }
+      return;
+    }
+    if (mode === "seating") setSeatingTable(id === seatingTable ? null : id);
+  }, [deleteMode, resizeMode, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
 
   const activeTable = seatingTable ? plan.tables.find((t) => t.id === seatingTable) : null;
+  const isZoning = zones.zoningMode || !!zones.pendingPoints;
+  const cursor = isZoning ? "crosshair" : panMode ? (isPanning ? "grabbing" : "grab") : deleteMode ? "crosshair" : undefined;
 
   return (
     <div className="flex flex-col gap-3">
-      <div ref={canvasRef} className="relative overflow-hidden rounded-xl border border-[var(--color-border)]"
-        style={{ height: CANVAS_H, background: "#EDE4D9", cursor: calibrating ? "crosshair" : undefined }}>
-        <div style={{ position: "absolute", width: WORLD_W, height: WORLD_H, transformOrigin: "0 0",
-          transform: `translate(${offsetX}px,${offsetY}px) scale(${zoom})` }}>
-          <CanvasSvg plan={plan} guests={guests} scale={scale} mode={mode} bgImage={bgImage}
-            seatingTable={seatingTable} snapEnabled={snapEnabled} decorations={decorations} calibPoints={calibPoints}
-            onTableMouseDown={handleTableMouseDown} onTableClick={(id) => { if (mode === "seating") setSeatingTable(id === seatingTable ? null : id); }}
-            onDeleteTable={onDeleteTable} onDecoMouseDown={handleDecoMouseDown} onSvgClick={handleSvgClick} />
-        </div>
+      {/*
+        Outer wrapper: position:relative so rulers and canvas can overlay absolutely.
+        Canvas is always absolute inset-0 — it NEVER shifts when rulers toggle.
+        Rulers are rendered AFTER the canvas in DOM order so they paint on top naturally.
+      */}
+      <div className="rounded-xl border border-[var(--color-border)] overflow-hidden"
+        style={{ minHeight: "85vh", position: "relative", background: "#EDE4D9" }}>
 
-        <AnimatePresence>
-          {mode === "seating" && activeTable && (
-            <SeatingPanel table={activeTable} guests={guests}
-              onClose={() => setSeatingTable(null)}
-              onUnassign={(sn) => onAssignSeat(activeTable.id, sn, undefined)} />
+          {/* Canvas — always fills the full container, rulers overlay on top */}
+          <div ref={canvasRef} className="absolute inset-0 overflow-hidden"
+            style={{ background: "#EDE4D9", cursor }}
+            onMouseDown={onPanMouseDown}>
+
+            <div style={{
+              position: "absolute", width: WORLD_W, height: WORLD_H, transformOrigin: "0 0",
+              transform: `translate(${offsetX + panOffset.x}px,${offsetY + panOffset.y}px) scale(${zoom})`,
+              transition: transitioning ? "transform 0.35s cubic-bezier(0.4,0,0.2,1)" : undefined,
+            }}>
+              <CanvasSvg
+                plan={plan} guests={guests} scale={plan.scaleFactor ?? DEFAULT_SCALE} mode={mode}
+                bgImage={bgImage} seatingTable={seatingTable} snapEnabled={snapEnabled}
+                zones={zones.zones} zonePoints={zones.zonePoints} guides={guides.guides}
+                zoningActive={isZoning} resizeMode={resizeMode} deleteMode={deleteMode}
+                decorations={decos.decorations} selectedDecoId={decos.selectedDecoId} calibPoints={[]}
+                onTableMouseDown={handleTableMouseDown}
+                onTableClick={handleTableClick}
+                onDecoMouseDown={handleDecoMouseDown}
+                onDecoClick={(id, cx, cy) => {
+                  if (deleteMode) { decos.handleDeleteDeco(id); return; }
+                  if (!resizeMode) return;
+                  const rect = canvasRef.current?.getBoundingClientRect();
+                  if (rect) decos.handleDecoClick(id, cx, cy, rect, mode, zones.zoningMode, panMode);
+                }}
+                onSvgClick={handleSvgClick}
+                onGuideMouseDown={(e, id) => { e.stopPropagation(); guides.startDrag(id, toWorld); }}
+                onGuideDoubleClick={guides.removeGuide}
+              />
+            </div>
+
+            <AnimatePresence>
+              {mode === "seating" && activeTable && (
+                <SeatingPanel table={activeTable} guests={guests}
+                  onClose={() => setSeatingTable(null)}
+                  onUnassign={(sn) => onAssignSeat(activeTable.id, sn, undefined)} />
+              )}
+            </AnimatePresence>
+
+            {mode === "layout" && resizeMode && tableResizePanel && (() => {
+              const tbl = plan.tables.find((t) => t.id === tableResizePanel.tableId);
+              return tbl ? (
+                <TableResizePanel table={tbl}
+                  screenX={tableResizePanel.screenX} screenY={tableResizePanel.screenY}
+                  canvasH={canvasDims.h}
+                  onApply={(id, d, w, h) => { onUpdateTableSize(id, d, w, h); setTableResizePanel(null); }}
+                  onClose={() => setTableResizePanel(null)} />
+              ) : null;
+            })()}
+
+            {mode === "layout" && decos.selectedDecoId && decos.decoPanel && (() => {
+              const deco = decos.decorations.find((d) => d.id === decos.selectedDecoId);
+              return deco ? (
+                <DecorationResizePanel deco={deco}
+                  screenX={decos.decoPanel.screenX} screenY={decos.decoPanel.screenY}
+                  canvasH={canvasDims.h} onApply={decos.handleDecoApply} onClose={decos.closeDecoPanel} />
+              ) : null;
+            })()}
+
+            <ZoomControls zoom={zoom} fitZoom={fitZoom} onZoomChange={setZoom} onCenter={handleCenter} />
+
+            {isZoning && (
+              <ZoneCreationOverlay pointCount={zones.zonePoints.length} pendingPoints={zones.pendingPoints}
+                onConfirm={zones.confirmZone} onCancel={zones.cancelPendingZone} />
+            )}
+          </div>
+
+          {/* Rulers — absolutely overlaid after the canvas div (natural z-order: on top).
+              RulerTop offset = offsetX - RULER_SIZE because ruler starts at left:RULER_SIZE
+              from the canvas origin. RulerLeft offset = offsetY (ruler starts at top:0). */}
+          {rulersEnabled && (
+            <>
+              <RulerCorner />
+              <RulerTop zoom={zoom} panOffset={panOffset} offsetX={offsetX - RULER_SIZE} canvasW={canvasDims.w}
+                onMouseDown={(wx) => guides.addAndDrag("vertical", wx, toWorld)} />
+              <RulerLeft zoom={zoom} panOffset={panOffset} offsetY={offsetY} canvasH={canvasDims.h}
+                onMouseDown={(wy) => guides.addAndDrag("horizontal", wy, toWorld)} />
+            </>
           )}
-        </AnimatePresence>
-
-        <div className="absolute bottom-3 right-3 flex flex-col gap-1">
-          <button onClick={() => setZoom((z) => Math.min(z + 0.1, 2))} className="w-7 h-7 rounded-lg bg-white border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]/60 hover:text-[var(--color-text)] shadow-sm"><ZoomIn size={13} /></button>
-          <button onClick={() => setZoom((z) => Math.max(z - 0.1, fitZoom))} className="w-7 h-7 rounded-lg bg-white border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]/60 hover:text-[var(--color-text)] shadow-sm"><ZoomOut size={13} /></button>
-          <span className="text-center text-[10px] text-[var(--color-text)]/40 bg-white/80 rounded px-1">{Math.round(zoom * 100)}%</span>
-          <span className="text-center text-[10px] text-[var(--color-text)]/40 bg-white/80 rounded px-1">{Math.round(scale)}px/m</span>
-        </div>
-
-        {calibrating && (
-          <CalibrationOverlay points={calibPoints}
-            onConfirm={handleCalibConfirm}
-            onCancel={() => { setCalibrating(false); setCalibPoints([]); }} />
-        )}
       </div>
 
-      <CanvasToolbar mode={mode} bgImage={bgImage} snapEnabled={snapEnabled} calibrating={calibrating}
-        fileInputRef={fileInputRef} onAddTable={onAddTable} onAddDecoration={handleAddDecoration}
+      <CanvasToolbar
+        mode={mode} bgImage={bgImage} snapEnabled={snapEnabled}
+        zoningMode={zones.zoningMode} hasZones={zones.zones.length > 0}
+        rulersEnabled={rulersEnabled} hasGuides={guides.guides.length > 0} panMode={panMode}
+        resizeMode={resizeMode}
+        fileInputRef={fileInputRef}
+        onAddTable={onAddTable} onAddDecoration={decos.handleAddDecoration}
         onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
         onToggleSnap={() => setSnapEnabled((v) => !v)}
-        onToggleCalibrate={() => { setCalibrating((v) => !v); setCalibPoints([]); }} />
+        onToggleZone={zones.toggleZoningMode} onClearZones={zones.clearZones}
+        onToggleRulers={() => setRulersEnabled((v) => !v)}
+        onClearGuides={guides.clearGuides}
+        onTogglePan={togglePanMode}
+        onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
+        deleteMode={deleteMode}
+        onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
+      />
 
       {mode === "seating" && <DietLegend plan={plan} guests={guests} />}
     </div>

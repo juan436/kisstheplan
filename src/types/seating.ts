@@ -24,6 +24,16 @@ export interface DecorationObject {
   posX: number;
   posY: number;
   label?: string;
+  physicalWidth?: number;  // metros
+  physicalHeight?: number; // metros
+}
+
+export interface CalibZone {
+  id: string;
+  points: { x: number; y: number }[]; // exactly 4 world-space points
+  physicalWidth: number;  // meters (width of the mapped area)
+  physicalHeight: number; // meters (height of the mapped area)
+  localScale: number;     // px per meter, computed from points + physical dims
 }
 
 export interface SeatingPlan {
@@ -31,6 +41,7 @@ export interface SeatingPlan {
   name: string;
   tables: TableSeat[];
   backgroundImageUrl?: string;
-  scaleFactor?: number;
-  calibrationScale?: number; // px por metro
+  scaleFactor?: number; // px por metro (legacy global calibration)
+  decorations?: DecorationObject[];
+  zones?: CalibZone[];  // multipunto scale zones (V2)
 }

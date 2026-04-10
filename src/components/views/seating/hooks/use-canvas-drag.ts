@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { GRID_SIZE } from "../constants/seating.constants";
+import type { CalibZone } from "@/types";
+import { pointInPolygon, getEffectiveScale } from "../helpers/seating.helpers";
 
 export interface DragState {
   kind: "table" | "deco";
@@ -15,50 +17,97 @@ export interface DragState {
 interface UseCanvasDragOptions {
   zoom: number;
   snapEnabled: boolean;
+  zones: CalibZone[];
+  fallbackScale: number;
+  /** Applied always (guides snap independently of grid snap). */
+  snapToGuides: (rawX: number, rawY: number, zoom: number) => { x: number; y: number };
   onUpdateTablePos: (id: string, x: number, y: number) => void;
   onUpdateDecoPos: (id: string, x: number, y: number) => void;
 }
 
-export function useCanvasDrag({ zoom, snapEnabled, onUpdateTablePos, onUpdateDecoPos }: UseCanvasDragOptions) {
+export function useCanvasDrag({
+  zoom, snapEnabled, zones, fallbackScale, snapToGuides, onUpdateTablePos, onUpdateDecoPos,
+}: UseCanvasDragOptions) {
   const [dragging, setDragging] = useState<DragState | null>(null);
-  const snapRef = useRef(snapEnabled);
-  useEffect(() => { snapRef.current = snapEnabled; }, [snapEnabled]);
+  const snapRef          = useRef(snapEnabled);
+  const zonesRef         = useRef(zones);
+  const zoomRef          = useRef(zoom);
+  const fallbackScaleRef = useRef(fallbackScale);
+  const snapGuidesRef    = useRef(snapToGuides);
+  useEffect(() => { snapRef.current          = snapEnabled;   }, [snapEnabled]);
+  useEffect(() => { zonesRef.current         = zones;         }, [zones]);
+  useEffect(() => { zoomRef.current          = zoom;          }, [zoom]);
+  useEffect(() => { fallbackScaleRef.current = fallbackScale; }, [fallbackScale]);
+  useEffect(() => { snapGuidesRef.current    = snapToGuides;  }, [snapToGuides]);
 
   useEffect(() => {
     if (!dragging) return;
 
-    const snap = (v: number) =>
-      snapRef.current ? Math.round(v / GRID_SIZE) * GRID_SIZE : v;
+    const resolveGridSnap = (rawX: number, rawY: number): { x: number; y: number } => {
+      if (!snapRef.current) return { x: rawX, y: rawY };
+      const zone = zonesRef.current.find((z) => pointInPolygon(rawX, rawY, z.points));
+      const s = zone ? zone.localScale : GRID_SIZE;
+      return { x: Math.round(rawX / s) * s, y: Math.round(rawY / s) * s };
+    };
+
+    const applyAll = (rawX: number, rawY: number, shiftKey: boolean): { x: number; y: number } => {
+      let dx = rawX - dragging.startPosX;
+      let dy = rawY - dragging.startPosY;
+      if (shiftKey) {
+        if (Math.abs(dx) >= Math.abs(dy)) dy = 0;
+        else dx = 0;
+      }
+      const nx = Math.max(0, dragging.startPosX + dx);
+      const ny = Math.max(0, dragging.startPosY + dy);
+      const gridSnapped  = resolveGridSnap(nx, ny);
+      const guideSnapped = snapGuidesRef.current(gridSnapped.x, gridSnapped.y, zoomRef.current);
+      return guideSnapped;
+    };
+
+    /** Scale at the drag-start position — the table was rendered with this scale. */
+    const originScale = getEffectiveScale(
+      dragging.startPosX, dragging.startPosY,
+      zonesRef.current, fallbackScaleRef.current,
+    );
 
     const onMove = (e: MouseEvent) => {
-      const dx = (e.clientX - dragging.startMouseX) / zoom;
-      const dy = (e.clientY - dragging.startMouseY) / zoom;
-      const nx = snap(Math.max(0, dragging.startPosX + dx));
-      const ny = snap(Math.max(0, dragging.startPosY + dy));
-      const domId = dragging.kind === "table"
-        ? `table-g-${dragging.id}`
-        : `deco-g-${dragging.id}`;
-      const el = document.getElementById(domId);
-      if (el) el.setAttribute("transform", `translate(${nx},${ny})`);
+      const rawX = dragging.startPosX + (e.clientX - dragging.startMouseX) / zoomRef.current;
+      const rawY = dragging.startPosY + (e.clientY - dragging.startMouseY) / zoomRef.current;
+      const { x, y } = applyAll(rawX, rawY, e.shiftKey);
+
+      const domId = dragging.kind === "table" ? `table-g-${dragging.id}` : `deco-g-${dragging.id}`;
+      const el    = document.getElementById(domId);
+      if (!el) return;
+
+      // Dynamic scale: if the object crossed a zone boundary, rescale it in-flight
+      // so Pixels = PhysicalMeters × LocalScale remains true at the new position.
+      const currentScale = getEffectiveScale(x, y, zonesRef.current, fallbackScaleRef.current);
+      const scaleRatio   = originScale > 0 ? currentScale / originScale : 1;
+
+      el.setAttribute(
+        "transform",
+        scaleRatio !== 1
+          ? `translate(${x},${y}) scale(${scaleRatio})`
+          : `translate(${x},${y})`,
+      );
     };
 
     const onUp = (e: MouseEvent) => {
-      const dx = (e.clientX - dragging.startMouseX) / zoom;
-      const dy = (e.clientY - dragging.startMouseY) / zoom;
-      const nx = snap(Math.max(0, dragging.startPosX + dx));
-      const ny = snap(Math.max(0, dragging.startPosY + dy));
-      if (dragging.kind === "table") onUpdateTablePos(dragging.id, nx, ny);
-      else onUpdateDecoPos(dragging.id, nx, ny);
+      const rawX = dragging.startPosX + (e.clientX - dragging.startMouseX) / zoomRef.current;
+      const rawY = dragging.startPosY + (e.clientY - dragging.startMouseY) / zoomRef.current;
+      const { x, y } = applyAll(rawX, rawY, e.shiftKey);
+      if (dragging.kind === "table") onUpdateTablePos(dragging.id, x, y);
+      else onUpdateDecoPos(dragging.id, x, y);
       setDragging(null);
     };
 
     window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
+    window.addEventListener("mouseup",   onUp);
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("mouseup",   onUp);
     };
-  }, [dragging, zoom, onUpdateTablePos, onUpdateDecoPos]);
+  }, [dragging, onUpdateTablePos, onUpdateDecoPos]);
 
   return { dragging, setDragging };
 }
