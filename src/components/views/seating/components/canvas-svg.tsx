@@ -31,6 +31,7 @@ interface CanvasSvgProps {
   selectedDecoId: string | null;
   calibPoints: { x: number; y: number }[];
   deleteMode: boolean;
+  hoveredTableId?: string | null;
   onTableMouseDown: (e: React.MouseEvent, tableId: string) => void;
   onTableClick: (tableId: string) => void;
   onTableRotate: (tableId: string) => void;
@@ -82,12 +83,21 @@ function ZoneNeonGrid({ zone }: { zone: CalibZone }) {
 export function CanvasSvg({
   plan, guests, scale, mode, bgImage, seatingTable, snapEnabled,
   zones, zonePoints, guides, zoningActive, resizeMode, showLabels, showName, deleteMode, decorations, selectedDecoId, calibPoints,
+  hoveredTableId,
   onTableMouseDown, onTableClick, onTableRotate, onTableHover, onTableHoverEnd,
   onDecoMouseDown, onDecoClick, onSvgClick,
   onGuideMouseDown, onGuideDoubleClick,
 }: CanvasSvgProps) {
+  // Sort tables so hovered/selected renders last → highest SVG stacking order → names on top
+  const sortedTables = [...plan.tables].sort((a, b) => {
+    const aTop = a.id === hoveredTableId || a.id === seatingTable ? 1 : 0;
+    const bTop = b.id === hoveredTableId || b.id === seatingTable ? 1 : 0;
+    return aTop - bTop;
+  });
   return (
-    <svg width={WORLD_W} height={WORLD_H} onClick={onSvgClick} style={{ display: "block", overflow: "visible" }}>
+    <svg width={WORLD_W} height={WORLD_H} onClick={onSvgClick}
+      style={{ display: "block", overflow: "visible", userSelect: "none" }}
+      onDragStart={(e) => e.preventDefault()}>
       <defs>
         {/* Neon glow filter: triple-layer blur for vivid electric effect */}
         <filter id="neon-glow" x="-80%" y="-80%" width="260%" height="260%"
@@ -111,10 +121,11 @@ export function CanvasSvg({
         ))}
       </defs>
 
-      {/* Background — clean, no global grid */}
+      {/* Background — purely visual, never interactive */}
       {bgImage
-        ? <image href={bgImage} width={WORLD_W} height={WORLD_H} preserveAspectRatio="xMidYMid slice" />
-        : <rect width={WORLD_W} height={WORLD_H} fill="#EDE4D9" />
+        ? <image href={bgImage} width={WORLD_W} height={WORLD_H} preserveAspectRatio="xMidYMid slice"
+            style={{ pointerEvents: "none", userSelect: "none" }} />
+        : <rect width={WORLD_W} height={WORLD_H} fill="#EDE4D9" style={{ pointerEvents: "none" }} />
       }
 
       {/* Zones: always show subtle fill + dashed border */}
@@ -200,14 +211,30 @@ export function CanvasSvg({
               strokeWidth={isSelDeco ? 2 : 1} />
             <text textAnchor="middle" dominantBaseline="central" fontSize={emojiSize}
               style={{ pointerEvents: "none", userSelect: "none" }}>{emoji}</text>
-            <text textAnchor="middle" y={h / 2 + 13} fontSize={9} fill="var(--color-text)" opacity={0.5}
-              style={{ pointerEvents: "none", userSelect: "none" }}>{label}</text>
+            {/* Label pill — white rounded background so text is always legible over any image */}
+            {(() => {
+              const fs = 8.5;
+              const pillW = Math.max(28, label.length * fs * 0.62 + 10);
+              const pillH = 14;
+              const pillY = h / 2 + 5;
+              return (
+                <g style={{ pointerEvents: "none", userSelect: "none" }}>
+                  <rect x={-pillW / 2} y={pillY} width={pillW} height={pillH} rx={pillH / 2}
+                    fill="white" opacity={0.92}
+                    style={{ filter: "drop-shadow(0 1px 2px rgba(74,60,50,0.18))" }} />
+                  <text textAnchor="middle" y={pillY + pillH / 2 + 0.5}
+                    dominantBaseline="central" fontSize={fs}
+                    fill="#4A3C32" fontWeight={500}
+                    style={{ pointerEvents: "none", userSelect: "none" }}>{label}</text>
+                </g>
+              );
+            })()}
           </g>
         );
       })}
 
-      {/* Tables — each gets the scale of the zone it sits in */}
-      {plan.tables.map((table) => (
+      {/* Tables — each gets the scale of the zone it sits in; hovered/selected renders last (SVG stacking = on top) */}
+      {sortedTables.map((table) => (
         <SvgTable key={table.id} table={table} guests={guests}
           scale={getEffectiveScale(table.posX, table.posY, zones, scale)}
           mode={mode} resizeMode={resizeMode} deleteMode={deleteMode}

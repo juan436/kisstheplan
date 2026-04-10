@@ -6,6 +6,7 @@ import { uploadImage } from "@/lib/upload";
 import type { SeatingPlan, Guest, EmojiObject } from "@/types";
 import { api } from "@/services";
 import { WORLD_W, WORLD_H, DEFAULT_SCALE } from "../constants/seating.constants";
+import { clampPan } from "../helpers/seating.helpers";
 import { useCanvasDrag } from "../hooks/use-canvas-drag";
 import { useCanvasPan } from "../hooks/use-canvas-pan";
 import { useCanvasZoom } from "../hooks/use-canvas-zoom";
@@ -53,7 +54,16 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
   const canvasRef  = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { panMode, togglePanMode, panOffset, onPanMouseDown, resetPan, isPanning, setPanOffset } = useCanvasPan();
+  // Always-current clamp function passed to pan/zoom hooks
+  const zoomRef      = useRef(zoom);
+  const canvasDimsRef = useRef(canvasDims);
+  zoomRef.current      = zoom;
+  canvasDimsRef.current = canvasDims;
+  const clampRef = useRef((pan: { x: number; y: number }) =>
+    clampPan(pan, zoomRef.current, canvasDimsRef.current.w, canvasDimsRef.current.h)
+  );
+
+  const { panMode, togglePanMode, panOffset, onPanMouseDown, resetPan, isPanning, setPanOffset } = useCanvasPan(clampRef);
   const { transitioning, handleCenter } = useCanvasZoom({ canvasRef, fitZoom, zoom, setZoom, panOffset, setPanOffset, resetPan });
   const zones  = useCanvasZones(plan);
   const decos  = useCanvasDecorations(plan);
@@ -149,9 +159,9 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
   }, [deleteMode, resizeMode, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
 
   const handleTableHover = useCallback((tableId: string) => {
-    if (deleteMode || resizeMode || panMode || zones.zoningMode) return;
+    if (deleteMode || resizeMode || zones.zoningMode) return;
     setHoveredTableId(tableId);
-  }, [deleteMode, resizeMode, panMode, zones.zoningMode]);
+  }, [deleteMode, resizeMode, zones.zoningMode]);
 
   const handleTableHoverEnd = useCallback(() => setHoveredTableId(null), []);
 
@@ -202,8 +212,10 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
           style={{ position: "relative", background: "#EDE4D9" }}>
 
           {/* Canvas — always fills the full container, rulers overlay on top */}
-          <div ref={canvasRef} className="absolute inset-0 overflow-hidden"
+          <div ref={canvasRef} className="absolute inset-0 overflow-hidden select-none"
             style={{ background: "#EDE4D9", cursor }}
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}
             onMouseDown={onPanMouseDown}>
 
             <div style={{
@@ -217,6 +229,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                 zones={zones.zones} zonePoints={zones.zonePoints} guides={guides.guides}
                 zoningActive={isZoning} resizeMode={resizeMode} showLabels={showLabels} showName={showName} deleteMode={deleteMode}
                 decorations={decos.decorations} selectedDecoId={decos.selectedDecoId} calibPoints={[]}
+                hoveredTableId={hoveredTableId}
                 onTableMouseDown={handleTableMouseDown}
                 onTableClick={handleTableClick}
                 onDecoMouseDown={handleDecoMouseDown}

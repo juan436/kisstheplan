@@ -8,7 +8,28 @@ import {
   ROUND_DIAMETER_LARGE,
   RECT_FIXED_WIDTH,
   RECT_FIXED_HEIGHT,
+  WORLD_W,
+  WORLD_H,
 } from "../constants/seating.constants";
+
+/**
+ * Clamps panOffset so the world never drifts outside the canvas viewport.
+ * - If the world is smaller than the canvas in one axis → force 0 (centering handled by offsetX/offsetY).
+ * - If the world is larger → constrain so no empty space appears at any edge.
+ */
+export function clampPan(
+  pan: { x: number; y: number },
+  zoom: number,
+  canvasW: number,
+  canvasH: number,
+): { x: number; y: number } {
+  const worldW = WORLD_W * zoom;
+  const worldH = WORLD_H * zoom;
+  return {
+    x: worldW <= canvasW ? 0 : Math.min(0, Math.max(canvasW - worldW, pan.x)),
+    y: worldH <= canvasH ? 0 : Math.min(0, Math.max(canvasH - worldH, pan.y)),
+  };
+}
 
 /** Radio en px de una mesa redonda según su diámetro físico y escala actual */
 export function tableRadius(

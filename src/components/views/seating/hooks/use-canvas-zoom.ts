@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { WORLD_W, WORLD_H } from "../constants/seating.constants";
+import { clampPan } from "../helpers/seating.helpers";
 
 export const MAX_ZOOM = 50; // 5000% deep zoom
 const WHEEL_FACTOR_IN  = 1.09;
@@ -56,11 +57,12 @@ export function useCanvasZoom({
       const wx = (mx - ox - pan.x) / oldZ;
       const wy = (my - oy - pan.y) / oldZ;
 
-      // New offsets with new zoom
+      // New offsets with new zoom, clamped so world never drifts outside viewport
       const nox = Math.max(0, (cw - WORLD_W * newZ) / 2);
       const noy = Math.max(0, (ch - WORLD_H * newZ) / 2);
+      const rawPan = { x: mx - nox - wx * newZ, y: my - noy - wy * newZ };
 
-      setPanOffset({ x: mx - nox - wx * newZ, y: my - noy - wy * newZ });
+      setPanOffset(clampPan(rawPan, newZ, cw, ch));
       setZoom(newZ);
     };
 
