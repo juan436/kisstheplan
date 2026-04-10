@@ -79,7 +79,7 @@ export function CanvasToolbar({
         </button>
         <button onClick={onToggleResize} className={resizeMode ? btnOn : btnOff}
           title="Modo redimensión: haz clic en una mesa u objeto para editar su tamaño físico real">
-          <Maximize2 size={13} /> {resizeMode ? "Editando tamaño" : "Redimensionar"}
+          <Maximize2 size={13} /> {resizeMode ? "Editando" : "Editar"}
         </button>
         <button onClick={onToggleDelete} className={deleteMode ? btnDelete : btnOff}
           title="Modo borrar: haz clic en cualquier mesa u objeto para eliminarlo del plano">
