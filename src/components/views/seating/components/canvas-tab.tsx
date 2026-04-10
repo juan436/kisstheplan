@@ -174,7 +174,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
     <div className="flex flex-col gap-3">
       {/* Tri-panel layout: LeftToolPanel | Canvas | RightLibraryPanel */}
       <div className="flex rounded-xl border border-[var(--color-border)] overflow-hidden"
-        style={{ minHeight: "85vh" }}>
+        style={{ height: "78vh", maxHeight: "78vh" }}>
 
         <LeftToolPanel
           mode={mode} snapEnabled={snapEnabled} zoningMode={zones.zoningMode}
