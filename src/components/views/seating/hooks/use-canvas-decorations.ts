@@ -59,12 +59,14 @@ export function useCanvasDecorations(plan: SeatingPlan) {
     setDecoPanel(null);
   }, [plan.id]);
 
-  const handleAddDecoration = useCallback((type: DecorationType) => {
+  const handleAddDecoration = useCallback((type: DecorationType, extra?: Partial<DecorationObject>) => {
     const m = DECORATION_META[type];
     const newDeco: DecorationObject = {
       id: `deco-${Date.now()}`, type,
       posX: WORLD_W / 2, posY: WORLD_H / 2,
-      physicalWidth: m.physicalW, physicalHeight: m.physicalH,
+      physicalWidth: extra?.physicalWidth ?? m?.physicalW ?? 1,
+      physicalHeight: extra?.physicalHeight ?? m?.physicalH ?? 1,
+      ...extra,
     };
     setDecorations((prev) => {
       const next = [...prev, newDeco];

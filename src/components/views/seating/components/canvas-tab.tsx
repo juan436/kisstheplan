@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
 import { uploadImage } from "@/lib/upload";
-import type { SeatingPlan, Guest } from "@/types";
+import type { SeatingPlan, Guest, EmojiObject } from "@/types";
+import { api } from "@/services";
 import { WORLD_W, WORLD_H, DEFAULT_SCALE } from "../constants/seating.constants";
 import { useCanvasDrag } from "../hooks/use-canvas-drag";
 import { useCanvasPan } from "../hooks/use-canvas-pan";
@@ -12,7 +13,8 @@ import { useCanvasZones } from "../hooks/use-canvas-zones";
 import { useCanvasDecorations } from "../hooks/use-canvas-decorations";
 import { useCanvasGuides } from "../hooks/use-canvas-guides";
 import { CanvasSvg } from "./canvas-svg";
-import { CanvasToolbar } from "./canvas-toolbar";
+import { LeftToolPanel } from "./left-tool-panel";
+import { RightLibraryPanel } from "./right-library-panel";
 import { RulerCorner, RulerTop, RulerLeft, RULER_SIZE } from "./canvas-rulers";
 import { ZoneCreationOverlay } from "./zone-creation-overlay";
 import { DietLegend } from "./diet-legend";
@@ -46,6 +48,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
   const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
+  const [customEmojis, setCustomEmojis] = useState<EmojiObject[]>(plan.customEmojis ?? []);
   const [canvasDims, setCanvasDims] = useState({ w: WORLD_W, h: 600 });
   const canvasRef  = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,13 +172,34 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
 
   return (
     <div className="flex flex-col gap-3">
-      {/*
-        Outer wrapper: position:relative so rulers and canvas can overlay absolutely.
-        Canvas is always absolute inset-0 — it NEVER shifts when rulers toggle.
-        Rulers are rendered AFTER the canvas in DOM order so they paint on top naturally.
-      */}
-      <div className="rounded-xl border border-[var(--color-border)] overflow-hidden"
-        style={{ minHeight: "85vh", position: "relative", background: "#EDE4D9" }}>
+      {/* Tri-panel layout: LeftToolPanel | Canvas | RightLibraryPanel */}
+      <div className="flex rounded-xl border border-[var(--color-border)] overflow-hidden"
+        style={{ minHeight: "85vh" }}>
+
+        <LeftToolPanel
+          mode={mode} snapEnabled={snapEnabled} zoningMode={zones.zoningMode}
+          hasZones={zones.zones.length > 0} rulersEnabled={rulersEnabled}
+          hasGuides={guides.guides.length > 0} panMode={panMode}
+          resizeMode={resizeMode} deleteMode={deleteMode} previewEnabled={previewEnabled}
+          bgImage={bgImage} fileInputRef={fileInputRef}
+          onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
+          onToggleSnap={() => setSnapEnabled((v) => !v)}
+          onToggleZone={zones.toggleZoningMode} onClearZones={zones.clearZones}
+          onToggleRulers={() => setRulersEnabled((v) => !v)}
+          onClearGuides={guides.clearGuides}
+          onTogglePan={togglePanMode}
+          onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
+          onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
+          onTogglePreview={() => setPreviewEnabled((v) => !v)}
+          onCenter={handleCenter}
+        />
+
+        {/*
+          Canvas wrapper: position:relative so rulers overlay absolutely.
+          Canvas div is absolute inset-0 — never shifts when rulers toggle.
+        */}
+        <div className="flex-1 overflow-hidden"
+          style={{ position: "relative", background: "#EDE4D9" }}>
 
           {/* Canvas — always fills the full container, rulers overlay on top */}
           <div ref={canvasRef} className="absolute inset-0 overflow-hidden"
@@ -265,26 +289,26 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                 onMouseDown={(wy) => guides.addAndDrag("horizontal", wy, toWorld)} />
             </>
           )}
-      </div>
+        </div>{/* end canvas wrapper */}
 
-      <CanvasToolbar
-        mode={mode} bgImage={bgImage} snapEnabled={snapEnabled}
-        zoningMode={zones.zoningMode} hasZones={zones.zones.length > 0}
-        rulersEnabled={rulersEnabled} hasGuides={guides.guides.length > 0} panMode={panMode}
-        resizeMode={resizeMode} previewEnabled={previewEnabled}
-        fileInputRef={fileInputRef}
-        onAddTable={onAddTable} onAddDecoration={decos.handleAddDecoration}
-        onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
-        onToggleSnap={() => setSnapEnabled((v) => !v)}
-        onToggleZone={zones.toggleZoningMode} onClearZones={zones.clearZones}
-        onToggleRulers={() => setRulersEnabled((v) => !v)}
-        onClearGuides={guides.clearGuides}
-        onTogglePan={togglePanMode}
-        onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
-        deleteMode={deleteMode}
-        onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
-        onTogglePreview={() => setPreviewEnabled((v) => !v)}
-      />
+        <RightLibraryPanel
+          mode={mode}
+          customEmojis={customEmojis}
+          onAddTable={onAddTable}
+          onAddDecoration={decos.handleAddDecoration}
+          onAddCustomEmoji={(obj) => {
+            const next = [...customEmojis, obj];
+            setCustomEmojis(next);
+            if (plan.id) api.updateSeatingPlan(plan.id, { customEmojis: next });
+            decos.handleAddDecoration("custom_emoji", { customEmoji: obj.emoji, label: obj.label, physicalWidth: obj.physicalWidth, physicalHeight: obj.physicalHeight });
+          }}
+          onDeleteCustomEmoji={(id) => {
+            const next = customEmojis.filter((e) => e.id !== id);
+            setCustomEmojis(next);
+            if (plan.id) api.updateSeatingPlan(plan.id, { customEmojis: next });
+          }}
+        />
+      </div>{/* end tri-panel */}
 
       {mode === "seating" && <DietLegend plan={plan} guests={guests} />}
     </div>

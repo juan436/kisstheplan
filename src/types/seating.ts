@@ -17,7 +17,15 @@ export interface TableSeat {
   assignments: SeatAssignment[];
 }
 
-export type DecorationType = "tree" | "bar" | "speaker" | "photobooth" | "dancefloor" | "text";
+export interface EmojiObject {
+  id: string;
+  emoji: string;
+  label: string;
+  physicalWidth: number;
+  physicalHeight: number;
+}
+
+export type DecorationType = "tree" | "bar" | "speaker" | "photobooth" | "dancefloor" | "text" | "custom_emoji";
 
 export interface DecorationObject {
   id: string;
@@ -27,6 +35,7 @@ export interface DecorationObject {
   label?: string;
   physicalWidth?: number;  // metros
   physicalHeight?: number; // metros
+  customEmoji?: string;    // solo cuando type === "custom_emoji"
 }
 
 export interface CalibZone {
@@ -44,5 +53,6 @@ export interface SeatingPlan {
   backgroundImageUrl?: string;
   scaleFactor?: number; // px por metro (legacy global calibration)
   decorations?: DecorationObject[];
-  zones?: CalibZone[];  // multipunto scale zones (V2)
+  zones?: CalibZone[];           // multipunto scale zones (V2)
+  customEmojis?: EmojiObject[];  // biblioteca de emojis personalizados
 }

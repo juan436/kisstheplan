@@ -178,14 +178,16 @@ export function CanvasSvg({
 
       {/* Decorations */}
       {decorations.map((deco) => {
-        const m = DECORATION_META[deco.type];
-        const pw = deco.physicalWidth ?? m.physicalW;
-        const ph = deco.physicalHeight ?? m.physicalH;
+        const m = deco.type !== "custom_emoji" ? DECORATION_META[deco.type] : null;
+        const pw = deco.physicalWidth ?? m?.physicalW ?? 1;
+        const ph = deco.physicalHeight ?? m?.physicalH ?? 1;
         const decoScale = getEffectiveScale(deco.posX, deco.posY, zones, scale);
         const w = pw * decoScale;
         const h = ph * decoScale;
         const emojiSize = Math.max(10, Math.min(28, Math.min(w, h) * 0.45));
         const isSelDeco = selectedDecoId === deco.id;
+        const emoji = deco.customEmoji ?? m?.emoji ?? "?";
+        const label = deco.label ?? m?.label ?? deco.type;
         return (
           <g key={deco.id} id={`deco-g-${deco.id}`}
             transform={`translate(${deco.posX},${deco.posY})`}
@@ -197,9 +199,9 @@ export function CanvasSvg({
               stroke={isSelDeco ? "var(--color-accent)" : "rgba(196,180,160,0.6)"}
               strokeWidth={isSelDeco ? 2 : 1} />
             <text textAnchor="middle" dominantBaseline="central" fontSize={emojiSize}
-              style={{ pointerEvents: "none", userSelect: "none" }}>{m.emoji}</text>
+              style={{ pointerEvents: "none", userSelect: "none" }}>{emoji}</text>
             <text textAnchor="middle" y={h / 2 + 13} fontSize={9} fill="var(--color-text)" opacity={0.5}
-              style={{ pointerEvents: "none", userSelect: "none" }}>{deco.label ?? m.label}</text>
+              style={{ pointerEvents: "none", userSelect: "none" }}>{label}</text>
           </g>
         );
       })}
