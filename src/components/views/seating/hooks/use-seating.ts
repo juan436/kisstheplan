@@ -17,7 +17,7 @@ export function useSeating() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
-  const [showAddTable, setShowAddTable] = useState<"round" | "rectangular" | null>(null);
+  const [showAddTable, setShowAddTable] = useState<"round" | "rectangular" | "serpentine" | null>(null);
 
   useEffect(() => {
     if (!wedding) return;
@@ -52,12 +52,13 @@ export function useSeating() {
 
   // ─── Table handlers ───────────────────────────────────────────────────────
 
-  const handleAddTable = async (shape: "round" | "rectangular", name?: string, capacity?: number) => {
+  const handleAddTable = async (shape: "round" | "rectangular" | "serpentine", name?: string, capacity?: number) => {
     if (!selectedPlanId) return;
     const canvas = document.querySelector(".canvas-inner");
     const posX = canvas ? (canvas as HTMLElement).clientWidth / 2 - 60 : 200;
+    const defaultName = shape === "round" ? "Mesa redonda" : shape === "serpentine" ? "Mesa serpentina" : "Mesa rectangular";
     const updated = await api.addSeatingTable(selectedPlanId, {
-      name: name ?? (shape === "round" ? "Mesa redonda" : "Mesa rectangular"),
+      name: name ?? defaultName,
       shape,
       capacity: capacity ?? 8,
       posX,

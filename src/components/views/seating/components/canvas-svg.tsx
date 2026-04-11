@@ -8,6 +8,7 @@ import {
 } from "../constants/seating.constants";
 import { SvgTable } from "./svg-table";
 import { getEffectiveScale } from "../helpers/seating.helpers";
+import { hasDecoIcon, DecoIconContent } from "./deco-icon-content";
 
 const GUIDE_COLOR  = "rgba(0, 210, 255, 0.75)";
 const GUIDE_HIT_W  = 10; // invisible wider stroke for easy drag
@@ -197,37 +198,49 @@ export function CanvasSvg({
         const decoScale = getEffectiveScale(deco.posX, deco.posY, zones, scale);
         const w = pw * decoScale;
         const h = ph * decoScale;
-        const emojiSize = Math.max(10, Math.min(28, Math.min(w, h) * 0.45));
         const isSelDeco = selectedDecoId === deco.id;
+        const useIcon = hasDecoIcon(deco.objectType);
         const emoji = deco.customEmoji ?? m?.emoji ?? "?";
+        const emojiSize = Math.max(10, Math.min(28, Math.min(w, h) * 0.45));
         const label = deco.label ?? m?.label ?? deco.type;
+        const isChair = deco.objectType === "chair";
+        const chairGuest = isChair && deco.guestId ? guests.find((g) => g.id === deco.guestId) : null;
+        const chairFill = isChair ? (chairGuest ? "rgba(140,111,95,0.22)" : "rgba(230,216,200,0.55)") : "rgba(230,216,200,0.55)";
         return (
           <g key={deco.id} id={`deco-g-${deco.id}`}
             transform={`translate(${deco.posX},${deco.posY})`}
-            style={{ cursor: deleteMode ? "crosshair" : (mode === "layout" ? "grab" : "default") }}
+            style={{ cursor: deleteMode ? "crosshair" : (mode === "seating" && deco.objectType === "chair" ? "pointer" : mode === "layout" ? "grab" : "default") }}
             onMouseDown={(e) => { e.stopPropagation(); onDecoMouseDown(e, deco.id); }}
-            onClick={(e) => { e.stopPropagation(); if (mode === "layout") onDecoClick(deco.id, e.clientX, e.clientY); }}>
+            onClick={(e) => { e.stopPropagation(); if (mode === "layout" || (mode === "seating" && deco.objectType === "chair")) onDecoClick(deco.id, e.clientX, e.clientY); }}>
             <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6}
-              fill={isSelDeco ? "rgba(140,111,95,0.18)" : "rgba(230,216,200,0.55)"}
-              stroke={isSelDeco ? "var(--color-accent)" : "rgba(196,180,160,0.6)"}
-              strokeWidth={isSelDeco ? 2 : 1} />
-            <text textAnchor="middle" dominantBaseline="central" fontSize={emojiSize}
-              style={{ pointerEvents: "none", userSelect: "none" }}>{emoji}</text>
-            {/* Label pill — white rounded background so text is always legible over any image */}
+              fill={isSelDeco ? "rgba(140,111,95,0.18)" : chairFill}
+              stroke={isSelDeco ? "var(--color-accent)" : (isChair && chairGuest ? "#8c6f5f" : "rgba(196,180,160,0.6)")}
+              strokeWidth={isSelDeco ? 2 : (isChair && chairGuest ? 1.5 : 1)} />
+            {useIcon ? (
+              <g transform={`translate(${-w / 2},${-h / 2}) scale(${w / 32},${h / 32})`}
+                style={{ pointerEvents: "none" }}>
+                <DecoIconContent objectType={deco.objectType!} />
+              </g>
+            ) : (
+              <text textAnchor="middle" dominantBaseline="central" fontSize={emojiSize}
+                style={{ pointerEvents: "none", userSelect: "none" }}>{emoji}</text>
+            )}
+            {/* Label pill */}
             {(() => {
+              const displayText = chairGuest ? chairGuest.name : label;
               const fs = 8.5;
-              const pillW = Math.max(28, label.length * fs * 0.62 + 10);
+              const pillW = Math.max(28, displayText.length * fs * 0.62 + 10);
               const pillH = 14;
               const pillY = h / 2 + 5;
               return (
                 <g style={{ pointerEvents: "none", userSelect: "none" }}>
                   <rect x={-pillW / 2} y={pillY} width={pillW} height={pillH} rx={pillH / 2}
-                    fill="white" opacity={0.92}
+                    fill={chairGuest ? "#8c6f5f" : "white"} opacity={0.92}
                     style={{ filter: "drop-shadow(0 1px 2px rgba(74,60,50,0.18))" }} />
                   <text textAnchor="middle" y={pillY + pillH / 2 + 0.5}
                     dominantBaseline="central" fontSize={fs}
-                    fill="#4A3C32" fontWeight={500}
-                    style={{ pointerEvents: "none", userSelect: "none" }}>{label}</text>
+                    fill={chairGuest ? "white" : "#4A3C32"} fontWeight={500}
+                    style={{ pointerEvents: "none", userSelect: "none" }}>{displayText}</text>
                 </g>
               );
             })()}

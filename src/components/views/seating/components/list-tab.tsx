@@ -10,7 +10,7 @@ import { AddTableModal } from "./add-table-modal";
 interface ListTabProps {
   plan: SeatingPlan;
   guests: Guest[];
-  onAddTable: (shape: "round" | "rectangular", name?: string, capacity?: number) => void;
+  onAddTable: (shape: "round" | "rectangular" | "serpentine", name?: string, capacity?: number) => void;
   onDeleteTable: (tableId: string) => void;
   onRenameTable: (tableId: string, name: string) => void;
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;

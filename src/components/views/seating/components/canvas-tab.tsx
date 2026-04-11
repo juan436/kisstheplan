@@ -20,6 +20,7 @@ import { RulerCorner, RulerTop, RulerLeft, RULER_SIZE } from "./canvas-rulers";
 import { ZoneCreationOverlay } from "./zone-creation-overlay";
 import { DietLegend } from "./diet-legend";
 import { SeatingPanel } from "./seating-panel";
+import { ChairSeatPanel } from "./chair-seat-panel";
 import { ZoomControls } from "./zoom-controls";
 import { DecorationResizePanel } from "./decoration-resize-panel";
 import { TableResizePanel } from "./table-resize-panel";
@@ -35,7 +36,7 @@ interface CanvasTabProps {
   onUpdateTablePos: (tableId: string, posX: number, posY: number) => void;
   onUpdateTableSize: (tableId: string, physicalDiameter?: number, physicalWidth?: number, physicalHeight?: number) => void;
   onRotateTable: (tableId: string) => void;
-  onAddTable: (shape: "round" | "rectangular") => void;
+  onAddTable: (shape: "round" | "rectangular" | "serpentine") => void;
   onDeleteTable: (tableId: string) => void;
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;
 }
@@ -48,6 +49,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
   const [resizeMode, setResizeMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [seatingTable, setSeatingTable] = useState<string | null>(null);
+  const [chairSeatId, setChairSeatId] = useState<string | null>(null);
   const [tableResizePanel, setTableResizePanel] = useState<{ tableId: string; screenX: number; screenY: number } | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
@@ -56,7 +58,10 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
   const [legendPos, setLegendPos] = useState({ x: 8, y: 8 });
   const legendDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
-  const [customEmojis, setCustomEmojis] = useState<EmojiObject[]>(plan.customEmojis ?? []);
+  // Init: strip legacy emoji-only objects (no objectType) — they were created before the SVG gallery
+  const [customEmojis, setCustomEmojis] = useState<EmojiObject[]>(() =>
+    (plan.customEmojis ?? []).filter((e) => !!e.objectType)
+  );
   const [canvasDims, setCanvasDims] = useState({ w: WORLD_W, h: 600 });
   const canvasRef  = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +105,16 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
 
   useEffect(() => {
     if (plan.backgroundImageUrl) setBgImage(plan.backgroundImageUrl);
+  }, [plan.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist removal of legacy emoji-only objects to DB (runs once per plan load)
+  useEffect(() => {
+    const original = plan.customEmojis ?? [];
+    const cleaned = original.filter((e) => !!e.objectType);
+    if (cleaned.length < original.length && plan.id) {
+      setCustomEmojis(cleaned);
+      api.updateSeatingPlan(plan.id, { customEmojis: cleaned });
+    }
   }, [plan.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // toWorld uses the canvas div's bounding rect — rulers are outside, so no offset correction needed
@@ -166,7 +181,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
       }
       return;
     }
-    if (mode === "seating") setSeatingTable(id === seatingTable ? null : id);
+    if (mode === "seating") { setChairSeatId(null); setSeatingTable(id === seatingTable ? null : id); }
   }, [deleteMode, resizeMode, previewEnabled, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
 
   const handleTableHover = useCallback((tableId: string) => {
@@ -272,6 +287,11 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
                 onDecoMouseDown={handleDecoMouseDown}
                 onDecoClick={(id, cx, cy) => {
                   if (deleteMode) { decos.handleDeleteDeco(id); return; }
+                  if (mode === "seating") {
+                    const d = decos.decorations.find((d) => d.id === id);
+                    if (d?.objectType === "chair") { setChairSeatId((prev) => prev === id ? null : id); setSeatingTable(null); }
+                    return;
+                  }
                   if (!resizeMode) return;
                   const rect = canvasRef.current?.getBoundingClientRect();
                   if (rect) decos.handleDecoClick(id, cx, cy, rect, mode, zones.zoningMode, panMode);
@@ -291,6 +311,14 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
                   onClose={() => setSeatingTable(null)}
                   onUnassign={(sn) => onAssignSeat(activeTable.id, sn, undefined)} />
               )}
+              {mode === "seating" && chairSeatId && (() => {
+                const chairDeco = decos.decorations.find((d) => d.id === chairSeatId);
+                return chairDeco ? (
+                  <ChairSeatPanel deco={chairDeco} guests={guests}
+                    onAssign={(gId) => { decos.handleAssignChairGuest(chairSeatId, gId); if (gId) setChairSeatId(null); }}
+                    onClose={() => setChairSeatId(null)} />
+                ) : null;
+              })()}
             </AnimatePresence>
 
             {mode === "layout" && resizeMode && tableResizePanel && (() => {
@@ -370,7 +398,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
             const next = [...customEmojis, obj];
             setCustomEmojis(next);
             if (plan.id) api.updateSeatingPlan(plan.id, { customEmojis: next });
-            decos.handleAddDecoration("custom_emoji", { customEmoji: obj.emoji, label: obj.label, physicalWidth: obj.physicalWidth, physicalHeight: obj.physicalHeight });
+            decos.handleAddDecoration("custom_emoji", { objectType: obj.objectType, customEmoji: obj.emoji, label: obj.label, physicalWidth: obj.physicalWidth, physicalHeight: obj.physicalHeight });
           }}
           onDeleteCustomEmoji={(id) => {
             const next = customEmojis.filter((e) => e.id !== id);

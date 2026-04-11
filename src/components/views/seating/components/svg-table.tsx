@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { TableSeat, Guest } from "@/types";
 import { CHAIR_RADIUS_M } from "../constants/seating.constants";
 import { tableRadius, rectDims, getGuestName, getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
-import { roundTableChairs, rectTableChairs, computeRoundChairRadius, computeRectChairRadius } from "../helpers/chair.helpers";
+import { roundTableChairs, rectTableChairs, serpentineTableChairs, computeRoundChairRadius, computeRectChairRadius, computeSerpentineChairRadius } from "../helpers/chair.helpers";
 import { normalizeDish } from "@/lib/allergy-colors";
 
 interface SvgTableProps {
@@ -69,7 +69,9 @@ export function SvgTable({
   onMouseDown, onClick, onRotate, onHover, onHoverEnd,
 }: SvgTableProps) {
   const [hovered, setHovered] = useState(false);
-  const isRound = table.shape === "round";
+  const isRound       = table.shape === "round";
+  const isSerpentine  = table.shape === "serpentine";
+  const isRect        = table.shape === "rectangular";
 
   // ── Geometry ──────────────────────────────────────────────────────────────────
   const r  = tableRadius(table.physicalDiameter ?? getTableDiameter(table.capacity), scale);
@@ -80,39 +82,43 @@ export function SvgTable({
   const rawChairR = CHAIR_RADIUS_M * scale;
   const chairR = isRound
     ? computeRoundChairRadius(table.capacity, r, rawChairR)
-    : computeRectChairRadius(w, table.capacity, rawChairR);
+    : isSerpentine
+      ? computeSerpentineChairRadius(table.capacity, r, rawChairR)
+      : computeRectChairRadius(w, table.capacity, rawChairR);
   const TAG_DIST = chairR + 6 + 26;
 
   const chairs = isRound
     ? roundTableChairs(table.capacity, r, chairR)
-    : rectTableChairs(w, h, table.capacity, chairR);
+    : isSerpentine
+      ? serpentineTableChairs(table.capacity, r, chairR)
+      : rectTableChairs(w, h, table.capacity, chairR);
 
   const rot = table.rotation ?? 0;
   // Rect rotated 90°/270°: visual width shrinks to h, needs aggressive abbreviation.
-  const isVertical = !isRound && (rot % 180 !== 0);
+  const isVertical = isRect && (rot % 180 !== 0);
 
   // ── Name display ──────────────────────────────────────────────────────────────
-  // availW: horizontal pixels available for text inside the shape (with breathing margin).
-  const availW = isRound ? r * 1.72 : (isVertical ? h * 0.78 : w * 0.82);
-  // Vertical tables abbreviate aggressively to fit the narrow visual width.
+  const availW = isRound
+    ? r * 1.72
+    : isSerpentine
+      ? r * 1.5
+      : (isVertical ? h * 0.78 : w * 0.82);
   const displayName = isVertical
     ? abbreviateName(table.name, availW)
     : fitName(table.name, availW);
 
-  // Font size: gently scales with innerHalf so smaller physical tables don't look
-  // overpowered, clamped to [7, 11] for legibility.
-  const innerHalf    = isRound ? r : (isVertical ? w / 2 : h / 2);
+  const innerHalf    = isRound ? r : isSerpentine ? r * 0.5 : (isVertical ? w / 2 : h / 2);
   const nameFontSize = Math.min(11, Math.max(7, innerHalf * 0.35));
+  // For serpentine: label at center of S-curve (inflection point = origin).
+  const nameLabelY   = 0;
 
-  // nameFullyVisible: drives the hover pill.
-  // False when: zoom too low (showName=false) OR name was truncated/abbreviated.
   const nameFullyVisible = showLabels && showName && displayName === table.name;
 
   // ── Hover pill ────────────────────────────────────────────────────────────────
   const HOVER_H = 16;
   const HOVER_W = Math.min(Math.max(table.name.length * AVG_CHAR_W + 18, 50), 130);
-  // topEdge: distance from centre to visual top border (accounts for rotation).
-  const topEdge = isRound ? r : (isVertical ? w / 2 : h / 2);
+  // serpentine: top edge ≈ half the depth (r*0.25) + the upper bulge (r)
+  const topEdge = isRect ? (isVertical ? w / 2 : h / 2) : isSerpentine ? r * 0.75 : r;
   const pillY   = -(topEdge + chairR + 4 + HOVER_H / 2);
 
   // ── Visuals ───────────────────────────────────────────────────────────────────
@@ -176,7 +182,19 @@ export function SvgTable({
       {/* Table shape */}
       {isRound
         ? <circle cx={0} cy={0} r={r} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
-        : <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
+        : isSerpentine
+          ? (() => {
+              // Horizontal S: spine from (-r,0) curves UP to (0,0), then curves DOWN to (r,0)
+              const sp = `M ${-r},0 C ${-r},${-r} 0,${-r} 0,0 C 0,${r} ${r},${r} ${r},0`;
+              const depth = r * 0.5;
+              return (
+                <>
+                  <path d={sp} fill="none" stroke={stroke} strokeWidth={depth + strokeW * 2} strokeLinecap="round" />
+                  <path d={sp} fill="none" stroke={tableFill} strokeWidth={depth} strokeLinecap="round" />
+                </>
+              );
+            })()
+          : <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
       }
 
       {/*
@@ -187,7 +205,7 @@ export function SvgTable({
       */}
       {showLabels && showName && (
         <g transform={`rotate(${-rot})`} style={{ pointerEvents: "none", userSelect: "none" }}>
-          <text textAnchor="middle" dominantBaseline="middle" y={0}
+          <text textAnchor="middle" dominantBaseline="middle" y={nameLabelY}
             fontSize={nameFontSize} fontWeight={600} fill="var(--color-text)">
             {displayName}
           </text>
