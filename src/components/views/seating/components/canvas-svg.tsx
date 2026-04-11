@@ -32,6 +32,8 @@ interface CanvasSvgProps {
   calibPoints: { x: number; y: number }[];
   deleteMode: boolean;
   hoveredTableId?: string | null;
+  allergyColors?: Record<string, string>;
+  mealColors?: Record<string, string>;
   onTableMouseDown: (e: React.MouseEvent, tableId: string) => void;
   onTableClick: (tableId: string) => void;
   onTableRotate: (tableId: string) => void;
@@ -83,7 +85,7 @@ function ZoneNeonGrid({ zone }: { zone: CalibZone }) {
 export function CanvasSvg({
   plan, guests, scale, mode, bgImage, seatingTable, snapEnabled,
   zones, zonePoints, guides, zoningActive, resizeMode, showLabels, showName, deleteMode, decorations, selectedDecoId, calibPoints,
-  hoveredTableId,
+  hoveredTableId, allergyColors = {}, mealColors = {},
   onTableMouseDown, onTableClick, onTableRotate, onTableHover, onTableHoverEnd,
   onDecoMouseDown, onDecoClick, onSvgClick,
   onGuideMouseDown, onGuideDoubleClick,
@@ -239,6 +241,8 @@ export function CanvasSvg({
           scale={getEffectiveScale(table.posX, table.posY, zones, scale)}
           mode={mode} resizeMode={resizeMode} deleteMode={deleteMode}
           showLabels={showLabels} showName={showName} isSelected={seatingTable === table.id}
+          allergyColors={allergyColors}
+          mealColors={mealColors}
           onMouseDown={(e) => onTableMouseDown(e, table.id)}
           onClick={() => onTableClick(table.id)}
           onRotate={() => onTableRotate(table.id)}

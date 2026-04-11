@@ -24,11 +24,14 @@ import { ZoomControls } from "./zoom-controls";
 import { DecorationResizePanel } from "./decoration-resize-panel";
 import { TableResizePanel } from "./table-resize-panel";
 import { TablePreviewPanel } from "./table-preview-panel";
+import { GripVertical } from "lucide-react";
 
 interface CanvasTabProps {
   plan: SeatingPlan;
   guests: Guest[];
   mode: "layout" | "seating";
+  allergyColors: Record<string, string>;
+  mealColors: Record<string, string>;
   onUpdateTablePos: (tableId: string, posX: number, posY: number) => void;
   onUpdateTableSize: (tableId: string, physicalDiameter?: number, physicalWidth?: number, physicalHeight?: number) => void;
   onRotateTable: (tableId: string) => void;
@@ -37,7 +40,7 @@ interface CanvasTabProps {
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;
 }
 
-export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableSize, onRotateTable, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
+export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpdateTablePos, onUpdateTableSize, onRotateTable, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
   const [zoom, setZoom] = useState(1.0);
   const [fitZoom, setFitZoom] = useState(0.7);
   const [snapEnabled, setSnapEnabled] = useState(false);
@@ -48,6 +51,10 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
   const [tableResizePanel, setTableResizePanel] = useState<{ tableId: string; screenX: number; screenY: number } | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
+  const [pinnedTableId, setPinnedTableId] = useState<string | null>(null);
+  const [showLegend, setShowLegend] = useState(false);
+  const [legendPos, setLegendPos] = useState({ x: 8, y: 8 });
+  const legendDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
   const [customEmojis, setCustomEmojis] = useState<EmojiObject[]>(plan.customEmojis ?? []);
   const [canvasDims, setCanvasDims] = useState({ w: WORLD_W, h: 600 });
@@ -146,6 +153,10 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
 
   const handleTableClick = useCallback((id: string) => {
     if (deleteMode && mode === "layout") { onDeleteTable(id); return; }
+    if (previewEnabled && !resizeMode && mode !== "seating") {
+      setPinnedTableId((prev) => (prev === id ? null : id));
+      return;
+    }
     if (resizeMode && mode === "layout") {
       const tbl = plan.tables.find((t) => t.id === id);
       if (tbl) {
@@ -156,17 +167,39 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
       return;
     }
     if (mode === "seating") setSeatingTable(id === seatingTable ? null : id);
-  }, [deleteMode, resizeMode, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
+  }, [deleteMode, resizeMode, previewEnabled, mode, plan.tables, offsetX, panOffset.x, panOffset.y, zoom, seatingTable, onDeleteTable]);
 
   const handleTableHover = useCallback((tableId: string) => {
     if (deleteMode || resizeMode || zones.zoningMode) return;
     setHoveredTableId(tableId);
   }, [deleteMode, resizeMode, zones.zoningMode]);
 
-  const handleTableHoverEnd = useCallback(() => setHoveredTableId(null), []);
+  const handleTableHoverEnd = useCallback(() => {
+    if (!pinnedTableId) setHoveredTableId(null);
+  }, [pinnedTableId]);
 
-  // Panel shows hovered table first; falls back to selected seating table
-  const previewTableId = hoveredTableId ?? seatingTable;
+  const handleLegendDragStart = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    legendDragRef.current = { startX: e.clientX, startY: e.clientY, originX: legendPos.x, originY: legendPos.y };
+    const onMove = (me: MouseEvent) => {
+      if (!legendDragRef.current) return;
+      setLegendPos({
+        x: Math.max(0, legendDragRef.current.originX + me.clientX - legendDragRef.current.startX),
+        y: Math.max(0, legendDragRef.current.originY + me.clientY - legendDragRef.current.startY),
+      });
+    };
+    const onUp = () => {
+      legendDragRef.current = null;
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [legendPos]);
+
+  // Pinned table takes priority; otherwise show hovered table dynamically
+  const previewTableId = pinnedTableId ?? hoveredTableId;
   const previewTable   = previewEnabled
     ? (previewTableId ? plan.tables.find((t) => t.id === previewTableId) ?? null : null)
     : null;
@@ -191,6 +224,7 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
           hasZones={zones.zones.length > 0} rulersEnabled={rulersEnabled}
           hasGuides={guides.guides.length > 0} panMode={panMode}
           resizeMode={resizeMode} deleteMode={deleteMode} previewEnabled={previewEnabled}
+          showLegend={showLegend}
           bgImage={bgImage} fileInputRef={fileInputRef}
           onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
           onToggleSnap={() => setSnapEnabled((v) => !v)}
@@ -200,7 +234,8 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
           onTogglePan={togglePanMode}
           onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
           onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
-          onTogglePreview={() => setPreviewEnabled((v) => !v)}
+          onTogglePreview={() => { setPreviewEnabled((v) => !v); setPinnedTableId(null); }}
+          onToggleLegend={() => { setShowLegend((v) => { if (!v) setLegendPos({ x: 8, y: 8 }); return !v; }); }}
           onCenter={handleCenter}
         />
 
@@ -229,6 +264,8 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
                 zones={zones.zones} zonePoints={zones.zonePoints} guides={guides.guides}
                 zoningActive={isZoning} resizeMode={resizeMode} showLabels={showLabels} showName={showName} deleteMode={deleteMode}
                 decorations={decos.decorations} selectedDecoId={decos.selectedDecoId} calibPoints={[]}
+                allergyColors={allergyColors}
+                mealColors={mealColors}
                 hoveredTableId={hoveredTableId}
                 onTableMouseDown={handleTableMouseDown}
                 onTableClick={handleTableClick}
@@ -281,7 +318,27 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
 
             {/* Fixed inspection panel — top-right corner, visible when toggle is ON */}
             {previewEnabled && (
-              <TablePreviewPanel table={previewTable ?? null} guests={guests} />
+              <TablePreviewPanel table={previewTable ?? null} guests={guests} allergyColors={allergyColors} mealColors={mealColors}
+                onClose={pinnedTableId ? () => { setPinnedTableId(null); setHoveredTableId(null); } : undefined} />
+            )}
+
+            {/* Diet legend — draggable, visible when toggle is ON */}
+            {showLegend && (
+              <div style={{ position: "absolute", top: legendPos.y, left: legendPos.x, zIndex: 10, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}>
+                {/* Drag handle */}
+                <div
+                  onMouseDown={handleLegendDragStart}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    height: 18, cursor: "grab", background: "rgba(255,252,249,0.97)",
+                    borderRadius: "10px 10px 0 0", border: "1px solid var(--color-border)",
+                    borderBottom: "none", color: "var(--color-text)", opacity: 0.35,
+                  }}>
+                  <GripVertical size={12} />
+                </div>
+                <DietLegend plan={plan} guests={guests} allergyColors={allergyColors} mealColors={mealColors} />
+              </div>
             )}
 
             {isZoning && (
@@ -323,7 +380,6 @@ export function CanvasTab({ plan, guests, mode, onUpdateTablePos, onUpdateTableS
         />
       </div>{/* end tri-panel */}
 
-      {mode === "seating" && <DietLegend plan={plan} guests={guests} />}
     </div>
   );
 }

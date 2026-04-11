@@ -69,7 +69,7 @@ export default function InvitadosPage() {
 
       <ConfigModal
         open={g.showConfigModal} onClose={() => g.setShowConfigModal(false)}
-        mealOptions={g.mealOptions} allergyOptions={g.allergyOptions} transportPoints={g.transportPoints}
+        mealOptions={g.mealOptions} mealColors={g.mealColors} allergyOptions={g.allergyOptions} allergyColors={g.allergyColors} transportPoints={g.transportPoints}
         onSave={g.handleSaveConfig}
       />
 

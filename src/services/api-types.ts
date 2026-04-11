@@ -116,6 +116,8 @@ export interface UpdateWeddingData {
   timezone?: string;
   photoUrl?: string;
   mealOptions?: string[];
+  mealColors?: Record<string, string>;
   allergyOptions?: string[];
+  allergyColors?: Record<string, string>;
   transportOptions?: string[];
 }

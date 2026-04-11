@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import type { SeatingPlan } from "@/types";
+import { getAllergyColors, getItemColors, pickNextColor, normalizeDish } from "@/lib/allergy-colors";
 
 export function useSeating() {
-  const { wedding } = useAuth();
+  const { wedding, refreshUserData } = useAuth();
 
   const [plans, setPlans] = useState<SeatingPlan[]>([]);
   const [guests, setGuests] = useState<import("@/types").Guest[]>([]);
@@ -144,6 +145,38 @@ export function useSeating() {
     await api.assignSeat(selectedPlanId, tableId, seatNumber, guestId);
   };
 
+  const allergyColors = useMemo(
+    () => getAllergyColors(wedding?.allergyOptions ?? [], wedding?.allergyColors ?? {}),
+    [wedding]
+  );
+
+  const mealColors = useMemo(() => {
+    const base = getItemColors(wedding?.mealOptions ?? [], wedding?.mealColors ?? {});
+    // Auto-assign unique colors for any dish value (individual or combo) not yet in the DB
+    const result = { ...base };
+    for (const g of guests) {
+      const dish = g.dish?.trim();
+      if (!dish) continue;
+      const key = normalizeDish(dish);
+      if (!result[key]) {
+        result[key] = pickNextColor(result);
+      }
+    }
+    return result;
+  }, [wedding, guests]);
+
+  // Persist any newly-computed dish colors (combos) back to the DB so they are
+  // stable across reloads and immune to palette reordering.
+  useEffect(() => {
+    if (!wedding?.id) return;
+    const stored = wedding.mealColors ?? {};
+    const newEntries = Object.entries(mealColors).filter(([k]) => !stored[k]);
+    if (newEntries.length === 0) return;
+    const merged = { ...stored, ...Object.fromEntries(newEntries) };
+    api.updateWedding(wedding.id, { mealColors: merged }).then(() => refreshUserData());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealColors]);
+
   return {
     plans, guests, selectedPlanId, setSelectedPlanId,
     mode, setMode, activeTab, setActiveTab,
@@ -151,6 +184,7 @@ export function useSeating() {
     showNewPlan, setShowNewPlan,
     showAddTable, setShowAddTable,
     selectedPlan,
+    allergyColors, mealColors,
     handleCreatePlan, handleDeletePlan,
     handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleRotateTable, handleDeleteTable,
     handleRenameTable, handleAssignSeat,

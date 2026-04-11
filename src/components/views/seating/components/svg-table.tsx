@@ -5,6 +5,7 @@ import type { TableSeat, Guest } from "@/types";
 import { CHAIR_RADIUS_M } from "../constants/seating.constants";
 import { tableRadius, rectDims, getGuestName, getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
 import { roundTableChairs, rectTableChairs, computeRoundChairRadius, computeRectChairRadius } from "../helpers/chair.helpers";
+import { normalizeDish } from "@/lib/allergy-colors";
 
 interface SvgTableProps {
   table: TableSeat;
@@ -18,6 +19,8 @@ interface SvgTableProps {
   showLabels: boolean;
   /** LOD inner gate: when false, name hides internally and shows on hover as floating pill. */
   showName: boolean;
+  allergyColors?: Record<string, string>;
+  mealColors?: Record<string, string>;
   onMouseDown: (e: React.MouseEvent) => void;
   onClick: () => void;
   onRotate?: () => void;
@@ -62,7 +65,7 @@ function abbreviateName(name: string, availPx: number): string {
 
 export function SvgTable({
   table, guests, scale, mode, resizeMode, deleteMode, isSelected,
-  showLabels, showName,
+  showLabels, showName, allergyColors = {}, mealColors = {},
   onMouseDown, onClick, onRotate, onHover, onHoverEnd,
 }: SvgTableProps) {
   const [hovered, setHovered] = useState(false);
@@ -131,20 +134,35 @@ export function SvgTable({
       {chairs.map((ch, i) => {
         const a = table.assignments[i];
         const guest = a?.guestId ? guests.find((g) => g.id === a.guestId) : null;
-        const hasAllergy = !!guest?.allergies?.trim();
+        const guestAllergies = guest?.allergies?.trim()
+          ? guest.allergies.split(",").map((s) => s.trim()).filter(Boolean)
+          : [];
+        const firstAllergyColor = guestAllergies.length > 0
+          ? (allergyColors[guestAllergies[0]] ?? "#f59e0b")
+          : null;
+        const mealColor = guest?.dish?.trim() ? (mealColors[normalizeDish(guest.dish)] ?? null) : null;
         const dist = Math.hypot(ch.x, ch.y);
         const dx = dist > 0 ? ch.x / dist : 0;
         const dy = dist > 0 ? ch.y / dist : 1;
+        const dotR = Math.max(1.5, chairR * 0.32);
         return (
           <g key={i}>
             <circle cx={ch.x} cy={ch.y} r={chairR}
               fill={guest ? "#8c6f5f" : "#EDE4D9"} stroke={guest ? "#7a5f51" : "#C4B7A6"} strokeWidth={0.75} />
+            {firstAllergyColor && (
+              <circle cx={ch.x + chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR}
+                fill={firstAllergyColor} stroke="white" strokeWidth={0.5} />
+            )}
+            {mealColor && (
+              <circle cx={ch.x - chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR}
+                fill={mealColor} stroke="white" strokeWidth={0.5} />
+            )}
             {showTags && guest && (
               <g transform={`translate(${ch.x + dx * TAG_DIST},${ch.y + dy * TAG_DIST})`}>
                 <rect x={-PILL_W / 2} y={-PILL_H / 2} width={PILL_W} height={PILL_H} rx={PILL_H / 2} fill="white"
                   stroke="#C4B7A6" strokeWidth={0.5} style={{ filter: "drop-shadow(0 1px 3px rgba(74,60,50,0.14))" }} />
-                {hasAllergy && <circle cx={-PILL_W / 2 + 8} cy={0} r={3} fill="#f59e0b" />}
-                <text x={hasAllergy ? -PILL_W / 2 + 15 : 0} textAnchor={hasAllergy ? "start" : "middle"}
+                {firstAllergyColor && <circle cx={-PILL_W / 2 + 8} cy={0} r={3} fill={firstAllergyColor} />}
+                <text x={firstAllergyColor ? -PILL_W / 2 + 15 : 0} textAnchor={firstAllergyColor ? "start" : "middle"}
                   dominantBaseline="central" fontSize={7} fill="var(--color-text)"
                   style={{ pointerEvents: "none", userSelect: "none" }}>
                   {getShortName(getGuestName(guests, a.guestId))}
