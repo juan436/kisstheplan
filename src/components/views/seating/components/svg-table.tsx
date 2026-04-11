@@ -101,7 +101,7 @@ export function SvgTable({
   const availW = isRound
     ? r * 1.72
     : isSerpentine
-      ? r * 1.5
+      ? r * 2.4     // hw=r*1.4 → label width ≈ 1.7× wider than round
       : (isVertical ? h * 0.78 : w * 0.82);
   const displayName = isVertical
     ? abbreviateName(table.name, availW)
@@ -117,8 +117,8 @@ export function SvgTable({
   // ── Hover pill ────────────────────────────────────────────────────────────────
   const HOVER_H = 16;
   const HOVER_W = Math.min(Math.max(table.name.length * AVG_CHAR_W + 18, 50), 130);
-  // serpentine: top edge ≈ half the depth (r*0.25) + the upper bulge (r)
-  const topEdge = isRect ? (isVertical ? w / 2 : h / 2) : isSerpentine ? r * 0.75 : r;
+  // serpentine: top edge = vy + half depth = r*0.4 + r*0.25 = r*0.65
+  const topEdge = isRect ? (isVertical ? w / 2 : h / 2) : isSerpentine ? r * 0.65 : r;
   const pillY   = -(topEdge + chairR + 4 + HOVER_H / 2);
 
   // ── Visuals ───────────────────────────────────────────────────────────────────
@@ -184,8 +184,10 @@ export function SvgTable({
         ? <circle cx={0} cy={0} r={r} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
         : isSerpentine
           ? (() => {
-              // Horizontal S: spine from (-r,0) curves UP to (0,0), then curves DOWN to (r,0)
-              const sp = `M ${-r},0 C ${-r},${-r} 0,${-r} 0,0 C 0,${r} ${r},${r} ${r},0`;
+              // Horizontal S — hw=r*1.4, vy=r*0.4 → aspecto 2.5:1, claramente horizontal
+              const vy = r * 0.4;
+              const hw = r * 1.4;
+              const sp = `M ${-hw},0 C ${-hw},${-vy} 0,${-vy} 0,0 C 0,${vy} ${hw},${vy} ${hw},0`;
               const depth = r * 0.5;
               return (
                 <>

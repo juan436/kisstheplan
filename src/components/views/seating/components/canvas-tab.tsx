@@ -19,6 +19,7 @@ import { RightLibraryPanel } from "./right-library-panel";
 import { RulerCorner, RulerTop, RulerLeft, RULER_SIZE } from "./canvas-rulers";
 import { ZoneCreationOverlay } from "./zone-creation-overlay";
 import { DietLegend } from "./diet-legend";
+import { TableLegend } from "./table-legend";
 import { SeatingPanel } from "./seating-panel";
 import { ChairSeatPanel } from "./chair-seat-panel";
 import { ZoomControls } from "./zoom-controls";
@@ -56,6 +57,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
   const [pinnedTableId, setPinnedTableId] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(false);
   const [legendPos, setLegendPos] = useState({ x: 8, y: 8 });
+  const [showTableLegend, setShowTableLegend] = useState(false);
   const legendDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const [bgImage, setBgImage] = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
   // Init: strip legacy emoji-only objects (no objectType) — they were created before the SVG gallery
@@ -193,6 +195,18 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
     if (!pinnedTableId) setHoveredTableId(null);
   }, [pinnedTableId]);
 
+  const centerOnTable = useCallback((tableId: string) => {
+    const table = plan.tables.find((t) => t.id === tableId);
+    if (!table) return;
+    const dims = canvasDimsRef.current;
+    const z = zoomRef.current;
+    const ox = Math.max(0, (dims.w - WORLD_W * z) / 2);
+    const oy = Math.max(0, (dims.h - WORLD_H * z) / 2);
+    setPanOffset(clampPan({ x: dims.w / 2 - ox - table.posX * z, y: dims.h / 2 - oy - table.posY * z }, z, dims.w, dims.h));
+    setHoveredTableId(tableId);
+    setTimeout(() => setHoveredTableId((h) => h === tableId ? null : h), 1400);
+  }, [plan.tables, setPanOffset]);
+
   const handleLegendDragStart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -239,7 +253,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           hasZones={zones.zones.length > 0} rulersEnabled={rulersEnabled}
           hasGuides={guides.guides.length > 0} panMode={panMode}
           resizeMode={resizeMode} deleteMode={deleteMode} previewEnabled={previewEnabled}
-          showLegend={showLegend}
+          showLegend={showLegend} showTableLegend={showTableLegend}
           bgImage={bgImage} fileInputRef={fileInputRef}
           onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
           onToggleSnap={() => setSnapEnabled((v) => !v)}
@@ -251,6 +265,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
           onTogglePreview={() => { setPreviewEnabled((v) => !v); setPinnedTableId(null); }}
           onToggleLegend={() => { setShowLegend((v) => { if (!v) setLegendPos({ x: 8, y: 8 }); return !v; }); }}
+          onToggleTableLegend={() => setShowTableLegend((v) => !v)}
           onCenter={handleCenter}
         />
 
@@ -366,6 +381,16 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
                   <GripVertical size={12} />
                 </div>
                 <DietLegend plan={plan} guests={guests} allergyColors={allergyColors} mealColors={mealColors} />
+              </div>
+            )}
+
+            {/* Mesa-Invitados legend — fixed top-right, visible when toggle is ON */}
+            {showTableLegend && (
+              <div style={{ position: "absolute", top: 8, right: 8, zIndex: 10, pointerEvents: "auto" }}
+                onMouseDown={(e) => e.stopPropagation()}>
+                <TableLegend plan={plan} guests={guests}
+                  onCenterTable={centerOnTable}
+                  onClose={() => setShowTableLegend(false)} />
               </div>
             )}
 

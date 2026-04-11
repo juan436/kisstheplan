@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { SeatingPlan, Guest, DecorationObject, CalibZone } from "@/types";
 import type { Guide } from "../hooks/use-canvas-guides";
 import {
@@ -9,6 +10,13 @@ import {
 import { SvgTable } from "./svg-table";
 import { getEffectiveScale } from "../helpers/seating.helpers";
 import { hasDecoIcon, DecoIconContent } from "./deco-icon-content";
+import { normalizeDish } from "@/lib/allergy-colors";
+
+/** Abbreviates to "Name S." or "Name" (≤9 chars), matching svg-table behaviour. */
+function getShortName(name: string): string {
+  const parts = name.trim().split(" ");
+  return parts.length === 1 ? parts[0].slice(0, 9) : `${parts[0]} ${parts[1][0]}.`;
+}
 
 const GUIDE_COLOR  = "rgba(0, 210, 255, 0.75)";
 const GUIDE_HIT_W  = 10; // invisible wider stroke for easy drag
@@ -91,6 +99,8 @@ export function CanvasSvg({
   onDecoMouseDown, onDecoClick, onSvgClick,
   onGuideMouseDown, onGuideDoubleClick,
 }: CanvasSvgProps) {
+  const [hoveredDecoId, setHoveredDecoId] = useState<string | null>(null);
+
   // Sort tables so hovered/selected renders last → highest SVG stacking order → names on top
   const sortedTables = [...plan.tables].sort((a, b) => {
     const aTop = a.id === hoveredTableId || a.id === seatingTable ? 1 : 0;
@@ -205,13 +215,30 @@ export function CanvasSvg({
         const label = deco.label ?? m?.label ?? deco.type;
         const isChair = deco.objectType === "chair";
         const chairGuest = isChair && deco.guestId ? guests.find((g) => g.id === deco.guestId) : null;
-        const chairFill = isChair ? (chairGuest ? "rgba(140,111,95,0.22)" : "rgba(230,216,200,0.55)") : "rgba(230,216,200,0.55)";
+        const isHovered = hoveredDecoId === deco.id;
+
+        // Allergy / meal colors for chairs (same logic as svg-table chairs)
+        const guestAllergies = chairGuest?.allergies?.trim()
+          ? chairGuest.allergies.split(",").map((s) => s.trim()).filter(Boolean)
+          : [];
+        const firstAllergyColor = guestAllergies.length > 0
+          ? (allergyColors[guestAllergies[0]] ?? "#f59e0b") : null;
+        const mealColor = chairGuest?.dish?.trim()
+          ? (mealColors[normalizeDish(chairGuest.dish)] ?? null) : null;
+        const dotR = Math.max(2, Math.min(w, h) * 0.15);
+
+        const chairFill = isChair
+          ? (chairGuest ? "rgba(140,111,95,0.22)" : "rgba(230,216,200,0.55)")
+          : "rgba(230,216,200,0.55)";
+
         return (
           <g key={deco.id} id={`deco-g-${deco.id}`}
             transform={`translate(${deco.posX},${deco.posY})`}
-            style={{ cursor: deleteMode ? "crosshair" : (mode === "seating" && deco.objectType === "chair" ? "pointer" : mode === "layout" ? "grab" : "default") }}
+            style={{ cursor: deleteMode ? "crosshair" : (mode === "seating" && isChair ? "pointer" : mode === "layout" ? "grab" : "default") }}
             onMouseDown={(e) => { e.stopPropagation(); onDecoMouseDown(e, deco.id); }}
-            onClick={(e) => { e.stopPropagation(); if (mode === "layout" || (mode === "seating" && deco.objectType === "chair")) onDecoClick(deco.id, e.clientX, e.clientY); }}>
+            onMouseEnter={() => setHoveredDecoId(deco.id)}
+            onMouseLeave={() => setHoveredDecoId(null)}
+            onClick={(e) => { e.stopPropagation(); if (mode === "layout" || (mode === "seating" && isChair)) onDecoClick(deco.id, e.clientX, e.clientY); }}>
             <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6}
               fill={isSelDeco ? "rgba(140,111,95,0.18)" : chairFill}
               stroke={isSelDeco ? "var(--color-accent)" : (isChair && chairGuest ? "#8c6f5f" : "rgba(196,180,160,0.6)")}
@@ -225,22 +252,80 @@ export function CanvasSvg({
               <text textAnchor="middle" dominantBaseline="central" fontSize={emojiSize}
                 style={{ pointerEvents: "none", userSelect: "none" }}>{emoji}</text>
             )}
-            {/* Label pill */}
-            {(() => {
-              const displayText = chairGuest ? chairGuest.name : label;
-              const fs = 8.5;
-              const pillW = Math.max(28, displayText.length * fs * 0.62 + 10);
-              const pillH = 14;
-              const pillY = h / 2 + 5;
+
+            {/* Chair: allergy dot top-right, meal dot top-left — always visible when assigned */}
+            {isChair && firstAllergyColor && (
+              <circle cx={w / 2 - dotR - 1} cy={-h / 2 + dotR + 1} r={dotR}
+                fill={firstAllergyColor} stroke="white" strokeWidth={0.5}
+                style={{ pointerEvents: "none" }} />
+            )}
+            {isChair && mealColor && (
+              <circle cx={-w / 2 + dotR + 1} cy={-h / 2 + dotR + 1} r={dotR}
+                fill={mealColor} stroke="white" strokeWidth={0.5}
+                style={{ pointerEvents: "none" }} />
+            )}
+
+            {/* Chair: short-name pill — always visible when guest assigned (white, truncated) */}
+            {isChair && chairGuest && (() => {
+              const shortName = getShortName(chairGuest.name);
+              const fs = 7;
+              const pH = 12;
+              const pW = Math.max(28, shortName.length * fs * 0.65 + 10);
+              const py = h / 2 + 4;
               return (
                 <g style={{ pointerEvents: "none", userSelect: "none" }}>
-                  <rect x={-pillW / 2} y={pillY} width={pillW} height={pillH} rx={pillH / 2}
-                    fill={chairGuest ? "#8c6f5f" : "white"} opacity={0.92}
+                  <rect x={-pW / 2} y={py} width={pW} height={pH} rx={pH / 2}
+                    fill="white" stroke="#C4B7A6" strokeWidth={0.5}
+                    style={{ filter: "drop-shadow(0 1px 2px rgba(74,60,50,0.14))" }} />
+                  {firstAllergyColor && (
+                    <circle cx={-pW / 2 + 6} cy={py + pH / 2} r={2.5} fill={firstAllergyColor} />
+                  )}
+                  <text x={firstAllergyColor ? -pW / 2 + 13 : 0}
+                    textAnchor={firstAllergyColor ? "start" : "middle"}
+                    y={py + pH / 2} dominantBaseline="central"
+                    fontSize={fs} fill="var(--color-text)"
+                    style={{ pointerEvents: "none", userSelect: "none" }}>{shortName}</text>
+                </g>
+              );
+            })()}
+
+            {/* Chair: floating name pill on hover — above the chair, same style as table chairs */}
+            {isChair && isHovered && (() => {
+              const text = chairGuest?.name ?? label;
+              const fs = 8;
+              const pH = 14;
+              const pW = Math.max(32, text.length * fs * 0.62 + 12);
+              const py = -(h / 2 + 5 + pH);
+              return (
+                <g style={{ pointerEvents: "none", userSelect: "none" }}>
+                  <rect x={-pW / 2} y={py} width={pW} height={pH} rx={pH / 2}
+                    fill="white" stroke="#C4B7A6" strokeWidth={0.5}
+                    style={{ filter: "drop-shadow(0 1px 4px rgba(74,60,50,0.16))" }} />
+                  {firstAllergyColor && (
+                    <circle cx={-pW / 2 + 7} cy={py + pH / 2} r={3} fill={firstAllergyColor} />
+                  )}
+                  <text x={firstAllergyColor ? -pW / 2 + 14 : 0}
+                    textAnchor={firstAllergyColor ? "start" : "middle"}
+                    y={py + pH / 2} dominantBaseline="central"
+                    fontSize={fs} fill="var(--color-text)"
+                    style={{ pointerEvents: "none", userSelect: "none" }}>{text}</text>
+                </g>
+              );
+            })()}
+
+            {/* Non-chair: label pill below — always visible (unchanged behavior) */}
+            {!isChair && (() => {
+              const fs = 8.5;
+              const pillW = Math.max(28, label.length * fs * 0.62 + 10);
+              const pillH = 14;
+              return (
+                <g style={{ pointerEvents: "none", userSelect: "none" }}>
+                  <rect x={-pillW / 2} y={h / 2 + 5} width={pillW} height={pillH} rx={pillH / 2}
+                    fill="white" opacity={0.92}
                     style={{ filter: "drop-shadow(0 1px 2px rgba(74,60,50,0.18))" }} />
-                  <text textAnchor="middle" y={pillY + pillH / 2 + 0.5}
-                    dominantBaseline="central" fontSize={fs}
-                    fill={chairGuest ? "white" : "#4A3C32"} fontWeight={500}
-                    style={{ pointerEvents: "none", userSelect: "none" }}>{displayText}</text>
+                  <text textAnchor="middle" y={h / 2 + 5 + pillH / 2 + 0.5}
+                    dominantBaseline="central" fontSize={fs} fill="#4A3C32" fontWeight={500}
+                    style={{ pointerEvents: "none", userSelect: "none" }}>{label}</text>
                 </g>
               );
             })()}

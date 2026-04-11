@@ -95,10 +95,9 @@ function bzTan(t: number, ax: number, ay: number, bx: number, by: number, cx: nu
 }
 
 /**
- * Distribuye `capacity` sillas a lo largo de la curva en S HORIZONTAL:
- * La espina va de (-r,0) → C(-r,-r)(0,-r) → (0,0) → C(0,r)(r,r) → (r,0).
- * La mitad izquierda tiene sus sillas ARRIBA (normal = -Y),
- * la mitad derecha las tiene ABAJO (normal = +Y).
+ * S HORIZONTAL — ancho 2.8r, alto ~1.1r → aspecto ~2.5:1 para evitar efecto diagonal.
+ * hw = r*1.4 controla el semiancho. vy = r*0.4 controla la ondulación vertical.
+ * Espina: (-hw,0) → C(-hw,-vy)(0,-vy) → (0,0) → C(0,vy)(hw,vy) → (hw,0).
  */
 export function serpentineTableChairs(
   capacity: number,
@@ -106,36 +105,28 @@ export function serpentineTableChairs(
   chairR: number,
 ): ChairPoint[] {
   if (capacity <= 0) return [];
-  const tableHalfDepth = r * 0.25;
-  const orbitDist = tableHalfDepth + chairR + chairR * 0.4;
+  const vy = r * 0.4;
+  const hw = r * 1.4;
+  const orbitDist = r * 0.25 + chairR + chairR * 0.4;
   const leftCount = Math.ceil(capacity / 2);
   const rightCount = capacity - leftCount;
   const chairs: ChairPoint[] = [];
 
-  // Left bezier: (-r,0)→(-r,-r)→(0,-r)→(0,0)  — outer = TOP (normal = UP = -Y)
-  // Right-perpendicular of tangent (ty,-tx): at t=0 tangent≈(0,-3r) → perp=(-3r,0) WRONG.
-  // Use LEFT-perp (-ty,tx): at t=0 tangent=(0,-1) → left-perp=(1,0) → LEFT. Wrong.
-  // Use top-normal (CCW of tangent = (-ty,tx)) but check sign per curve:
-  // At t=0.5: point≈(-r/2,-r/2), tangent≈(3r/2,0) → CW perp=(0,-3r/2) → UP ✓
-  // So RIGHT-perp (CW: ty,-tx) points UP for the left bezier.
+  // Mitad izquierda: CW perp → arriba
   for (let i = 0; i < leftCount; i++) {
     const t = (i + 0.5) / leftCount;
-    const [px, py] = bzPt(t, -r,0, -r,-r, 0,-r, 0,0);
-    const [tx, ty] = bzTan(t, -r,0, -r,-r, 0,-r, 0,0);
+    const [px, py] = bzPt(t, -hw,0, -hw,-vy, 0,-vy, 0,0);
+    const [tx, ty] = bzTan(t, -hw,0, -hw,-vy, 0,-vy, 0,0);
     const len = Math.hypot(tx, ty) || 1;
-    // CW perp: (ty/len, -tx/len) → points UP for this curve
     chairs.push({ x: px + (ty/len)*orbitDist, y: py + (-tx/len)*orbitDist });
   }
 
-  // Right bezier: (0,0)→(0,r)→(r,r)→(r,0) — outer = BOTTOM (normal = DOWN = +Y)
-  // At t=0.5: tangent≈(3r/2,0) → CW perp=(0,-3r/2) → UP. But we want DOWN!
-  // Use CCW perp (-ty,tx): points DOWN ✓
+  // Mitad derecha: CCW perp → abajo
   for (let i = 0; i < rightCount; i++) {
     const t = (i + 0.5) / rightCount;
-    const [px, py] = bzPt(t, 0,0, 0,r, r,r, r,0);
-    const [tx, ty] = bzTan(t, 0,0, 0,r, r,r, r,0);
+    const [px, py] = bzPt(t, 0,0, 0,vy, hw,vy, hw,0);
+    const [tx, ty] = bzTan(t, 0,0, 0,vy, hw,vy, hw,0);
     const len = Math.hypot(tx, ty) || 1;
-    // CCW perp: (-ty/len, tx/len) → points DOWN for this curve
     chairs.push({ x: px + (-ty/len)*orbitDist, y: py + (tx/len)*orbitDist });
   }
 
@@ -144,7 +135,7 @@ export function serpentineTableChairs(
 
 /**
  * Calcula el radio del asiento para mesas serpentinas (S-shape).
- * Cada arco es aproximadamente un cuarto de círculo de radio r.
+ * hw = r*1.4 es el semiancho; cada arco recorre ~π/2 radianes.
  */
 export function computeSerpentineChairRadius(
   capacity: number,
@@ -152,8 +143,9 @@ export function computeSerpentineChairRadius(
   rawChairR: number,
 ): number {
   if (capacity <= 1) return rawChairR;
+  const hw = tableR * 1.4;
   const perArc = Math.ceil(capacity / 2);
-  const orbitR = tableR * 1.3 + rawChairR * 1.4;
+  const orbitR = hw + rawChairR * 1.4;
   const arcPerChair = (Math.PI / 2) / perArc;
   const halfChord = orbitR * Math.sin(arcPerChair / 2);
   const maxR = halfChord * 0.82;

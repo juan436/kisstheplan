@@ -1,6 +1,6 @@
 "use client";
 
-import { Hand, MapPin, Ruler, Grid3x3, Trash2, Maximize2, Eye, Image as ImageIcon, X, Target, Tag } from "lucide-react";
+import { Hand, MapPin, Ruler, Grid3x3, Trash2, Maximize2, Eye, Image as ImageIcon, X, Target, Tag, Users } from "lucide-react";
 
 const btn = "flex items-center gap-2 px-2.5 py-2 rounded-lg border text-xs font-medium transition-colors w-full";
 const off = `${btn} border-[var(--color-border)] bg-white text-[var(--color-text)]/60 hover:border-[var(--color-accent)]/50 hover:text-[var(--color-text)]`;
@@ -21,6 +21,7 @@ interface Props {
   deleteMode: boolean;
   previewEnabled: boolean;
   showLegend: boolean;
+  showTableLegend: boolean;
   bgImage: string | null;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onBgUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -35,10 +36,11 @@ interface Props {
   onToggleDelete: () => void;
   onTogglePreview: () => void;
   onToggleLegend: () => void;
+  onToggleTableLegend: () => void;
   onCenter: () => void;
 }
 
-export function LeftToolPanel({ mode, snapEnabled, zoningMode, hasZones, rulersEnabled, hasGuides, panMode, resizeMode, deleteMode, previewEnabled, showLegend, bgImage, fileInputRef, onBgUpload, onClearBg, onToggleSnap, onToggleZone, onClearZones, onToggleRulers, onClearGuides, onTogglePan, onToggleResize, onToggleDelete, onTogglePreview, onToggleLegend, onCenter }: Props) {
+export function LeftToolPanel({ mode, snapEnabled, zoningMode, hasZones, rulersEnabled, hasGuides, panMode, resizeMode, deleteMode, previewEnabled, showLegend, showTableLegend, bgImage, fileInputRef, onBgUpload, onClearBg, onToggleSnap, onToggleZone, onClearZones, onToggleRulers, onClearGuides, onTogglePan, onToggleResize, onToggleDelete, onTogglePreview, onToggleLegend, onToggleTableLegend, onCenter }: Props) {
   return (
     <div className="flex flex-col gap-1 p-2 border-r border-[var(--color-border)] bg-white flex-shrink-0" style={{ width: 160 }}>
 
@@ -106,6 +108,9 @@ export function LeftToolPanel({ mode, snapEnabled, zoningMode, hasZones, rulersE
       </button>
       <button onClick={onToggleLegend} className={showLegend ? on : off}>
         <Tag size={13} className="flex-shrink-0" /> Leyenda dietas
+      </button>
+      <button onClick={onToggleTableLegend} className={showTableLegend ? on : off}>
+        <Users size={13} className="flex-shrink-0" /> Mesas
       </button>
       <button onClick={onCenter} className={off}>
         <Target size={13} className="flex-shrink-0" /> Centrar
