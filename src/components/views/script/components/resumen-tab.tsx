@@ -15,13 +15,14 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
   const [editName, setEditName] = useState("");
   const [showFieldMenu, setShowFieldMenu] = useState(false);
   const [visible, setVisible] = useState<VisibleFields>({ description: true });
-  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart);
+  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart && !e.isPrivate);
 
   const addArea = async () => { if (!newArea.trim()) return; await onCreateArea({ name: newArea.trim() }); setNewArea(""); };
   const toggleField = (field: keyof VisibleFields) => setVisible((v) => ({ ...v, [field]: !v[field] }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
+    <div className="mx-auto mt-6" style={{ maxWidth: 860 }}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
       <div>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-2xl" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h2>
@@ -110,6 +111,7 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
           <span className="text-xs opacity-50">Próximamente</span>
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -30,12 +30,13 @@ export function GuionDetalladoTab({ entries, guestStats, onCreateEntry, onUpdate
     await onReorderEntries(next);
   };
 
-  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart);
+  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart && !e.isPrivate);
   const addEntry = () => onCreateEntry({ title: "Nueva entrada", timeType: "none", style: {}, order: entries.length });
   const today = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
-    <div className="flex gap-0 mt-6" style={{ minHeight: "calc(100vh - 300px)" }}>
+    <div className="mx-auto mt-6" style={{ maxWidth: 860 }}>
+    <div className="flex gap-0" style={{ minHeight: "calc(100vh - 300px)" }}>
       <div className="w-52 flex-shrink-0 pr-5 border-r" style={{ borderColor: "var(--color-fill)", position: "sticky", top: 80, alignSelf: "flex-start" }}>
         <h3 className="text-lg mb-4" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h3>
         {timedEntries.length === 0 ? (
@@ -98,6 +99,7 @@ export function GuionDetalladoTab({ entries, guestStats, onCreateEntry, onUpdate
           <Plus size={14} />Añadir línea
         </button>
       </div>
+    </div>
     </div>
   );
 }

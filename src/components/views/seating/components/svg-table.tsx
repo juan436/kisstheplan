@@ -84,7 +84,6 @@ export function SvgTable({
     : isSerpentine
       ? computeSerpentineChairRadius(table.capacity, r, rawChairR)
       : computeRectChairRadius(w, table.capacity, rawChairR);
-  const TAG_DIST = chairR + PILL_H / 2 + 18;
 
   const chairs = isRound
     ? roundTableChairs(table.capacity, r, chairR)
@@ -94,6 +93,9 @@ export function SvgTable({
 
   const rot = table.rotation ?? 0;
   const isVertical = isRect && (rot % 180 !== 0);
+  // Horizontal rect/serpentine: bring names closer to the chairs
+  const tagGap = (isRect || isSerpentine) && rot % 180 === 0 ? 6 : 18;
+  const TAG_DIST = chairR + PILL_H / 2 + tagGap;
   const rotRad = (rot * Math.PI) / 180;
   const cr = Math.cos(rotRad), sr = Math.sin(rotRad);
 
@@ -155,7 +157,11 @@ export function SvgTable({
       const mealColor = guest.dish?.trim() ? (mealColors[normalizeDish(guest.dish)] ?? null) : null;
       raw.push({ idx: i, name: getShortName(guest.name), allergyColor, mealColor, lx: lx0, ly: ly0, wx: cr * lx0 - sr * ly0, wy: sr * lx0 + cr * ly0 });
     });
-    const resolved = resolveTagCollisions(raw.map(t => ({ cx: t.wx, cy: t.wy, w: PILL_W, h: PILL_H })));
+    // Round: 2D resolver. Rect/serpentine: force axis matching table's long axis in world space.
+    // Horizontal (rot%180==0) → long axis = world-X → forceAxis 'x' (spread tags horizontally).
+    // Vertical  (rot%180!=0) → long axis = world-Y → forceAxis 'y' (spread tags vertically).
+    const forceAxis = isRound ? undefined : (rot % 180 === 0 ? 'x' : 'y') as 'x' | 'y';
+    const resolved = resolveTagCollisions(raw.map(t => ({ cx: t.wx, cy: t.wy, w: PILL_W, h: PILL_H })), 8, 2, forceAxis);
     raw.forEach((t, i) => {
       const rwx = resolved[i].cx, rwy = resolved[i].cy;
       resolvedTags.push({ ...t, lx: cr * rwx + sr * rwy, ly: -sr * rwx + cr * rwy });

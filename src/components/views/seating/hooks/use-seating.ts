@@ -93,20 +93,16 @@ export function useSeating() {
 
   const handleRotateTable = async (tableId: string) => {
     if (!selectedPlanId) return;
-    setPlans((prev) =>
-      prev.map((p) =>
+    let newRot = 0;
+    setPlans((prev) => {
+      const table = prev.find((p) => p.id === selectedPlanId)?.tables.find((t) => t.id === tableId);
+      newRot = ((table?.rotation ?? 0) + 90) % 360;
+      return prev.map((p) =>
         p.id === selectedPlanId
-          ? {
-              ...p,
-              tables: p.tables.map((t) =>
-                t.id === tableId ? { ...t, rotation: ((t.rotation ?? 0) + 90) % 360 } : t
-              ),
-            }
+          ? { ...p, tables: p.tables.map((t) => t.id === tableId ? { ...t, rotation: newRot } : t) }
           : p
-      )
-    );
-    const next = plans.find((p) => p.id === selectedPlanId)?.tables.find((t) => t.id === tableId);
-    const newRot = ((next?.rotation ?? 0) + 90) % 360;
+      );
+    });
     await api.updateSeatingTable(selectedPlanId, tableId, { rotation: newRot });
   };
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GripVertical, Trash2, Type } from "lucide-react";
+import { GripVertical, Trash2, Type, Lock, Globe } from "lucide-react";
 import type { ScriptEntry } from "@/types";
 import { TimePill } from "./time-pill";
 import { StyleBar } from "./style-bar";
@@ -48,7 +48,10 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
         <GripVertical size={15} />
       </div>
       <div className="flex flex-col items-center mt-2 flex-shrink-0">
-        <div className="w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: "var(--color-accent)", background: "var(--color-bg)" }} />
+        <div className="w-2.5 h-2.5 rounded-full border-2" style={{
+          borderColor: entry.isPrivate ? "var(--color-border)" : "var(--color-accent)",
+          background: entry.isPrivate ? "var(--color-fill)" : "var(--color-bg)",
+        }} />
         <div className="w-px flex-1 min-h-[36px] mt-1" style={{ background: "var(--color-fill)" }} />
       </div>
       <div className="flex-1 min-w-0">
@@ -89,6 +92,12 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
           className="p-1 rounded-lg transition-colors"
           style={{ color: showStyle ? "var(--color-accent)" : "var(--color-border)" }}>
           <Type size={13} />
+        </button>
+        <button onClick={() => onUpdate(entry.id, { isPrivate: !entry.isPrivate })}
+          title={entry.isPrivate ? "Privado (no aparece en Resumen)" : "Público (visible en Resumen)"}
+          className="p-1 rounded-lg transition-colors"
+          style={{ color: entry.isPrivate ? "var(--color-text)" : "var(--color-border)" }}>
+          {entry.isPrivate ? <Lock size={13} /> : <Globe size={13} />}
         </button>
         <button onClick={() => onDelete(entry.id)} title="Eliminar"
           className="p-1 rounded-lg transition-colors hover:text-red-400"

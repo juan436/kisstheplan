@@ -111,8 +111,13 @@ export interface TagRect { cx: number; cy: number; w: number; h: number; }
 /**
  * Iteratively push-apart axis-aligned rectangles (world-space AABB) to eliminate overlaps.
  * Counter-rotated guest tags are always horizontal → safe to treat as AABB.
+ *
+ * forceAxis: when provided, overlapping pairs are always pushed along that world axis.
+ *   'x' → horizontal tables: tags spread along table's long axis (world-X).
+ *   'y' → vertical tables: tags spread along table's long axis (world-Y).
+ *   undefined → round tables: standard minimum-overlap axis selection.
  */
-export function resolveTagCollisions(rects: TagRect[], maxIter = 8, gap = 2): TagRect[] {
+export function resolveTagCollisions(rects: TagRect[], maxIter = 8, gap = 2, forceAxis?: 'x' | 'y'): TagRect[] {
   const out = rects.map((r) => ({ ...r }));
   for (let iter = 0; iter < maxIter; iter++) {
     let moved = false;
@@ -122,7 +127,8 @@ export function resolveTagCollisions(rects: TagRect[], maxIter = 8, gap = 2): Ta
         const ox = (a.w + b.w) / 2 + gap - Math.abs(a.cx - b.cx);
         const oy = (a.h + b.h) / 2 + gap - Math.abs(a.cy - b.cy);
         if (ox <= 0 || oy <= 0) continue;
-        if (ox <= oy) {
+        const useX = forceAxis === 'x' || (!forceAxis && ox <= oy);
+        if (useX) {
           const half = ox / 2;
           if (a.cx <= b.cx) { a.cx -= half; b.cx += half; } else { a.cx += half; b.cx -= half; }
         } else {
