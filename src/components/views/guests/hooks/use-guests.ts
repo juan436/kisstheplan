@@ -7,6 +7,7 @@ import type { Guest, GuestGroup, GuestStats } from "@/types";
 import type { CreateGuestData, UpdateGuestData } from "@/services/api";
 import type { ColKey } from "../constants/guests.constants";
 import { buildGuestUpdate, loadHiddenCols, saveHiddenCols, exportGuestsToExcel } from "../helpers/guests.helpers";
+import { getItemColors } from "@/lib/allergy-colors";
 
 export function useGuests() {
   const { wedding } = useAuth();
@@ -32,7 +33,9 @@ export function useGuests() {
   const [quickGroupId, setQuickGroupId] = useState("");
   const [quickSaving,  setQuickSaving]  = useState(false);
   const [mealOptions,     setMealOptions]     = useState(["Carne", "Pescado", "Vegetariano", "Infantil"]);
+  const [mealColors,      setMealColors]      = useState<Record<string, string>>({});
   const [allergyOptions,  setAllergyOptions]  = useState(["Gluten", "Lactosa", "Frutos secos", "Marisco"]);
+  const [allergyColors,   setAllergyColors]   = useState<Record<string, string>>({});
   const [transportPoints, setTransportPoints] = useState<string[]>([]);
   const [importingExcel,  setImportingExcel]  = useState(false);
   const [importError,     setImportError]     = useState("");
@@ -68,8 +71,14 @@ export function useGuests() {
   useEffect(() => {
     if (!wedding) return;
     loadData(); loadGroups();
-    if (wedding.mealOptions?.length)      setMealOptions(wedding.mealOptions);
-    if (wedding.allergyOptions?.length)   setAllergyOptions(wedding.allergyOptions);
+    if (wedding.mealOptions?.length) {
+      setMealOptions(wedding.mealOptions);
+      setMealColors(getItemColors(wedding.mealOptions, wedding.mealColors ?? {}));
+    }
+    if (wedding.allergyOptions?.length) {
+      setAllergyOptions(wedding.allergyOptions);
+      setAllergyColors(getItemColors(wedding.allergyOptions, wedding.allergyColors ?? {}));
+    }
     if (wedding.transportOptions?.length) setTransportPoints(wedding.transportOptions);
   }, [wedding, loadData, loadGroups]);
 
@@ -139,9 +148,10 @@ export function useGuests() {
     await loadData();
   };
 
-  const handleSaveConfig = async (meals: string[], allergies: string[], transport: string[]) => {
+  const handleSaveConfig = async (meals: string[], allergies: string[], transport: string[], aColors: Record<string, string>, mColors: Record<string, string>) => {
     setMealOptions(meals); setAllergyOptions(allergies); setTransportPoints(transport);
-    if (wedding) await api.updateWedding(wedding.id, { mealOptions: meals, allergyOptions: allergies, transportOptions: transport });
+    setAllergyColors(aColors); setMealColors(mColors);
+    if (wedding) await api.updateWedding(wedding.id, { mealOptions: meals, allergyOptions: allergies, transportOptions: transport, allergyColors: aColors, mealColors: mColors });
   };
 
   const filteredGuests = groupFilter ? guests.filter((g) => g.groupId === groupFilter) : guests;
@@ -161,7 +171,7 @@ export function useGuests() {
     showColMenu, setShowColMenu, show, toggleCol, colMenuRef,
     showQuickAdd, setShowQuickAdd, quickName, setQuickName, quickGroupId, setQuickGroupId,
     quickSaving, handleQuickAdd, quickAddRef,
-    mealOptions, allergyOptions, transportPoints,
+    mealOptions, mealColors, allergyOptions, allergyColors, transportPoints,
     handleSaveConfig, handleExportExcel,
     excelInputRef, importingExcel, importError, setImportError, handleExcelFile,
   };

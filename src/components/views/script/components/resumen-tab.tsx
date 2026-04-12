@@ -1,24 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, Image as ImageIcon, Settings2 } from "lucide-react";
 import type { ScriptViewProps } from "../helpers/script.helpers";
 import { sortEntries, formatTimeDisplay } from "../helpers/script.helpers";
 
 type ResumenTabProps = Pick<ScriptViewProps, "entries" | "areas" | "onCreateArea" | "onUpdateArea" | "onDeleteArea">;
 
+type VisibleFields = { description: boolean };
+
 export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDeleteArea }: ResumenTabProps) {
   const [newArea, setNewArea] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart);
+  const [showFieldMenu, setShowFieldMenu] = useState(false);
+  const [visible, setVisible] = useState<VisibleFields>({ description: true });
+  const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart && !e.isPrivate);
 
   const addArea = async () => { if (!newArea.trim()) return; await onCreateArea({ name: newArea.trim() }); setNewArea(""); };
+  const toggleField = (field: keyof VisibleFields) => setVisible((v) => ({ ...v, [field]: !v[field] }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6">
+    <div className="mx-auto mt-6" style={{ maxWidth: 860 }}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
       <div>
-        <h2 className="text-2xl mb-5" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h2>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-2xl" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h2>
+          <div className="relative">
+            <button onClick={() => setShowFieldMenu((v) => !v)} title="Configurar campos"
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: showFieldMenu ? "var(--color-accent)" : "var(--color-border)" }}>
+              <Settings2 size={15} />
+            </button>
+            {showFieldMenu && (
+              <div className="absolute right-0 top-8 z-10 rounded-xl shadow-[var(--shadow-dropdown)] border p-3 min-w-[160px]"
+                style={{ background: "var(--color-bg)", borderColor: "var(--color-border)" }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: "var(--color-text)" }}>Mostrar campos</p>
+                {(Object.keys(visible) as (keyof VisibleFields)[]).map((field) => (
+                  <label key={field} className="flex items-center gap-2 cursor-pointer py-0.5">
+                    <input type="checkbox" checked={visible[field]} onChange={() => toggleField(field)}
+                      className="accent-[var(--color-accent)] w-3.5 h-3.5" />
+                    <span className="text-xs capitalize" style={{ color: "var(--color-text)" }}>
+                      {field === "description" ? "Descripción" : field}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
         {timedEntries.length === 0 ? (
           <p className="text-sm" style={{ color: "var(--color-accent)" }}>Sin horarios. Añádelos en el Guión Detallado.</p>
         ) : (
@@ -28,7 +58,9 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
                 <span className="text-sm font-semibold tabular-nums flex-shrink-0 w-28" style={{ color: "var(--color-cta)" }}>{formatTimeDisplay(e)}</span>
                 <div>
                   <div className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{e.title}</div>
-                  {e.description && <div className="text-xs mt-0.5" style={{ color: "var(--color-accent)" }}>{e.description}</div>}
+                  {visible.description && e.description && (
+                    <div className="text-xs mt-0.5 whitespace-pre-wrap" style={{ color: "var(--color-accent)" }}>{e.description}</div>
+                  )}
                 </div>
               </div>
             ))}
@@ -79,6 +111,7 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
           <span className="text-xs opacity-50">Próximamente</span>
         </div>
       </div>
+    </div>
     </div>
   );
 }

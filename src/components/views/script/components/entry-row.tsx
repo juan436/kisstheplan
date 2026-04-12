@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GripVertical, Trash2, Type } from "lucide-react";
+import { GripVertical, Trash2, Type, Lock, Globe } from "lucide-react";
 import type { ScriptEntry } from "@/types";
 import { TimePill } from "./time-pill";
 import { StyleBar } from "./style-bar";
@@ -19,6 +19,20 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
   const [showStyle, setShowStyle] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
+  const styleAreaRef = useRef<HTMLDivElement>(null);
+
+  const closeStyle = useCallback(() => setShowStyle(false), []);
+
+  useEffect(() => {
+    if (!showStyle) return;
+    const handler = (e: MouseEvent) => {
+      if (styleAreaRef.current && !styleAreaRef.current.contains(e.target as Node)) {
+        setShowStyle(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showStyle]);
 
   useEffect(() => { setTitleVal(entry.title); }, [entry.title]);
   useEffect(() => { setDescVal(entry.description ?? ""); }, [entry.description]);
@@ -34,7 +48,10 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
         <GripVertical size={15} />
       </div>
       <div className="flex flex-col items-center mt-2 flex-shrink-0">
-        <div className="w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: "var(--color-accent)", background: "var(--color-bg)" }} />
+        <div className="w-2.5 h-2.5 rounded-full border-2" style={{
+          borderColor: entry.isPrivate ? "var(--color-border)" : "var(--color-accent)",
+          background: entry.isPrivate ? "var(--color-fill)" : "var(--color-bg)",
+        }} />
         <div className="w-px flex-1 min-h-[36px] mt-1" style={{ background: "var(--color-fill)" }} />
       </div>
       <div className="flex-1 min-w-0">
@@ -57,15 +74,15 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
             className="w-full bg-transparent outline-none text-xs mt-0.5 resize-none border-b"
             style={{ color: "var(--color-accent)", borderColor: "var(--color-border)", minHeight: 36 }} rows={2} autoFocus />
         ) : (
-          <div className="text-xs mt-0.5 cursor-text min-h-[16px]" style={{ color: "var(--color-accent)" }}
+          <div className="text-xs mt-0.5 cursor-text min-h-[16px] whitespace-pre-wrap" style={{ color: "var(--color-accent)" }}
             onClick={() => { setEditDesc(true); setTimeout(() => descRef.current?.focus(), 10); }}>
             {entry.description || <span className="opacity-30">Añadir descripción…</span>}
           </div>
         )}
         <AnimatePresence>
           {showStyle && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-              <StyleBar style={entry.style} onChange={(s) => onUpdate(entry.id, { style: { ...entry.style, ...s } })} />
+            <motion.div ref={styleAreaRef} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <StyleBar style={entry.style} onChange={(s) => onUpdate(entry.id, { style: { ...entry.style, ...s } })} onClose={closeStyle} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -75,6 +92,12 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
           className="p-1 rounded-lg transition-colors"
           style={{ color: showStyle ? "var(--color-accent)" : "var(--color-border)" }}>
           <Type size={13} />
+        </button>
+        <button onClick={() => onUpdate(entry.id, { isPrivate: !entry.isPrivate })}
+          title={entry.isPrivate ? "Privado (no aparece en Resumen)" : "Público (visible en Resumen)"}
+          className="p-1 rounded-lg transition-colors"
+          style={{ color: entry.isPrivate ? "var(--color-text)" : "var(--color-border)" }}>
+          {entry.isPrivate ? <Lock size={13} /> : <Globe size={13} />}
         </button>
         <button onClick={() => onDelete(entry.id)} title="Eliminar"
           className="p-1 rounded-lg transition-colors hover:text-red-400"

@@ -82,6 +82,76 @@ export function computeRoundChairRadius(
   return Math.min(rawChairR, Math.max(maxR, 3));
 }
 
+// ── Helpers for S-curve (Bezier) geometry ─────────────────────────────────────
+
+function bzPt(t: number, ax: number, ay: number, bx: number, by: number, cx: number, cy: number, dx: number, dy: number): [number, number] {
+  const m = 1 - t;
+  return [m*m*m*ax + 3*m*m*t*bx + 3*m*t*t*cx + t*t*t*dx, m*m*m*ay + 3*m*m*t*by + 3*m*t*t*cy + t*t*t*dy];
+}
+
+function bzTan(t: number, ax: number, ay: number, bx: number, by: number, cx: number, cy: number, dx: number, dy: number): [number, number] {
+  const m = 1 - t;
+  return [3*(m*m*(bx-ax)+2*m*t*(cx-bx)+t*t*(dx-cx)), 3*(m*m*(by-ay)+2*m*t*(cy-by)+t*t*(dy-cy))];
+}
+
+/**
+ * S HORIZONTAL — ancho 2.8r, alto ~1.1r → aspecto ~2.5:1 para evitar efecto diagonal.
+ * hw = r*1.4 controla el semiancho. vy = r*0.4 controla la ondulación vertical.
+ * Espina: (-hw,0) → C(-hw,-vy)(0,-vy) → (0,0) → C(0,vy)(hw,vy) → (hw,0).
+ */
+export function serpentineTableChairs(
+  capacity: number,
+  r: number,
+  chairR: number,
+): ChairPoint[] {
+  if (capacity <= 0) return [];
+  const vy = r * 0.4;
+  const hw = r * 1.4;
+  const orbitDist = r * 0.25 + chairR + chairR * 0.4;
+  const leftCount = Math.ceil(capacity / 2);
+  const rightCount = capacity - leftCount;
+  const chairs: ChairPoint[] = [];
+
+  // Mitad izquierda: CW perp → arriba
+  for (let i = 0; i < leftCount; i++) {
+    const t = (i + 0.5) / leftCount;
+    const [px, py] = bzPt(t, -hw,0, -hw,-vy, 0,-vy, 0,0);
+    const [tx, ty] = bzTan(t, -hw,0, -hw,-vy, 0,-vy, 0,0);
+    const len = Math.hypot(tx, ty) || 1;
+    chairs.push({ x: px + (ty/len)*orbitDist, y: py + (-tx/len)*orbitDist });
+  }
+
+  // Mitad derecha: CCW perp → abajo
+  for (let i = 0; i < rightCount; i++) {
+    const t = (i + 0.5) / rightCount;
+    const [px, py] = bzPt(t, 0,0, 0,vy, hw,vy, hw,0);
+    const [tx, ty] = bzTan(t, 0,0, 0,vy, hw,vy, hw,0);
+    const len = Math.hypot(tx, ty) || 1;
+    chairs.push({ x: px + (-ty/len)*orbitDist, y: py + (tx/len)*orbitDist });
+  }
+
+  return chairs;
+}
+
+/**
+ * Calcula el radio del asiento para mesas serpentinas (S-shape).
+ * hw = r*1.4 es el semiancho; cada arco recorre ~π/2 radianes.
+ */
+export function computeSerpentineChairRadius(
+  capacity: number,
+  tableR: number,
+  rawChairR: number,
+): number {
+  if (capacity <= 1) return rawChairR;
+  const hw = tableR * 1.4;
+  const perArc = Math.ceil(capacity / 2);
+  const orbitR = hw + rawChairR * 1.4;
+  const arcPerChair = (Math.PI / 2) / perArc;
+  const halfChord = orbitR * Math.sin(arcPerChair / 2);
+  const maxR = halfChord * 0.82;
+  return Math.min(rawChairR, Math.max(maxR, 3));
+}
+
 /**
  * Calcula el radio del asiento para mesas rectangulares (limitado por el hueco).
  */

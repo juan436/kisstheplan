@@ -22,7 +22,7 @@ export function NotesView() {
 
   if (openNote) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden" style={{ minHeight: 600 }}>
+      <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden" style={{ height: "calc(100vh - 160px)", minHeight: 600 }}>
         {openNote.type === "text" && (
           <TextEditor note={openNote} onSave={(c, t) => handleSaveContent(openNote.id, c, t)} onClose={() => setOpenNote(null)} />
         )}

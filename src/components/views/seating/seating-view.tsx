@@ -17,6 +17,7 @@ export default function SeatingView() {
     showNewPlan, setShowNewPlan,
     showAddTable, setShowAddTable,
     selectedPlan,
+    allergyColors, mealColors,
     handleCreatePlan, handleDeletePlan,
     handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleRotateTable, handleDeleteTable,
     handleRenameTable, handleAssignSeat,
@@ -99,7 +100,7 @@ export default function SeatingView() {
           <AnimatePresence mode="wait">
             {activeTab === "canvas" ? (
               <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <CanvasTab plan={selectedPlan} guests={guests} mode={mode} onUpdateTablePos={handleUpdateTablePos} onUpdateTableSize={handleUpdateTableSize} onRotateTable={handleRotateTable} onAddTable={(shape) => setShowAddTable(shape)} onDeleteTable={handleDeleteTable} onAssignSeat={handleAssignSeat} />
+                <CanvasTab plan={selectedPlan} guests={guests} mode={mode} allergyColors={allergyColors} mealColors={mealColors} onUpdateTablePos={handleUpdateTablePos} onUpdateTableSize={handleUpdateTableSize} onRotateTable={handleRotateTable} onAddTable={(shape) => setShowAddTable(shape as "round" | "rectangular" | "serpentine")} onDeleteTable={handleDeleteTable} onAssignSeat={handleAssignSeat} />
               </motion.div>
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

@@ -13,6 +13,7 @@ export interface ScriptEntry {
     fontSize?: 'sm' | 'base' | 'lg' | 'xl';
   };
   order: number;
+  isPrivate?: boolean;
 }
 
 export interface ScriptArea {

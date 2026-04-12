@@ -103,3 +103,42 @@ export function getTableDiameter(capacity: number): number {
 export function getRectTableDims(): { width: number; height: number } {
   return { width: RECT_FIXED_WIDTH, height: RECT_FIXED_HEIGHT };
 }
+
+// ─── Guest tag collision resolution ──────────────────────────────────────────
+
+export interface TagRect { cx: number; cy: number; w: number; h: number; }
+
+/**
+ * Iteratively push-apart axis-aligned rectangles (world-space AABB) to eliminate overlaps.
+ * Counter-rotated guest tags are always horizontal → safe to treat as AABB.
+ *
+ * forceAxis: when provided, overlapping pairs are always pushed along that world axis.
+ *   'x' → horizontal tables: tags spread along table's long axis (world-X).
+ *   'y' → vertical tables: tags spread along table's long axis (world-Y).
+ *   undefined → round tables: standard minimum-overlap axis selection.
+ */
+export function resolveTagCollisions(rects: TagRect[], maxIter = 8, gap = 2, forceAxis?: 'x' | 'y'): TagRect[] {
+  const out = rects.map((r) => ({ ...r }));
+  for (let iter = 0; iter < maxIter; iter++) {
+    let moved = false;
+    for (let i = 0; i < out.length; i++) {
+      for (let j = i + 1; j < out.length; j++) {
+        const a = out[i], b = out[j];
+        const ox = (a.w + b.w) / 2 + gap - Math.abs(a.cx - b.cx);
+        const oy = (a.h + b.h) / 2 + gap - Math.abs(a.cy - b.cy);
+        if (ox <= 0 || oy <= 0) continue;
+        const useX = forceAxis === 'x' || (!forceAxis && ox <= oy);
+        if (useX) {
+          const half = ox / 2;
+          if (a.cx <= b.cx) { a.cx -= half; b.cx += half; } else { a.cx += half; b.cx -= half; }
+        } else {
+          const half = oy / 2;
+          if (a.cy <= b.cy) { a.cy -= half; b.cy += half; } else { a.cy += half; b.cy -= half; }
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+  return out;
+}

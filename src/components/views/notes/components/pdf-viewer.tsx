@@ -32,7 +32,7 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
   };
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 600 }}>
+    <div className="flex flex-col" style={{ height: "100%" }}>
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[var(--color-border)] bg-[var(--color-bg)]">
         <button onClick={onClose} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)] transition-colors"><X size={18} /></button>
         <input value={title} onChange={(e) => setTitle(e.target.value)}
@@ -46,9 +46,9 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
         </button>
       </div>
 
-      <div className="flex-1 bg-[var(--color-bg-2)]">
+      <div className="flex-1 bg-[var(--color-bg-2)] flex flex-col overflow-hidden">
         {pdfUrl ? (
-          <iframe src={pdfUrl} className="w-full border-0" style={{ minHeight: 520, height: "100%" }} />
+          <iframe src={pdfUrl} className="w-full border-0" style={{ flex: 1, minHeight: 0, height: "100%" }} />
         ) : (
           <div className="flex flex-col items-center justify-center gap-4" style={{ minHeight: 420 }}>
             <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ background: "#eef0f5" }}>

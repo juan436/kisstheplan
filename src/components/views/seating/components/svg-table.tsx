@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { TableSeat, Guest } from "@/types";
 import { CHAIR_RADIUS_M } from "../constants/seating.constants";
-import { tableRadius, rectDims, getGuestName, getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
-import { roundTableChairs, rectTableChairs, computeRoundChairRadius, computeRectChairRadius } from "../helpers/chair.helpers";
+import { tableRadius, rectDims, getTableDiameter, getRectTableDims, resolveTagCollisions } from "../helpers/seating.helpers";
+import { roundTableChairs, rectTableChairs, serpentineTableChairs, computeRoundChairRadius, computeRectChairRadius, computeSerpentineChairRadius } from "../helpers/chair.helpers";
+import { normalizeDish } from "@/lib/allergy-colors";
 
 interface SvgTableProps {
   table: TableSeat;
@@ -18,6 +19,8 @@ interface SvgTableProps {
   showLabels: boolean;
   /** LOD inner gate: when false, name hides internally and shows on hover as floating pill. */
   showName: boolean;
+  allergyColors?: Record<string, string>;
+  mealColors?: Record<string, string>;
   onMouseDown: (e: React.MouseEvent) => void;
   onClick: () => void;
   onRotate?: () => void;
@@ -25,48 +28,49 @@ interface SvgTableProps {
   onHoverEnd?: () => void;
 }
 
-const PILL_W    = 52;
-const PILL_H    = 13;
-const AVG_CHAR_W = 6.4; // avg char width px at fontSize 11, Quicksand
+const PILL_W    = 48;
+const PILL_H    = 10;
+const AVG_CHAR_W = 6.4;
+const PILL_FONT  = 7;                              // font-size inside pill (px)
+const PILL_CW    = PILL_FONT * 0.63;               // ≈ 4.4 px/char at 7px Quicksand
+const PILL_MAX   = Math.floor((PILL_W - 10) / PILL_CW); // ≈ 8 chars usable
 
+/** "Maximiliano García" → "Maxim G." (always fits within PILL_W) */
 function getShortName(name: string): string {
-  const parts = name.trim().split(" ");
-  return parts.length === 1 ? parts[0].slice(0, 9) : `${parts[0]} ${parts[1][0]}.`;
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0];
+  const suf   = parts.length > 1 ? ` ${parts[1][0].toUpperCase()}.` : "";
+  if ((first + suf).length <= PILL_MAX) return first + suf;
+  const room = PILL_MAX - suf.length;
+  return room >= 2 ? first.slice(0, room) + suf : first.slice(0, PILL_MAX - 1) + "…";
 }
 
-/** Standard truncation: clip to fit `availPx` with "…". */
 function fitName(name: string, availPx: number): string {
   const max = Math.max(3, Math.floor(availPx / AVG_CHAR_W));
   return name.length <= max ? name : name.slice(0, max - 1) + "…";
 }
 
-/**
- * Aggressive abbreviation for narrow spaces (vertical rect tables).
- * Cascade: full → trailing number → word initials → single initial.
- * "Mesa Principal" → "M.P." | "Mesa 3" → "3" | "Novios" → "N."
- */
 function abbreviateName(name: string, availPx: number): string {
   if (name.length * AVG_CHAR_W <= availPx) return name;
-
   const numMatch = name.match(/(\d+)\s*$/);
   if (numMatch && numMatch[1].length * AVG_CHAR_W <= availPx) return numMatch[1];
-
   const words = name.trim().split(/\s+/);
   if (words.length >= 2) {
     const abbr = words.map((w) => (/^\d+$/.test(w) ? w : w[0].toUpperCase() + ".")).join("");
     if (abbr.length * AVG_CHAR_W <= availPx) return abbr;
   }
-
   return name[0].toUpperCase() + ".";
 }
 
 export function SvgTable({
   table, guests, scale, mode, resizeMode, deleteMode, isSelected,
-  showLabels, showName,
+  showLabels, showName, allergyColors = {}, mealColors = {},
   onMouseDown, onClick, onRotate, onHover, onHoverEnd,
 }: SvgTableProps) {
   const [hovered, setHovered] = useState(false);
-  const isRound = table.shape === "round";
+  const isRound      = table.shape === "round";
+  const isSerpentine = table.shape === "serpentine";
+  const isRect       = table.shape === "rectangular";
 
   // ── Geometry ──────────────────────────────────────────────────────────────────
   const r  = tableRadius(table.physicalDiameter ?? getTableDiameter(table.capacity), scale);
@@ -77,46 +81,92 @@ export function SvgTable({
   const rawChairR = CHAIR_RADIUS_M * scale;
   const chairR = isRound
     ? computeRoundChairRadius(table.capacity, r, rawChairR)
-    : computeRectChairRadius(w, table.capacity, rawChairR);
-  const TAG_DIST = chairR + 6 + 26;
+    : isSerpentine
+      ? computeSerpentineChairRadius(table.capacity, r, rawChairR)
+      : computeRectChairRadius(w, table.capacity, rawChairR);
 
   const chairs = isRound
     ? roundTableChairs(table.capacity, r, chairR)
-    : rectTableChairs(w, h, table.capacity, chairR);
+    : isSerpentine
+      ? serpentineTableChairs(table.capacity, r, chairR)
+      : rectTableChairs(w, h, table.capacity, chairR);
 
   const rot = table.rotation ?? 0;
-  // Rect rotated 90°/270°: visual width shrinks to h, needs aggressive abbreviation.
-  const isVertical = !isRound && (rot % 180 !== 0);
+  const isVertical = isRect && (rot % 180 !== 0);
+  // Horizontal rect/serpentine: bring names closer to the chairs
+  const tagGap = (isRect || isSerpentine) && rot % 180 === 0 ? 6 : 18;
+  const TAG_DIST = chairR + PILL_H / 2 + tagGap;
+  const rotRad = (rot * Math.PI) / 180;
+  const cr = Math.cos(rotRad), sr = Math.sin(rotRad);
 
   // ── Name display ──────────────────────────────────────────────────────────────
-  // availW: horizontal pixels available for text inside the shape (with breathing margin).
-  const availW = isRound ? r * 1.72 : (isVertical ? h * 0.78 : w * 0.82);
-  // Vertical tables abbreviate aggressively to fit the narrow visual width.
-  const displayName = isVertical
+  const availW = isRound
+    ? r * 1.72
+    : isSerpentine
+      ? r * 1.4
+      : (isVertical ? h * 0.78 : w * 0.82);
+  const displayName = (isVertical || isSerpentine)
     ? abbreviateName(table.name, availW)
     : fitName(table.name, availW);
 
-  // Font size: gently scales with innerHalf so smaller physical tables don't look
-  // overpowered, clamped to [7, 11] for legibility.
-  const innerHalf    = isRound ? r : (isVertical ? w / 2 : h / 2);
+  const innerHalf    = isRound ? r : isSerpentine ? r * 0.5 : (isVertical ? w / 2 : h / 2);
   const nameFontSize = Math.min(11, Math.max(7, innerHalf * 0.35));
-
-  // nameFullyVisible: drives the hover pill.
-  // False when: zoom too low (showName=false) OR name was truncated/abbreviated.
   const nameFullyVisible = showLabels && showName && displayName === table.name;
 
-  // ── Hover pill ────────────────────────────────────────────────────────────────
-  const HOVER_H = 16;
-  const HOVER_W = Math.min(Math.max(table.name.length * AVG_CHAR_W + 18, 50), 130);
-  // topEdge: distance from centre to visual top border (accounts for rotation).
-  const topEdge = isRound ? r : (isVertical ? w / 2 : h / 2);
-  const pillY   = -(topEdge + chairR + 4 + HOVER_H / 2);
+  // ── Hover pill geometry ────────────────────────────────────────────────────────
+  const HOVER_H  = 12;
+  const HOVER_W  = Math.min(Math.max(table.name.length * AVG_CHAR_W + 12, 40), 110);
+  // For pill positioning always use the chair-row edge (h/2 for both rect orientations,
+  // r*0.65 for serpentine), NOT w/2 for vertical — that would push pills too far sideways.
+  const chairEdge = isRect ? h / 2 : isSerpentine ? r * 0.65 : r;
+  // Above outermost guest tag:
+  const pillY      = -(chairEdge + 1.4 * chairR + TAG_DIST + PILL_H / 2 + 4 + HOVER_H / 2);
+  // For empty table: where top guest tag would sit:
+  const pillYEmpty = -(chairEdge + 1.4 * chairR + TAG_DIST);
 
   // ── Visuals ───────────────────────────────────────────────────────────────────
   const showTags  = hovered || isSelected;
+  const hasGuests = table.assignments.some(a => !!a?.guestId);
   const tableFill = deleteMode && hovered ? "rgba(196,122,122,0.12)" : isSelected ? "rgba(140,111,95,0.10)" : "#ffffff";
   const stroke    = deleteMode && hovered ? "var(--color-danger)" : isSelected ? "var(--color-accent)" : "#B4A494";
   const strokeW   = (deleteMode && hovered) || isSelected ? 1.5 : 1;
+
+  // ── Pre-compute guest tags with collision resolution ───────────────────────────
+  type TagEntry = { idx: number; name: string; allergyColor: string | null; mealColor: string | null; lx: number; ly: number; };
+  const resolvedTags: TagEntry[] = [];
+  if (showTags && hasGuests) {
+    const raw: (TagEntry & { wx: number; wy: number })[] = [];
+    chairs.forEach((ch, i) => {
+      const a = table.assignments[i];
+      const guest = a?.guestId ? guests.find(g => g.id === a.guestId) : null;
+      if (!guest) return;
+      // Round: radial outward from center. Rect/serpentine: perpendicular to nearest edge
+      // (all chairs sit at y<0 = top side, y>0 = bottom side in local space).
+      let dx: number, dy: number;
+      if (isRound) {
+        const dist = Math.hypot(ch.x, ch.y);
+        dx = dist > 0 ? ch.x / dist : 0;
+        dy = dist > 0 ? ch.y / dist : 1;
+      } else {
+        dx = 0;
+        dy = ch.y < 0 ? -1 : 1;
+      }
+      const lx0 = ch.x + dx * TAG_DIST, ly0 = ch.y + dy * TAG_DIST;
+      const allergies = guest.allergies?.trim() ? guest.allergies.split(",").map(s => s.trim()).filter(Boolean) : [];
+      const allergyColor = allergies.length > 0 ? (allergyColors[allergies[0]] ?? "#f59e0b") : null;
+      const mealColor = guest.dish?.trim() ? (mealColors[normalizeDish(guest.dish)] ?? null) : null;
+      raw.push({ idx: i, name: getShortName(guest.name), allergyColor, mealColor, lx: lx0, ly: ly0, wx: cr * lx0 - sr * ly0, wy: sr * lx0 + cr * ly0 });
+    });
+    // Round: 2D resolver. Rect/serpentine: force axis matching table's long axis in world space.
+    // Horizontal (rot%180==0) → long axis = world-X → forceAxis 'x' (spread tags horizontally).
+    // Vertical  (rot%180!=0) → long axis = world-Y → forceAxis 'y' (spread tags vertically).
+    const forceAxis = isRound ? undefined : (rot % 180 === 0 ? 'x' : 'y') as 'x' | 'y';
+    const resolved = resolveTagCollisions(raw.map(t => ({ cx: t.wx, cy: t.wy, w: PILL_W, h: PILL_H })), 8, 2, forceAxis);
+    raw.forEach((t, i) => {
+      const rwx = resolved[i].cx, rwy = resolved[i].cy;
+      resolvedTags.push({ ...t, lx: cr * rwx + sr * rwy, ly: -sr * rwx + cr * rwy });
+    });
+  }
 
   return (
     <g id={`table-g-${table.id}`} data-rotation={rot}
@@ -127,30 +177,20 @@ export function SvgTable({
       onMouseEnter={() => { setHovered(true); onHover?.(); }}
       onMouseLeave={() => { setHovered(false); onHoverEnd?.(); }}>
 
-      {/* Chairs */}
+      {/* Chairs — circles + allergy/meal dots */}
       {chairs.map((ch, i) => {
         const a = table.assignments[i];
-        const guest = a?.guestId ? guests.find((g) => g.id === a.guestId) : null;
-        const hasAllergy = !!guest?.allergies?.trim();
-        const dist = Math.hypot(ch.x, ch.y);
-        const dx = dist > 0 ? ch.x / dist : 0;
-        const dy = dist > 0 ? ch.y / dist : 1;
+        const guest = a?.guestId ? guests.find(g => g.id === a.guestId) : null;
+        const allergies = guest?.allergies?.trim() ? guest.allergies.split(",").map(s => s.trim()).filter(Boolean) : [];
+        const allergyColor = allergies.length > 0 ? (allergyColors[allergies[0]] ?? "#f59e0b") : null;
+        const mealColor = guest?.dish?.trim() ? (mealColors[normalizeDish(guest.dish)] ?? null) : null;
+        const dotR = Math.max(1.5, chairR * 0.32);
         return (
           <g key={i}>
             <circle cx={ch.x} cy={ch.y} r={chairR}
               fill={guest ? "#8c6f5f" : "#EDE4D9"} stroke={guest ? "#7a5f51" : "#C4B7A6"} strokeWidth={0.75} />
-            {showTags && guest && (
-              <g transform={`translate(${ch.x + dx * TAG_DIST},${ch.y + dy * TAG_DIST})`}>
-                <rect x={-PILL_W / 2} y={-PILL_H / 2} width={PILL_W} height={PILL_H} rx={PILL_H / 2} fill="white"
-                  stroke="#C4B7A6" strokeWidth={0.5} style={{ filter: "drop-shadow(0 1px 3px rgba(74,60,50,0.14))" }} />
-                {hasAllergy && <circle cx={-PILL_W / 2 + 8} cy={0} r={3} fill="#f59e0b" />}
-                <text x={hasAllergy ? -PILL_W / 2 + 15 : 0} textAnchor={hasAllergy ? "start" : "middle"}
-                  dominantBaseline="central" fontSize={7} fill="var(--color-text)"
-                  style={{ pointerEvents: "none", userSelect: "none" }}>
-                  {getShortName(getGuestName(guests, a.guestId))}
-                </text>
-              </g>
-            )}
+            {allergyColor && <circle cx={ch.x + chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR} fill={allergyColor} stroke="white" strokeWidth={0.5} />}
+            {mealColor    && <circle cx={ch.x - chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR} fill={mealColor}    stroke="white" strokeWidth={0.5} />}
           </g>
         );
       })}
@@ -158,36 +198,55 @@ export function SvgTable({
       {/* Table shape */}
       {isRound
         ? <circle cx={0} cy={0} r={r} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
-        : <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
+        : isSerpentine
+          ? (() => {
+              const vy = r * 0.4, hw = r * 1.4, depth = r * 0.5;
+              const sp = `M ${-hw},0 C ${-hw},${-vy} 0,${-vy} 0,0 C 0,${vy} ${hw},${vy} ${hw},0`;
+              return (
+                <>
+                  <path d={sp} fill="none" stroke={stroke} strokeWidth={depth + strokeW * 2} strokeLinecap="round" />
+                  <path d={sp} fill="none" stroke={tableFill} strokeWidth={depth} strokeLinecap="round" />
+                </>
+              );
+            })()
+          : <rect x={-w / 2} y={-h / 2} width={w} height={h} rx={6} fill={tableFill} stroke={stroke} strokeWidth={strokeW} />
       }
 
-      {/*
-        Name label — single text, perfectly centred (x=0 y=0) inside the table shape.
-        Counter-rotated so it stays horizontal regardless of table rotation.
-        Only renders when showLabels AND showName are both true (LOD gates).
-        Capacity is intentionally omitted here — visible in the Preview Panel only.
-      */}
+      {/* Table name inside shape */}
       {showLabels && showName && (
         <g transform={`rotate(${-rot})`} style={{ pointerEvents: "none", userSelect: "none" }}>
-          <text textAnchor="middle" dominantBaseline="middle" y={0}
-            fontSize={nameFontSize} fontWeight={600} fill="var(--color-text)">
+          <text textAnchor="middle" dominantBaseline="middle" fontSize={nameFontSize} fontWeight={600} fill="var(--color-text)">
             {displayName}
           </text>
         </g>
       )}
 
+      {/* Guest tags — collision-resolved, always horizontal */}
+      {resolvedTags.map((tag) => (
+        <g key={`tag-${tag.idx}`} transform={`translate(${tag.lx},${tag.ly}) rotate(${-rot})`}
+          style={{ pointerEvents: "none", userSelect: "none" }}>
+          <rect x={-PILL_W / 2} y={-PILL_H / 2} width={PILL_W} height={PILL_H} rx={PILL_H / 2}
+            fill="white" stroke="#C4B7A6" strokeWidth={0.5}
+            style={{ filter: "drop-shadow(0 1px 2px rgba(74,60,50,0.12))" }} />
+          {tag.allergyColor && <circle cx={-PILL_W / 2 + 7} cy={0} r={2.5} fill={tag.allergyColor} />}
+          <text x={tag.allergyColor ? -PILL_W / 2 + 13 : 0}
+            textAnchor={tag.allergyColor ? "start" : "middle"} dominantBaseline="central"
+            fontSize={7} fill="var(--color-text)">{tag.name}</text>
+        </g>
+      ))}
+
       {/*
-        Floating name pill — appears on hover when the name is NOT fully visible inside:
-        (a) showName=false (zoom too low) or (b) the name was truncated / abbreviated.
-        Counter-rotated and positioned above the visual top edge of the (possibly rotated) table.
+        Hover pill — two cases:
+        (a) Table has guests but name was truncated → show above outermost tag (pillY).
+        (b) Table has no guests → show where top tag would be (pillYEmpty), as contextual hint.
       */}
-      {hovered && !nameFullyVisible && (
+      {hovered && (!nameFullyVisible || !hasGuests) && (
         <g transform={`rotate(${-rot})`} style={{ pointerEvents: "none", userSelect: "none" }}>
-          <g transform={`translate(0,${pillY})`}>
+          <g transform={`translate(0,${hasGuests ? pillY : pillYEmpty})`}>
             <rect x={-HOVER_W / 2} y={-HOVER_H / 2} width={HOVER_W} height={HOVER_H} rx={HOVER_H / 2}
               fill="white" stroke="#C4B7A6" strokeWidth={0.6}
               style={{ filter: "drop-shadow(0 1px 4px rgba(74,60,50,0.16))" }} />
-            <text textAnchor="middle" dominantBaseline="middle" fontSize={8.5} fill="var(--color-text)">
+            <text textAnchor="middle" dominantBaseline="middle" fontSize={7.5} fill="var(--color-text)">
               {table.name}
             </text>
           </g>

@@ -107,6 +107,7 @@ export interface ApiService {
   updateTask(id: string, data: UpdateTaskData): Promise<Task>;
   deleteTask(id: string): Promise<void>;
   getTaskProgress(): Promise<{ total: number; completed: number; percentage: number }>;
+  getTaskCategories(): Promise<string[]>;
 
   // Vendors
   getVendors(): Promise<Vendor[]>;
@@ -134,8 +135,8 @@ export interface ApiService {
   createSeatingPlan(name: string): Promise<SeatingPlan>;
   updateSeatingPlan(planId: string, data: string | Partial<SeatingPlan>): Promise<SeatingPlan>;
   deleteSeatingPlan(planId: string): Promise<void>;
-  addSeatingTable(planId: string, data: { name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number }): Promise<SeatingPlan>;
-  updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular"; capacity: number; posX: number; posY: number; physicalDiameter: number; physicalWidth: number; physicalHeight: number; rotation: number }>): Promise<SeatingPlan>;
+  addSeatingTable(planId: string, data: { name: string; shape: "round" | "rectangular" | "serpentine"; capacity: number; posX: number; posY: number }): Promise<SeatingPlan>;
+  updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular" | "serpentine"; capacity: number; posX: number; posY: number; physicalDiameter: number; physicalWidth: number; physicalHeight: number; rotation: number }>): Promise<SeatingPlan>;
   deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan>;
   assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan>;
 

@@ -23,6 +23,8 @@ export interface Wedding {
   photoUrl?: string;
   slug: string;
   mealOptions?: string[];
+  mealColors?: Record<string, string>;
   allergyOptions?: string[];
+  allergyColors?: Record<string, string>;
   transportOptions?: string[];
 }

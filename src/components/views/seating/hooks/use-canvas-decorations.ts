@@ -75,8 +75,17 @@ export function useCanvasDecorations(plan: SeatingPlan) {
     });
   }, [plan.id]);
 
+  const handleAssignChairGuest = useCallback((id: string, guestId?: string) => {
+    setDecorations((prev) => {
+      const next = prev.map((d) => d.id === id ? { ...d, guestId: guestId || undefined } : d);
+      if (plan.id) api.updateSeatingPlan(plan.id, { decorations: next });
+      return next;
+    });
+  }, [plan.id]);
+
   return {
     decorations, selectedDecoId, decoPanel,
-    onUpdateDecoPos, handleDecoClick, handleDecoApply, closeDecoPanel, handleAddDecoration, handleDeleteDeco,
+    onUpdateDecoPos, handleDecoClick, handleDecoApply, closeDecoPanel,
+    handleAddDecoration, handleDeleteDeco, handleAssignChairGuest,
   };
 }

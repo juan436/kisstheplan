@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import type { SeatingPlan } from "@/types";
+import { getAllergyColors, getItemColors, pickNextColor, normalizeDish } from "@/lib/allergy-colors";
 
 export function useSeating() {
-  const { wedding } = useAuth();
+  const { wedding, refreshUserData } = useAuth();
 
   const [plans, setPlans] = useState<SeatingPlan[]>([]);
   const [guests, setGuests] = useState<import("@/types").Guest[]>([]);
@@ -16,7 +17,7 @@ export function useSeating() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showNewPlan, setShowNewPlan] = useState(false);
-  const [showAddTable, setShowAddTable] = useState<"round" | "rectangular" | null>(null);
+  const [showAddTable, setShowAddTable] = useState<"round" | "rectangular" | "serpentine" | null>(null);
 
   useEffect(() => {
     if (!wedding) return;
@@ -51,12 +52,13 @@ export function useSeating() {
 
   // ─── Table handlers ───────────────────────────────────────────────────────
 
-  const handleAddTable = async (shape: "round" | "rectangular", name?: string, capacity?: number) => {
+  const handleAddTable = async (shape: "round" | "rectangular" | "serpentine", name?: string, capacity?: number) => {
     if (!selectedPlanId) return;
     const canvas = document.querySelector(".canvas-inner");
     const posX = canvas ? (canvas as HTMLElement).clientWidth / 2 - 60 : 200;
+    const defaultName = shape === "round" ? "Mesa redonda" : shape === "serpentine" ? "Mesa serpentina" : "Mesa rectangular";
     const updated = await api.addSeatingTable(selectedPlanId, {
-      name: name ?? (shape === "round" ? "Mesa redonda" : "Mesa rectangular"),
+      name: name ?? defaultName,
       shape,
       capacity: capacity ?? 8,
       posX,
@@ -91,20 +93,16 @@ export function useSeating() {
 
   const handleRotateTable = async (tableId: string) => {
     if (!selectedPlanId) return;
-    setPlans((prev) =>
-      prev.map((p) =>
+    let newRot = 0;
+    setPlans((prev) => {
+      const table = prev.find((p) => p.id === selectedPlanId)?.tables.find((t) => t.id === tableId);
+      newRot = ((table?.rotation ?? 0) + 90) % 360;
+      return prev.map((p) =>
         p.id === selectedPlanId
-          ? {
-              ...p,
-              tables: p.tables.map((t) =>
-                t.id === tableId ? { ...t, rotation: ((t.rotation ?? 0) + 90) % 360 } : t
-              ),
-            }
+          ? { ...p, tables: p.tables.map((t) => t.id === tableId ? { ...t, rotation: newRot } : t) }
           : p
-      )
-    );
-    const next = plans.find((p) => p.id === selectedPlanId)?.tables.find((t) => t.id === tableId);
-    const newRot = ((next?.rotation ?? 0) + 90) % 360;
+      );
+    });
     await api.updateSeatingTable(selectedPlanId, tableId, { rotation: newRot });
   };
 
@@ -144,6 +142,38 @@ export function useSeating() {
     await api.assignSeat(selectedPlanId, tableId, seatNumber, guestId);
   };
 
+  const allergyColors = useMemo(
+    () => getAllergyColors(wedding?.allergyOptions ?? [], wedding?.allergyColors ?? {}),
+    [wedding]
+  );
+
+  const mealColors = useMemo(() => {
+    const base = getItemColors(wedding?.mealOptions ?? [], wedding?.mealColors ?? {});
+    // Auto-assign unique colors for any dish value (individual or combo) not yet in the DB
+    const result = { ...base };
+    for (const g of guests) {
+      const dish = g.dish?.trim();
+      if (!dish) continue;
+      const key = normalizeDish(dish);
+      if (!result[key]) {
+        result[key] = pickNextColor(result);
+      }
+    }
+    return result;
+  }, [wedding, guests]);
+
+  // Persist any newly-computed dish colors (combos) back to the DB so they are
+  // stable across reloads and immune to palette reordering.
+  useEffect(() => {
+    if (!wedding?.id) return;
+    const stored = wedding.mealColors ?? {};
+    const newEntries = Object.entries(mealColors).filter(([k]) => !stored[k]);
+    if (newEntries.length === 0) return;
+    const merged = { ...stored, ...Object.fromEntries(newEntries) };
+    api.updateWedding(wedding.id, { mealColors: merged }).then(() => refreshUserData());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealColors]);
+
   return {
     plans, guests, selectedPlanId, setSelectedPlanId,
     mode, setMode, activeTab, setActiveTab,
@@ -151,6 +181,7 @@ export function useSeating() {
     showNewPlan, setShowNewPlan,
     showAddTable, setShowAddTable,
     selectedPlan,
+    allergyColors, mealColors,
     handleCreatePlan, handleDeletePlan,
     handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleRotateTable, handleDeleteTable,
     handleRenameTable, handleAssignSeat,

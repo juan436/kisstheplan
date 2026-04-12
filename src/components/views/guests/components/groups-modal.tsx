@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, X, Pencil, Check } from "lucide-react";
+import { pickNextColor } from "@/lib/allergy-colors";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import type { Guest, GuestGroup } from "@/types";
@@ -86,22 +87,44 @@ export function GroupsModal({ open, onClose, groups, guests, newGroupName, setNe
   );
 }
 
-export function ConfigModal({ open, onClose, mealOptions, allergyOptions, transportPoints, onSave }: {
+export function ConfigModal({ open, onClose, mealOptions, mealColors: initMealColors, allergyOptions, allergyColors: initAllergyColors, transportPoints, onSave }: {
   open: boolean; onClose: () => void;
-  mealOptions: string[]; allergyOptions: string[]; transportPoints: string[];
-  onSave: (meals: string[], allergies: string[], transport: string[]) => void;
+  mealOptions: string[]; mealColors?: Record<string, string>;
+  allergyOptions: string[]; allergyColors?: Record<string, string>;
+  transportPoints: string[];
+  onSave: (meals: string[], allergies: string[], transport: string[], allergyColors: Record<string, string>, mealColors: Record<string, string>) => void;
 }) {
   const [tab,    setTab]    = useState<"meals"|"allergies"|"transport">("meals");
   const [meals,  setMeals]  = useState(mealOptions);
   const [allerg, setAllerg] = useState(allergyOptions);
   const [transp, setTransp] = useState(transportPoints);
+  const [mColors, setMColors] = useState<Record<string, string>>(initMealColors ?? {});
+  const [aColors, setAColors] = useState<Record<string, string>>(initAllergyColors ?? {});
   const [newVal, setNewVal] = useState("");
 
   const current    = tab === "meals" ? meals : tab === "allergies" ? allerg : transp;
   const setCurrent = tab === "meals" ? setMeals : tab === "allergies" ? setAllerg : setTransp;
-  const handleAdd    = () => { const v = newVal.trim(); if (!v || current.includes(v)) return; setCurrent([...current, v]); setNewVal(""); };
+  const hasColors  = tab === "meals" || tab === "allergies";
+  const currentColors = tab === "meals" ? mColors : aColors;
+  const setCurrentColors = tab === "meals" ? setMColors : setAColors;
+
+  const handleAdd = () => {
+    const v = newVal.trim();
+    if (!v || current.includes(v)) return;
+    setCurrent([...current, v]);
+    if (hasColors && !currentColors[v])
+      setCurrentColors((prev) => ({ ...prev, [v]: pickNextColor(prev) }));
+    setNewVal("");
+  };
   const handleRemove = (item: string) => setCurrent(current.filter((i) => i !== item));
-  const handleSave   = () => { onSave(meals, allerg, transp); onClose(); };
+  const handleSave = () => {
+    const savedA: Record<string, string> = {};
+    allerg.forEach((a) => { if (aColors[a]) savedA[a] = aColors[a]; });
+    const savedM: Record<string, string> = {};
+    meals.forEach((m) => { if (mColors[m]) savedM[m] = mColors[m]; });
+    onSave(meals, allerg, transp, savedA, savedM);
+    onClose();
+  };
   const tabs = [{ key: "meals" as const, label: "Platos" }, { key: "allergies" as const, label: "Alergias" }, { key: "transport" as const, label: "Transporte" }];
   const placeholders: Record<string, string> = { meals: "Ej: Vegano, Halal...", allergies: "Ej: Nueces, Soja...", transport: "Ej: Calle Mayor, 12..." };
 
@@ -117,10 +140,17 @@ export function ConfigModal({ open, onClose, mealOptions, allergyOptions, transp
           </button>
         ))}
       </div>
+      {hasColors && <p className="text-[11px] text-brand/60 mb-2 -mt-3">Haz clic en el círculo de color para cambiarlo.</p>}
       <div className="flex flex-wrap gap-2 min-h-[64px] mb-4 p-3 bg-bg2 rounded-xl">
         {current.length === 0 && <span className="text-[12px] text-brand italic">Sin opciones</span>}
         {current.map((item) => (
           <span key={item} className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-[12px] text-text border border-border">
+            {hasColors && (
+              <label style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }} title="Cambiar color">
+                <input type="color" value={currentColors[item] ?? "#e85d5d"} onChange={(e) => setCurrentColors((prev) => ({ ...prev, [item]: e.target.value }))} style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} />
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: currentColors[item] ?? "#e85d5d", display: "block", border: "1px solid rgba(0,0,0,0.15)" }} />
+              </label>
+            )}
             {item}
             <button onClick={() => handleRemove(item)} className="text-brand hover:text-danger transition-colors"><X size={12} /></button>
           </span>

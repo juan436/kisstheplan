@@ -6,7 +6,7 @@ export interface SeatAssignment {
 export interface TableSeat {
   id: string;
   name: string;
-  shape: "round" | "rectangular";
+  shape: "round" | "rectangular" | "serpentine";
   capacity: number;
   posX: number;
   posY: number;
@@ -19,7 +19,8 @@ export interface TableSeat {
 
 export interface EmojiObject {
   id: string;
-  emoji: string;
+  emoji?: string;       // emoji character (objetos libres del usuario)
+  objectType?: string;  // clave SVG de la librería
   label: string;
   physicalWidth: number;
   physicalHeight: number;
@@ -35,7 +36,9 @@ export interface DecorationObject {
   label?: string;
   physicalWidth?: number;  // metros
   physicalHeight?: number; // metros
-  customEmoji?: string;    // solo cuando type === "custom_emoji"
+  customEmoji?: string;    // solo cuando type === "custom_emoji" y es objeto del usuario
+  objectType?: string;     // clave del icono SVG de la librería (chair, bench, bar, etc.)
+  guestId?: string;        // asignación de invitado (solo para sillas funcionales)
 }
 
 export interface CalibZone {
