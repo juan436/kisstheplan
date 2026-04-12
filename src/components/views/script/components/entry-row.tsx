@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GripVertical, Trash2, Type } from "lucide-react";
 import type { ScriptEntry } from "@/types";
@@ -19,6 +19,20 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
   const [showStyle, setShowStyle] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
+  const styleAreaRef = useRef<HTMLDivElement>(null);
+
+  const closeStyle = useCallback(() => setShowStyle(false), []);
+
+  useEffect(() => {
+    if (!showStyle) return;
+    const handler = (e: MouseEvent) => {
+      if (styleAreaRef.current && !styleAreaRef.current.contains(e.target as Node)) {
+        setShowStyle(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showStyle]);
 
   useEffect(() => { setTitleVal(entry.title); }, [entry.title]);
   useEffect(() => { setDescVal(entry.description ?? ""); }, [entry.description]);
@@ -57,15 +71,15 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
             className="w-full bg-transparent outline-none text-xs mt-0.5 resize-none border-b"
             style={{ color: "var(--color-accent)", borderColor: "var(--color-border)", minHeight: 36 }} rows={2} autoFocus />
         ) : (
-          <div className="text-xs mt-0.5 cursor-text min-h-[16px]" style={{ color: "var(--color-accent)" }}
+          <div className="text-xs mt-0.5 cursor-text min-h-[16px] whitespace-pre-wrap" style={{ color: "var(--color-accent)" }}
             onClick={() => { setEditDesc(true); setTimeout(() => descRef.current?.focus(), 10); }}>
             {entry.description || <span className="opacity-30">Añadir descripción…</span>}
           </div>
         )}
         <AnimatePresence>
           {showStyle && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-              <StyleBar style={entry.style} onChange={(s) => onUpdate(entry.id, { style: { ...entry.style, ...s } })} />
+            <motion.div ref={styleAreaRef} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <StyleBar style={entry.style} onChange={(s) => onUpdate(entry.id, { style: { ...entry.style, ...s } })} onClose={closeStyle} />
             </motion.div>
           )}
         </AnimatePresence>

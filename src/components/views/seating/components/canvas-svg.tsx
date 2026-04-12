@@ -40,6 +40,7 @@ interface CanvasSvgProps {
   selectedDecoId: string | null;
   calibPoints: { x: number; y: number }[];
   deleteMode: boolean;
+  hideObjectLabels?: boolean;
   hoveredTableId?: string | null;
   allergyColors?: Record<string, string>;
   mealColors?: Record<string, string>;
@@ -93,7 +94,7 @@ function ZoneNeonGrid({ zone }: { zone: CalibZone }) {
 
 export function CanvasSvg({
   plan, guests, scale, mode, bgImage, seatingTable, snapEnabled,
-  zones, zonePoints, guides, zoningActive, resizeMode, showLabels, showName, deleteMode, decorations, selectedDecoId, calibPoints,
+  zones, zonePoints, guides, zoningActive, resizeMode, showLabels, showName, deleteMode, hideObjectLabels = false, decorations, selectedDecoId, calibPoints,
   hoveredTableId, allergyColors = {}, mealColors = {},
   onTableMouseDown, onTableClick, onTableRotate, onTableHover, onTableHoverEnd,
   onDecoMouseDown, onDecoClick, onSvgClick,
@@ -266,7 +267,7 @@ export function CanvasSvg({
             )}
 
             {/* Chair: short-name pill — always visible when guest assigned (white, truncated) */}
-            {isChair && chairGuest && (() => {
+            {!hideObjectLabels && isChair && chairGuest && (() => {
               const shortName = getShortName(chairGuest.name);
               const fs = 7;
               const pH = 12;
@@ -290,7 +291,7 @@ export function CanvasSvg({
             })()}
 
             {/* Chair: floating name pill on hover — above the chair, same style as table chairs */}
-            {isChair && isHovered && (() => {
+            {!hideObjectLabels && isChair && isHovered && (() => {
               const text = chairGuest?.name ?? label;
               const fs = 8;
               const pH = 14;
@@ -313,8 +314,8 @@ export function CanvasSvg({
               );
             })()}
 
-            {/* Non-chair: label pill below — always visible (unchanged behavior) */}
-            {!isChair && (() => {
+            {/* Non-chair: label pill below — hidden when hideObjectLabels is active */}
+            {!hideObjectLabels && !isChair && (() => {
               const fs = 8.5;
               const pillW = Math.max(28, label.length * fs * 0.62 + 10);
               const pillH = 14;

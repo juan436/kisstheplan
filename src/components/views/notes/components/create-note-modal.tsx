@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Check } from "lucide-react";
+import { X, Check, ChevronDown } from "lucide-react";
 import type { NoteType, Vendor } from "@/types";
 import { TYPE_LABELS, TYPE_ICONS } from "../constants/notes.constants";
 
@@ -14,6 +14,18 @@ export function CreateNoteModal({ vendors, onClose, onCreate }: CreateNoteModalP
   const [type, setType] = useState<NoteType>("text");
   const [title, setTitle] = useState("");
   const [vendorId, setVendorId] = useState("");
+  const [vendorOpen, setVendorOpen] = useState(false);
+  const vendorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (vendorRef.current && !vendorRef.current.contains(e.target as Node)) {
+        setVendorOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleCreate = () => {
     if (!title.trim()) return;
@@ -66,15 +78,33 @@ export function CreateNoteModal({ vendors, onClose, onCreate }: CreateNoteModalP
           </div>
 
           {vendors.length > 0 && (
-            <div>
+            <div ref={vendorRef} className="relative">
               <label className="block text-sm font-medium text-[var(--color-text)]/70 mb-1.5">
                 Asociar a proveedor <span className="font-normal opacity-50">(opcional)</span>
               </label>
-              <select value={vendorId} onChange={(e) => setVendorId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30">
-                <option value="">Sin proveedor</option>
-                {vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-              </select>
+              <button type="button" onClick={() => setVendorOpen((o) => !o)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--color-border)] bg-white text-sm text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30">
+                <span className={vendorId ? "text-[var(--color-text)]" : "text-[var(--color-text)]/40"}>
+                  {vendorId ? vendors.find((v) => v.id === vendorId)?.name : "Sin proveedor"}
+                </span>
+                <ChevronDown size={14} className={`text-[var(--color-text)]/40 transition-transform ${vendorOpen ? "rotate-180" : ""}`} />
+              </button>
+              {vendorOpen && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-20 bg-white border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden"
+                  style={{ maxHeight: 180 }}>
+                  <div className="overflow-y-auto" style={{ maxHeight: 180 }}>
+                    {[{ id: "", name: "Sin proveedor" }, ...vendors].map((v) => (
+                      <button key={v.id} type="button"
+                        onClick={() => { setVendorId(v.id); setVendorOpen(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm transition-colors hover:bg-[var(--color-bg-2)] ${
+                          vendorId === v.id ? "text-[var(--color-accent)] font-medium bg-[var(--color-accent)]/5" : "text-[var(--color-text)]"
+                        } ${!v.id ? "text-[var(--color-text)]/50" : ""}`}>
+                        {v.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

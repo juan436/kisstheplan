@@ -13,6 +13,10 @@ export const taskVendorMethods = {
   },
   async deleteTask(id: string) { return apiFetch(`/tasks/${id}`, { method: "DELETE" }); },
   async getTaskProgress() { return apiFetch("/tasks/progress"); },
+  async getTaskCategories(): Promise<string[]> {
+    const cats = await apiFetch("/budget/categories");
+    return (cats as { name: string }[]).map((c) => c.name);
+  },
   async getVendors() { return apiFetch("/vendors"); },
   async createVendor(data: object) {
     return apiFetch("/vendors", { method: "POST", body: JSON.stringify(data) });

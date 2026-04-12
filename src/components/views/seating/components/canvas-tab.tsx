@@ -55,6 +55,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [hoveredTableId, setHoveredTableId] = useState<string | null>(null);
   const [pinnedTableId, setPinnedTableId] = useState<string | null>(null);
+  const [hideNames, setHideNames] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
   const [legendPos, setLegendPos] = useState({ x: 8, y: 8 });
   const [showTableLegend, setShowTableLegend] = useState(false);
@@ -253,7 +254,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           hasZones={zones.zones.length > 0} rulersEnabled={rulersEnabled}
           hasGuides={guides.guides.length > 0} panMode={panMode}
           resizeMode={resizeMode} deleteMode={deleteMode} previewEnabled={previewEnabled}
-          showLegend={showLegend} showTableLegend={showTableLegend}
+          hideNames={hideNames} showLegend={showLegend} showTableLegend={showTableLegend}
           bgImage={bgImage} fileInputRef={fileInputRef}
           onBgUpload={handleBgUpload} onClearBg={() => setBgImage(null)}
           onToggleSnap={() => setSnapEnabled((v) => !v)}
@@ -264,6 +265,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           onToggleResize={() => { setResizeMode((v) => !v); setDeleteMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
           onToggleDelete={() => { setDeleteMode((v) => !v); setResizeMode(false); setTableResizePanel(null); decos.closeDecoPanel(); }}
           onTogglePreview={() => { setPreviewEnabled((v) => !v); setPinnedTableId(null); }}
+          onToggleHideNames={() => setHideNames((v) => !v)}
           onToggleLegend={() => { setShowLegend((v) => { if (!v) setLegendPos({ x: 8, y: 8 }); return !v; }); }}
           onToggleTableLegend={() => setShowTableLegend((v) => !v)}
           onCenter={handleCenter}
@@ -292,7 +294,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
                 plan={plan} guests={guests} scale={plan.scaleFactor ?? DEFAULT_SCALE} mode={mode}
                 bgImage={bgImage} seatingTable={seatingTable} snapEnabled={snapEnabled}
                 zones={zones.zones} zonePoints={zones.zonePoints} guides={guides.guides}
-                zoningActive={isZoning} resizeMode={resizeMode} showLabels={showLabels} showName={showName} deleteMode={deleteMode}
+                zoningActive={isZoning} resizeMode={resizeMode} showLabels={showLabels} showName={showName} deleteMode={deleteMode} hideObjectLabels={hideNames}
                 decorations={decos.decorations} selectedDecoId={decos.selectedDecoId} calibPoints={[]}
                 allergyColors={allergyColors}
                 mealColors={mealColors}

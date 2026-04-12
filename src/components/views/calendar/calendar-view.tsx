@@ -33,7 +33,7 @@ export default function CalendarioPage() {
         <div className="flex-1 min-w-0 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <Button variant="primary" size="sm" className="gap-1.5" style={{ backgroundColor: "#866857" }}
-              onClick={() => { setAddTaskDate(""); setShowAddTask(true); }}>
+              onClick={() => { setAddTaskDate(selectedDay); setShowAddTask(true); }}>
               <Plus size={14} />Añadir tarea
             </Button>
             <div className="flex items-center gap-4">

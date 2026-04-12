@@ -107,6 +107,7 @@ export interface ApiService {
   updateTask(id: string, data: UpdateTaskData): Promise<Task>;
   deleteTask(id: string): Promise<void>;
   getTaskProgress(): Promise<{ total: number; completed: number; percentage: number }>;
+  getTaskCategories(): Promise<string[]>;
 
   // Vendors
   getVendors(): Promise<Vendor[]>;
