@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { User, Heart, Settings, HelpCircle, LogOut, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { useNavigation } from "@/hooks/useNavigation";
 
 interface TopbarProps {
   weddingName: string;
@@ -15,6 +16,7 @@ interface TopbarProps {
 export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -29,11 +31,11 @@ export function Topbar({ weddingName, userName, onLogout }: TopbarProps) {
   return (
     <header className="sticky top-0 z-40 h-14 bg-accent flex items-center justify-between px-5">
       {/* Left: Logo + wedding name */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3" onClick={() => navigateTo("dashboard")}>
         <Logo type="short" href="/app/dashboard" />
-        <span className="text-white font-body font-semibold text-[14px] hidden sm:block">
+        <Link href="/app/dashboard" className="text-white font-body font-semibold text-[14px] hidden sm:block hover:opacity-80 transition-opacity no-underline">
           {weddingName}
-        </span>
+        </Link>
       </div>
 
       {/* Right: Avatar + menu */}

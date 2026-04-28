@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
@@ -36,11 +37,11 @@ export function Step1({
         </div>
         <div>
           <Label htmlFor="password">Contraseña</Label>
-          <Input id="password" type="password" placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
+          <PasswordInput id="password" placeholder="Mínimo 8 caracteres" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
         </div>
         <div>
           <Label htmlFor="confirm">Confirmar contraseña</Label>
-          <Input id="confirm" type="password" placeholder="Repite la contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={loading} />
+          <PasswordInput id="confirm" placeholder="Repite la contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={loading} />
         </div>
         <Button type="submit" variant="cta" size="full" disabled={loading}>
           {loading ? "Creando cuenta..." : "Continuar"}

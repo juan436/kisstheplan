@@ -16,16 +16,16 @@ import {
 import Image from "next/image";
 
 const modules = [
-  { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
-  { id: "invitados", name: "Invitados", icon: Users },
-  { id: "presupuesto", name: "Presupuesto", icon: Wallet },
+  { id: "dashboard", name: "Inicio", icon: LayoutDashboard },
   { id: "tareas", name: "Tareas", icon: CheckSquare },
-  { id: "web", name: "Web", icon: Globe },
-  { id: "proveedores", name: "Proveedores", icon: Store },
-  { id: "plano-mesas", name: "Plano mesas", icon: Grid3X3 },
-  { id: "calendario", name: "Calendario", icon: Calendar },
-  { id: "guion", name: "Guión", icon: FileText },
   { id: "notas", name: "Notas", icon: StickyNote },
+  { id: "proveedores", name: "Proveedores", icon: Store },
+  { id: "presupuesto", name: "Presupuesto", icon: Wallet },
+  { id: "invitados", name: "Invitados", icon: Users },
+  { id: "web", name: "Web", icon: Globe },
+  { id: "plano-mesas", name: "Plano mesas", icon: Grid3X3 },
+  { id: "guion", name: "Guión", icon: FileText },
+  { id: "calendario", name: "Calendario", icon: Calendar },
 ];
 
 export function ModuleNav({ 

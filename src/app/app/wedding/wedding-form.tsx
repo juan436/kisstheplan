@@ -3,13 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CustomSelect } from "./custom-select";
 import { SectionTitle } from "./section-title";
-
-const TIMEZONE_LABELS: Record<string, string> = {
-  "Europe/Madrid": "Madrid (Por defecto)",
-  "Europe/London": "Londres",
-  "America/New_York": "Nueva York",
-  "America/Mexico_City": "México DF",
-};
+import { TimezoneSelect } from "./timezone-select";
 
 const CURRENCY_LABELS: Record<string, string> = {
   EUR: "Euro (Por defecto)",
@@ -86,13 +80,9 @@ export function WeddingForm({ data, onChange }: WeddingFormProps) {
           </div>
           <div className="space-y-2">
             <SectionTitle title="Uso horario" />
-            <CustomSelect
-              value={TIMEZONE_LABELS[data.timezone] || data.timezone}
-              options={Object.values(TIMEZONE_LABELS)}
-              onChange={(v) => {
-                const tz = Object.entries(TIMEZONE_LABELS).find(([, label]) => label === v);
-                onChange("timezone", tz ? tz[0] : v);
-              }}
+            <TimezoneSelect
+              value={data.timezone}
+              onChange={(v) => onChange("timezone", v)}
             />
           </div>
           <div className="space-y-2">

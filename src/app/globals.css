@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
+
 @theme {
   /* Colors */
   --color-brand: #C4B7A6;
-  --color-bg: #FAF7F2;
+  --color-bg: #FFFFFF;
   --color-bg2: #F5EFE9;
   --color-bg3: #EDE4D9;
   --color-fill1: #E6D8C8;
@@ -12,7 +13,7 @@
   --color-cta: #c7a977;
   --color-text: #4A3C32;
   --color-border: #D4C9B8;
-  --color-white: #FAF7F2;
+  --color-white: #FFFFFF;
   --color-success: #7db87d;
   --color-danger: #c47a7a;
   --color-paypal: #003087;
@@ -73,10 +74,16 @@
 }
 
 /* Base styles */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-text);
-  background: var(--color-bg);
+  background: #FFFFFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
