@@ -3,18 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
-import { ArrowLeft, CreditCard, XCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CreditCard, XCircle, AlertTriangle, Tag } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { MetodoPago } from "./payment-section";
 import { CancelarPlan } from "./cancel-section";
 import { CerrarCuenta } from "./close-account-section";
+import { CodigoDescuento } from "./discount-section";
 
-type Section = "pago" | "cancelar" | "cerrar";
+type Section = "pago" | "descuento" | "cancelar" | "cerrar";
 
 const menuItems: { key: Section; label: string; icon: React.ReactNode }[] = [
-  { key: "pago", label: "Modificar método de pago", icon: <CreditCard size={18} /> },
-  { key: "cancelar", label: "Cancelar Plan", icon: <XCircle size={18} /> },
-  { key: "cerrar", label: "Cerrar cuenta", icon: <AlertTriangle size={18} /> },
+  { key: "pago",      label: "Modificar método de pago", icon: <CreditCard size={18} /> },
+  { key: "descuento", label: "Código de descuento",      icon: <Tag size={18} /> },
+  { key: "cancelar",  label: "Cancelar Plan",            icon: <XCircle size={18} /> },
+  { key: "cerrar",    label: "Cerrar cuenta",            icon: <AlertTriangle size={18} /> },
 ];
 
 export default function CuentaPage() {
@@ -54,9 +56,10 @@ export default function CuentaPage() {
           {/* Content */}
           <div className="flex-1 md:pl-10">
             <AnimatePresence mode="wait">
-              {active === "pago" && <MetodoPago key="pago" />}
-              {active === "cancelar" && <CancelarPlan key="cancelar" />}
-              {active === "cerrar" && <CerrarCuenta key="cerrar" />}
+              {active === "pago"      && <MetodoPago key="pago" />}
+              {active === "descuento" && <CodigoDescuento key="descuento" />}
+              {active === "cancelar"  && <CancelarPlan key="cancelar" />}
+              {active === "cerrar"    && <CerrarCuenta key="cerrar" />}
             </AnimatePresence>
           </div>
         </div>
