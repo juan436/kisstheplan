@@ -28,7 +28,7 @@ export default function CalendarioPage() {
           Error cargando datos: {loadError}
         </div>
       )}
-      <div className="flex gap-5 flex-1">
+      <div className="flex flex-col lg:flex-row gap-5 flex-1">
         {/* ── MAIN CALENDAR ── */}
         <div className="flex-1 min-w-0 flex flex-col gap-4">
           <div className="flex items-center justify-between">
@@ -77,7 +77,7 @@ export default function CalendarioPage() {
         </div>
 
         {/* ── SIDEBAR ── */}
-        <div className="w-64 flex-shrink-0 flex flex-col gap-4">
+        <div className="w-full lg:w-64 lg:flex-shrink-0 flex flex-col sm:flex-row lg:flex-col gap-4">
           <div className="bg-white rounded-2xl shadow-card p-4">
             <div className="flex items-center gap-2 mb-3">
               <CreditCard size={14} className="text-cta" />

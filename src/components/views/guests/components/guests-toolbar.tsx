@@ -32,13 +32,13 @@ export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, set
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative" ref={quickAddRef}>
             <Button variant="cta" size="sm" className="gap-2" onClick={() => setShowQuickAdd(!showQuickAdd)}>
               <UserPlus size={14} />Añadir invitado
             </Button>
             {showQuickAdd && (
-              <div className="absolute left-0 top-10 z-30 bg-white border border-border rounded-xl shadow-dropdown p-4 w-72 animate-fade-in">
+              <div className="absolute left-0 top-10 z-30 bg-white border border-border rounded-xl shadow-dropdown p-4 w-72 max-w-[calc(100vw-2rem)] animate-fade-in">
                 <p className="text-[12px] font-semibold text-text/50 uppercase tracking-wider mb-3">Alta rápida</p>
                 <input autoFocus placeholder="Nombre del invitado" value={quickName} onChange={(e) => setQuickName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") handleQuickAdd(); }}
@@ -69,7 +69,7 @@ export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, set
             <Users size={14} />Grupos
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" className="gap-2" onClick={() => setShowConfigModal(true)}>
             <SlidersHorizontal size={14} />Platos/Restricciones
           </Button>

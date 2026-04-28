@@ -50,28 +50,32 @@ export default function PresupuestoPage() {
         </div>
       </div>
 
-      {/* Column headers */}
-      <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4">
-        <div />
-        {["Estimado", "Real", "Diferencia", "Pagado", "Pendiente"].map((label) => (
-          <div key={label} className="flex justify-center">
-            <span className="px-3 py-1 rounded-full bg-[#e8e0d8] text-[#866857] text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+      {/* Column headers + table — scroll horizontal en mobile */}
+      <div className="overflow-x-auto">
+        <div className="min-w-[620px]">
+          <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 mb-3">
+            <div />
+            {["Estimado", "Real", "Diferencia", "Pagado", "Pendiente"].map((label) => (
+              <div key={label} className="flex justify-center">
+                <span className="px-3 py-1 rounded-full bg-[#e8e0d8] text-[#866857] text-[11px] font-semibold uppercase tracking-wider">{label}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <BudgetTable
-        categories={b.categories} collapsed={b.collapsed} toggleCollapse={b.toggleCollapse}
-        isEditing={b.isEditing} editValue={b.editValue} setEditValue={b.setEditValue} startEdit={b.startEdit}
-        saveEdit={b.saveEdit} handleKeyDown={b.handleKeyDown}
-        deletingId={b.deletingId} setDeletingId={b.setDeletingId}
-        addingItemToCat={b.addingItemToCat} newItemName={b.newItemName}
-        setAddingItemToCat={b.setAddingItemToCat} setNewItemName={b.setNewItemName}
-        handleAddItem={b.handleAddItem} handleDeleteCat={b.handleDeleteCat} handleDeleteItem={b.handleDeleteItem}
-        openPayments={b.openPayments} showAddCat={b.showAddCat} newCatName={b.newCatName}
-        setShowAddCat={b.setShowAddCat} setNewCatName={b.setNewCatName} handleAddCat={b.handleAddCat}
-        loadData={b.loadData}
-      />
+          <BudgetTable
+            categories={b.categories} collapsed={b.collapsed} toggleCollapse={b.toggleCollapse}
+            isEditing={b.isEditing} editValue={b.editValue} setEditValue={b.setEditValue} startEdit={b.startEdit}
+            saveEdit={b.saveEdit} handleKeyDown={b.handleKeyDown}
+            deletingId={b.deletingId} setDeletingId={b.setDeletingId}
+            addingItemToCat={b.addingItemToCat} newItemName={b.newItemName}
+            setAddingItemToCat={b.setAddingItemToCat} setNewItemName={b.setNewItemName}
+            handleAddItem={b.handleAddItem} handleDeleteCat={b.handleDeleteCat} handleDeleteItem={b.handleDeleteItem}
+            openPayments={b.openPayments} showAddCat={b.showAddCat} newCatName={b.newCatName}
+            setShowAddCat={b.setShowAddCat} setNewCatName={b.setNewCatName} handleAddCat={b.handleAddCat}
+            loadData={b.loadData}
+          />
+        </div>
+      </div>
 
       {/* Footer totals */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">

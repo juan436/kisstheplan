@@ -58,8 +58,8 @@ export default function DashboardPage({ onTabChange }: DashboardPageProps) {
   const daysLeft = daysUntil(wedding.date);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-8">
-      <h1 className="font-display text-[36px] italic text-text mb-6">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] italic text-text mb-6">
         {wedding.partner1Name} & {wedding.partner2Name}
       </h1>
 

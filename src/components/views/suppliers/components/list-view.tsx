@@ -16,7 +16,7 @@ export function ListView({ vendors, onOpen }: ListViewProps) {
           <FileText size={14} />Exportar PDF
         </button>
       </div>
-      <div className="bg-white rounded-xl overflow-hidden shadow-card">
+      <div className="bg-white rounded-xl overflow-x-auto shadow-card">
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">

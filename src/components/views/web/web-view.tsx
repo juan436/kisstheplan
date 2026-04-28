@@ -24,8 +24,8 @@ export default function WebBuilderPage() {
   if (loading) return <div className="flex items-center justify-center py-20"><div className="text-brand text-[14px]">Cargando...</div></div>;
 
   return (
-    <div className="flex gap-6 h-full min-h-0" style={{ maxHeight: "calc(100vh - 120px)" }}>
-      <div className="w-[420px] flex-shrink-0 flex flex-col min-h-0">
+    <div className="flex flex-col lg:flex-row gap-6 lg:h-full lg:min-h-0 lg:max-h-[calc(100vh-120px)]">
+      <div className="w-full lg:w-[420px] lg:flex-shrink-0 flex flex-col lg:min-h-0">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="font-display text-[22px] text-text">Web de Boda</h1>
@@ -90,7 +90,7 @@ export default function WebBuilderPage() {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0 pr-1">
+        <div className="max-h-[50vh] lg:max-h-none overflow-y-auto lg:flex-1 lg:min-h-0 pr-1">
           <Card className="p-5">
             {step === 0 && <DesignStep draft={draft} updateDraft={updateDraft} />}
             {step === 1 && <RsvpStep draft={draft} updateDraft={updateDraft} />}
@@ -105,7 +105,7 @@ export default function WebBuilderPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="hidden lg:flex flex-1 flex-col min-h-0">
         <div className="flex items-center justify-between mb-3 flex-shrink-0">
           <span className="text-[13px] text-brand font-medium">Vista previa</span>
           <div className="flex items-center gap-1 bg-bg2 rounded-lg p-1 border border-border">
