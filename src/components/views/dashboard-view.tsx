@@ -78,7 +78,7 @@ export default function DashboardPage({ onTabChange }: DashboardPageProps) {
 
         {/* Center */}
         <div>
-          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} budget={budget} taskProgress={taskProgress} />
+          <CountdownSection daysLeft={daysLeft} guestStats={guestStats} budget={budget} weddingBudget={wedding.estimatedBudget} taskProgress={taskProgress} />
         </div>
 
         {/* Divider */}
