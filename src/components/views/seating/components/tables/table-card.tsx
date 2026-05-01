@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, X, Trash2 } from "lucide-react";
 import type { TableSeat, Guest } from "@/types";
-import { getGuestName } from "../helpers/seating.helpers";
+import { getGuestName } from "../../helpers/seating.helpers";
 
 interface TableCardProps {
   table: TableSeat;

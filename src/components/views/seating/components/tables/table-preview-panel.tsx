@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { TableSeat, Guest } from "@/types";
-import { CHAIR_RADIUS_M } from "../constants/seating.constants";
-import { tableRadius, rectDims, getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
-import { roundTableChairs, rectTableChairs, computeRoundChairRadius, computeRectChairRadius } from "../helpers/chair.helpers";
+import { CHAIR_RADIUS_M } from "../../constants/seating.constants";
+import { tableRadius, rectDims, getTableDiameter, getRectTableDims } from "../../helpers/seating.helpers";
+import { roundTableChairs, rectTableChairs, computeRoundChairRadius, computeRectChairRadius } from "../../helpers/chair.helpers";
 import { normalizeDish } from "@/lib/allergy-colors";
 
 const PANEL_W    = 350;

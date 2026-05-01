@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Plus, Trash2, Search } from "lucide-react";
 import type { DecorationType, DecorationObject, EmojiObject } from "@/types";
-import { EmojiCreatorModal } from "./emoji-creator-modal";
+import { EmojiCreatorModal } from "../modals/emoji-creator-modal";
 import {
   IconRoundTable, IconRectTable, IconSerpentineTable,
   IconChair, IconBench,

@@ -1,12 +1,12 @@
 "use client";
 
 import type { TableSeat, Guest } from "@/types";
-import { CHAIR_RADIUS_M } from "../constants/seating.constants";
-import { tableRadius, rectDims, getGuestName, getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
+import { CHAIR_RADIUS_M } from "../../constants/seating.constants";
+import { tableRadius, rectDims, getGuestName, getTableDiameter, getRectTableDims } from "../../helpers/seating.helpers";
 import {
   roundTableChairs, rectTableChairs,
   computeRoundChairRadius, computeRectChairRadius,
-} from "../helpers/chair.helpers";
+} from "../../helpers/chair.helpers";
 
 /** Fixed px/m used for the popover — always comfortable to read regardless of canvas zoom */
 const PREVIEW_SCALE = 52;

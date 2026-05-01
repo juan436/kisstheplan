@@ -1,7 +1,7 @@
 "use client";
 
 import { Crosshair } from "lucide-react";
-import { MAX_ZOOM } from "../hooks/use-canvas-zoom";
+import { MAX_ZOOM } from "../../hooks/use-canvas-zoom";
 
 interface ZoomControlsProps {
   zoom: number;

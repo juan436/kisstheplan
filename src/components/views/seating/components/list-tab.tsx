@@ -4,8 +4,8 @@ import { useState, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Plus, Users, Check } from "lucide-react";
 import type { SeatingPlan, Guest } from "@/types";
-import { TableCard } from "./table-card";
-import { AddTableModal } from "./add-table-modal";
+import { TableCard } from "./tables/table-card";
+import { AddTableModal } from "./modals/add-table-modal";
 
 interface ListTabProps {
   plan: SeatingPlan;

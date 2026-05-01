@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { TableSeat, Guest } from "@/types";
-import { CHAIR_RADIUS_M } from "../constants/seating.constants";
-import { tableRadius, rectDims, getTableDiameter, getRectTableDims, resolveTagCollisions } from "../helpers/seating.helpers";
-import { roundTableChairs, rectTableChairs, serpentineTableChairs, computeRoundChairRadius, computeRectChairRadius, computeSerpentineChairRadius } from "../helpers/chair.helpers";
+import { CHAIR_RADIUS_M } from "../../constants/seating.constants";
+import { tableRadius, rectDims, getTableDiameter, getRectTableDims, resolveTagCollisions } from "../../helpers/seating.helpers";
+import { roundTableChairs, rectTableChairs, serpentineTableChairs, computeRoundChairRadius, computeRectChairRadius, computeSerpentineChairRadius } from "../../helpers/chair.helpers";
 import { normalizeDish } from "@/lib/allergy-colors";
 
 interface SvgTableProps {

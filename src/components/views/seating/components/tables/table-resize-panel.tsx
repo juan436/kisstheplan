@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X, Check, RotateCw } from "lucide-react";
 import type { TableSeat } from "@/types";
-import { getTableDiameter, getRectTableDims } from "../helpers/seating.helpers";
+import { getTableDiameter, getRectTableDims } from "../../helpers/seating.helpers";
 
 interface TableResizePanelProps {
   table: TableSeat;

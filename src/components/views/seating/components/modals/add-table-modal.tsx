@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { X, Circle, Square } from "lucide-react";
-import { IconSerpentineTable } from "./library-icons";
+import { IconSerpentineTable } from "../library/library-icons";
 
 type TableShape = "round" | "rectangular" | "serpentine";
 

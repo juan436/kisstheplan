@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import type { SeatingPlan, Guest, DecorationObject, CalibZone } from "@/types";
-import type { Guide } from "../hooks/use-canvas-guides";
+import type { Guide } from "../../hooks/use-canvas-guides";
 import {
   WORLD_W, WORLD_H, DECORATION_META,
   ZONE_FILL_COLOR, ZONE_STROKE_COLOR, ZONE_GRID_COLOR, ZONE_GRID_MAX_LINES,
-} from "../constants/seating.constants";
-import { SvgTable } from "./svg-table";
-import { getEffectiveScale } from "../helpers/seating.helpers";
-import { hasDecoIcon, DecoIconContent } from "./seating-decoration-icons";
+} from "../../constants/seating.constants";
+import { SvgTable } from "../tables/svg-table";
+import { getEffectiveScale } from "../../helpers/seating.helpers";
+import { hasDecoIcon, DecoIconContent } from "../library/seating-decoration-icons";
 import { normalizeDish } from "@/lib/allergy-colors";
 
 /** Abbreviates to "Name S." or "Name" (≤9 chars), matching svg-table behaviour. */

@@ -3,10 +3,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, Download, Users } from "lucide-react";
 import { useSeating } from "./hooks/use-seating";
-import { PlanSelector } from "./components/plan-selector";
-import { NewPlanModal } from "./components/new-plan-modal";
-import { AddTableModal } from "./components/add-table-modal";
-import { CanvasTab } from "./components/canvas-tab";
+import { PlanSelector } from "./components/legends/plan-selector";
+import { NewPlanModal } from "./components/modals/new-plan-modal";
+import { AddTableModal } from "./components/modals/add-table-modal";
+import { CanvasTab } from "./components/canvas/canvas-tab";
 import { ListTab } from "./components/list-tab";
 
 export default function SeatingView() {

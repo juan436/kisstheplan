@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X, Check } from "lucide-react";
 import type { DecorationObject } from "@/types";
-import { DECORATION_META } from "../constants/seating.constants";
+import { DECORATION_META } from "../../constants/seating.constants";
 
 interface DecorationResizePanelProps {
   deco: DecorationObject;

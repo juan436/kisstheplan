@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import type { TableSeat, Guest } from "@/types";
-import { getGuestName } from "../helpers/seating.helpers";
+import { getGuestName } from "../../helpers/seating.helpers";
 
 interface SeatingPanelProps {
   table: TableSeat;
