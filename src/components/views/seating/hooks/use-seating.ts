@@ -54,8 +54,7 @@ export function useSeating() {
 
   const handleAddTable = async (shape: "round" | "rectangular" | "serpentine", name?: string, capacity?: number) => {
     if (!selectedPlanId) return;
-    const canvas = document.querySelector(".canvas-inner");
-    const posX = canvas ? (canvas as HTMLElement).clientWidth / 2 - 60 : 200;
+    const posX = 200;
     const defaultName = shape === "round" ? "Mesa redonda" : shape === "serpentine" ? "Mesa serpentina" : "Mesa rectangular";
     const updated = await api.addSeatingTable(selectedPlanId, {
       name: name ?? defaultName,

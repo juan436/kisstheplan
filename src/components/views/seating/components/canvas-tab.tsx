@@ -131,6 +131,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
     zoom, snapEnabled, zones: zones.zones,
     fallbackScale: plan.scaleFactor ?? DEFAULT_SCALE,
     snapToGuides: guides.snapToGuides,
+    containerRef: canvasRef,
     onUpdateTablePos, onUpdateDecoPos: decos.onUpdateDecoPos,
   });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type RefObject } from "react";
 import { GRID_SIZE } from "../constants/seating.constants";
 import type { CalibZone } from "@/types";
 import { pointInPolygon, getEffectiveScale } from "../helpers/seating.helpers";
@@ -21,12 +21,13 @@ interface UseCanvasDragOptions {
   fallbackScale: number;
   /** Applied always (guides snap independently of grid snap). */
   snapToGuides: (rawX: number, rawY: number, zoom: number) => { x: number; y: number };
+  containerRef: RefObject<HTMLElement | null>;
   onUpdateTablePos: (id: string, x: number, y: number) => void;
   onUpdateDecoPos: (id: string, x: number, y: number) => void;
 }
 
 export function useCanvasDrag({
-  zoom, snapEnabled, zones, fallbackScale, snapToGuides, onUpdateTablePos, onUpdateDecoPos,
+  zoom, snapEnabled, zones, fallbackScale, snapToGuides, containerRef, onUpdateTablePos, onUpdateDecoPos,
 }: UseCanvasDragOptions) {
   const [dragging, setDragging] = useState<DragState | null>(null);
   const snapRef          = useRef(snapEnabled);
@@ -76,7 +77,7 @@ export function useCanvasDrag({
       const { x, y } = applyAll(rawX, rawY, e.shiftKey);
 
       const domId = dragging.kind === "table" ? `table-g-${dragging.id}` : `deco-g-${dragging.id}`;
-      const el    = document.getElementById(domId);
+      const el    = containerRef.current?.querySelector(`#${domId}`);
       if (!el) return;
 
       // Preserve table rotation stored in data-rotation attribute
