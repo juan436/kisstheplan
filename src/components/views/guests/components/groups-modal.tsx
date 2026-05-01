@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, X, Pencil, Check } from "lucide-react";
-import { pickNextColor } from "@/lib/allergy-colors";
+import { pickNextColor, MEAL_PALETTE, ALLERGY_PALETTE } from "@/lib/allergy-colors";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import type { Guest, GuestGroup } from "@/types";
@@ -102,18 +102,30 @@ export function ConfigModal({ open, onClose, mealOptions, mealColors: initMealCo
   const [aColors, setAColors] = useState<Record<string, string>>(initAllergyColors ?? {});
   const [newVal, setNewVal] = useState("");
 
+  // Sync state when props change or modal opens
+  useEffect(() => {
+    if (open) {
+      setMeals(mealOptions);
+      setAllerg(allergyOptions);
+      setTransp(transportPoints);
+      setMColors(initMealColors ?? {});
+      setAColors(initAllergyColors ?? {});
+    }
+  }, [open, mealOptions, allergyOptions, transportPoints, initMealColors, initAllergyColors]);
+
   const current    = tab === "meals" ? meals : tab === "allergies" ? allerg : transp;
   const setCurrent = tab === "meals" ? setMeals : tab === "allergies" ? setAllerg : setTransp;
   const hasColors  = tab === "meals" || tab === "allergies";
   const currentColors = tab === "meals" ? mColors : aColors;
   const setCurrentColors = tab === "meals" ? setMColors : setAColors;
+  const currentPalette = tab === "meals" ? MEAL_PALETTE : ALLERGY_PALETTE;
 
   const handleAdd = () => {
     const v = newVal.trim();
     if (!v || current.includes(v)) return;
     setCurrent([...current, v]);
     if (hasColors && !currentColors[v])
-      setCurrentColors((prev) => ({ ...prev, [v]: pickNextColor(prev) }));
+      setCurrentColors((prev) => ({ ...prev, [v]: pickNextColor(prev, currentPalette) }));
     setNewVal("");
   };
   const handleRemove = (item: string) => setCurrent(current.filter((i) => i !== item));
@@ -147,8 +159,8 @@ export function ConfigModal({ open, onClose, mealOptions, mealColors: initMealCo
           <span key={item} className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full text-[12px] text-text border border-border">
             {hasColors && (
               <label style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center" }} title="Cambiar color">
-                <input type="color" value={currentColors[item] ?? "#e85d5d"} onChange={(e) => setCurrentColors((prev) => ({ ...prev, [item]: e.target.value }))} style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} />
-                <span style={{ width: 10, height: 10, borderRadius: "50%", background: currentColors[item] ?? "#e85d5d", display: "block", border: "1px solid rgba(0,0,0,0.15)" }} />
+                <input type="color" value={currentColors[item] ?? currentPalette[0]} onChange={(e) => setCurrentColors((prev) => ({ ...prev, [item]: e.target.value }))} style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} />
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: currentColors[item] ?? currentPalette[0], display: "block", border: "1px solid rgba(0,0,0,0.15)" }} />
               </label>
             )}
             {item}

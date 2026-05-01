@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { X, Search } from "lucide-react";
 import type { EmojiObject } from "@/types";
-import { DecoIconPreview } from "./deco-icon-content";
+import { DecoIconPreview } from "./seating-decoration-icons";
 
 interface GalleryItem { objectType: string; label: string; w: number; h: number; keywords?: string[]; }
 interface GalleryCategory { id: string; label: string; items: GalleryItem[]; }

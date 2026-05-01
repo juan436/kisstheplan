@@ -9,7 +9,7 @@ import {
 } from "../constants/seating.constants";
 import { SvgTable } from "./svg-table";
 import { getEffectiveScale } from "../helpers/seating.helpers";
-import { hasDecoIcon, DecoIconContent } from "./deco-icon-content";
+import { hasDecoIcon, DecoIconContent } from "./seating-decoration-icons";
 import { normalizeDish } from "@/lib/allergy-colors";
 
 /** Abbreviates to "Name S." or "Name" (≤9 chars), matching svg-table behaviour. */

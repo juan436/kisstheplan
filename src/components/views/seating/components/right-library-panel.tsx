@@ -12,7 +12,7 @@ import {
   IconSofa, IconFlowers, IconTree, IconCandelabra, IconCarpet,
   IconSpeaker, IconScreen, IconOutlet,
 } from "./library-icons";
-import { DecoIconPreview } from "./deco-icon-content";
+import { DecoIconPreview } from "./seating-decoration-icons";
 
 interface LibraryItem {
   label: string;

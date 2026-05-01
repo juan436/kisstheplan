@@ -28,7 +28,7 @@ const defaultSingle: SingleFormState = {
 export function AddGuestModal({
   open, onClose, onAdd, onGroupCreated,
   groups = [],
-  mealOptions = ["Carne", "Pescado", "Vegetariano", "Infantil"],
+  mealOptions = [],
   allergyOptions = [],
   transportPoints = [],
 }: AddGuestModalProps) {
