@@ -2,7 +2,7 @@
 
 import { Paperclip } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "@/components/views/budget/components/payment-item-row";
+import { PaymentItemRow } from "@/components/views/budget/components/payments/payment-item-row";
 import type { LinkedBudgetItem, ItemPayment } from "@/types";
 
 interface DetailLinkedPaymentsProps {

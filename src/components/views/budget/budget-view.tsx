@@ -3,8 +3,8 @@
 import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useBudget } from "./hooks/use-budget";
-import { BudgetTable } from "./components/budget-table";
-import { PaymentModal } from "./components/payment-modal";
+import { BudgetTable } from "./components/table/budget-table";
+import { PaymentModal } from "./components/payments/payment-modal";
 import { TotalBox } from "./components/total-box";
 
 export default function PresupuestoPage() {

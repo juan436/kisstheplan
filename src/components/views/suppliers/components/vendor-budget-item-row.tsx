@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useNavigation } from "@/hooks/useNavigation";
-import { NumCell } from "@/components/views/budget/components/num-cell";
+import { NumCell } from "@/components/views/budget/components/table/num-cell";
 import type { ExpenseItem, Vendor } from "@/types";
 import type { VendorBudgetEditState } from "../hooks/use-vendor-budget";
 

@@ -32,12 +32,7 @@ export function ItemPaymentModal({ open, onClose, item, catId, onRefresh }: Item
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-1">
-        <PaymentItemRow
-          item={item}
-          catId={catId}
-          onPaidChange={onRefresh}
-          defaultExpanded={true}
-        />
+        <PaymentItemRow item={item} catId={catId} onPaidChange={onRefresh} defaultExpanded={true} />
       </div>
     </Modal>
   );

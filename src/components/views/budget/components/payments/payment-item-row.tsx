@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { useItemPayments } from "../hooks/use-item-payments";
+import { useItemPayments } from "../../hooks/use-item-payments";
 import { AddPaymentForm } from "./add-payment-form";
 import type { ExpenseItem } from "@/types";
 

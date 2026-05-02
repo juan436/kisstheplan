@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "@/components/views/budget/components/payment-item-row";
+import { PaymentItemRow } from "@/components/views/budget/components/payments/payment-item-row";
 import type { ExpenseCategory } from "@/types";
 
 interface VendorPaymentModalProps {

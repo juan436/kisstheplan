@@ -36,7 +36,6 @@ export function BudgetItemRow({
 
   return (
     <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2.5 border-b border-border/50 hover:bg-bg2 transition-colors group/item items-center">
-      {/* Concept + vendor */}
       <div className="flex items-center gap-2 pl-6">
         <div className="flex-1 min-w-0">
           {isEditing(item.id, "concept") ? (
@@ -49,27 +48,19 @@ export function BudgetItemRow({
           )}
           {item.vendorName && !changingVendor ? (
             <div className="flex items-center gap-1.5 mt-0.5">
-              <button
-                onClick={() => navigateTo("proveedores", item.vendorId ?? undefined)}
+              <button onClick={() => navigateTo("proveedores", item.vendorId ?? undefined)}
                 className="text-[11px] text-cta hover:underline cursor-pointer leading-tight block truncate">
                 {item.vendorName}
               </button>
-              <button
-                onClick={() => setChangingVendor(true)}
-                className="text-[#866857]/50 hover:text-accent transition-colors shrink-0">
+              <button onClick={() => setChangingVendor(true)} className="text-[#866857]/50 hover:text-accent transition-colors shrink-0">
                 <Pencil size={10} />
               </button>
             </div>
           ) : vendors.length > 0 && (
-            <select
-              value=""
+            <select value=""
               onChange={(e) => {
-                if (e.target.value === "__unlink__") {
-                  onLinkVendor(item.id, null, null);
-                } else if (e.target.value) {
-                  const v = vendors.find((x) => x.id === e.target.value);
-                  if (v) onLinkVendor(item.id, v.id, v.name);
-                }
+                if (e.target.value === "__unlink__") { onLinkVendor(item.id, null, null); }
+                else if (e.target.value) { const v = vendors.find((x) => x.id === e.target.value); if (v) onLinkVendor(item.id, v.id, v.name); }
                 setChangingVendor(false);
               }}
               onBlur={() => setChangingVendor(false)}
@@ -92,27 +83,19 @@ export function BudgetItemRow({
         )}
       </div>
 
-      {/* Estimated */}
       <NumCell value={item.estimated} isEditing={isEditing(item.id, "estimated")} editValue={editValue}
         onStart={() => startEdit(item.id, "estimated", item.estimated)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
-
-      {/* Real */}
       <NumCell value={item.real} isEditing={isEditing(item.id, "actual")} editValue={editValue}
         onStart={() => startEdit(item.id, "actual", item.real)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
 
-      {/* Difference */}
       <div className="text-right text-[13px] font-medium pr-2"
         style={{ color: diff < 0 ? "var(--color-danger)" : diff > 0 ? "var(--color-success)" : "var(--color-text)" }}>
         {diff > 0 ? "+" : ""}{formatCurrency(diff)}
       </div>
-
-      {/* Paid — clickable */}
       <div className="text-right text-[13px] text-[#866857] pr-2 cursor-pointer hover:text-cta transition-colors"
         onClick={() => openPayments(catId)} title="Ver calendario de pagos">
         {formatCurrency(item.paid)}
       </div>
-
-      {/* Pending — clickable */}
       <div className="text-right text-[13px] text-[#866857] pr-2 cursor-pointer hover:text-cta transition-colors"
         onClick={() => openPayments(catId)} title="Ver calendario de pagos">
         {formatCurrency(pending)}

@@ -6,10 +6,10 @@ import { Card } from "@/components/ui/card";
 import { Globe, Link2, Check, ChevronRight, ChevronLeft, Monitor, Smartphone } from "lucide-react";
 import { STEP_LABELS, SITE_URL } from "./constants/web.constants";
 import { useWebBuilder } from "./hooks/use-web-builder";
-import { DesignStep } from "./components/design-step";
-import { RsvpStep } from "./components/rsvp-step";
-import { ContentStep } from "./components/content-step";
-import { LivePreview } from "./components/live-preview";
+import { DesignStep } from "./components/steps/design-step";
+import { RsvpStep } from "./components/steps/rsvp-step";
+import { ContentStep } from "./components/steps/content-step";
+import { LivePreview } from "./components/preview/live-preview";
 
 export default function WebBuilderPage() {
   const [step,        setStep]        = useState(0);

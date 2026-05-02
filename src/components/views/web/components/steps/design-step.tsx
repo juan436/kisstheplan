@@ -4,8 +4,8 @@ import { Upload, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import type { WebPageConfig } from "@/types";
 import { getImgUrl } from "@/lib/img-url";
-import { TEMPLATES, COLOR_PALETTES, FONT_OPTIONS } from "../constants/web.constants";
-import { usePhotoUpload } from "../hooks/use-photo-upload";
+import { TEMPLATES, COLOR_PALETTES, FONT_OPTIONS } from "../../constants/web.constants";
+import { usePhotoUpload } from "../../hooks/use-photo-upload";
 
 interface DesignStepProps {
   draft: Partial<WebPageConfig>;

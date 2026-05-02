@@ -1,6 +1,6 @@
 import type { WebPageConfig } from "@/types";
 import { getImgUrl } from "@/lib/img-url";
-import { TEMPLATE_STYLES } from "./web-template-styles";
+import { TEMPLATE_STYLES } from "../web-template-styles";
 import { LivePreviewSections, type Palette } from "./live-preview-sections";
 
 interface LivePreviewProps {

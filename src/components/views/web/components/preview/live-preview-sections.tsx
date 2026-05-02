@@ -1,5 +1,5 @@
 import type { WebPageConfig } from "@/types";
-import type { TemplateStyle } from "./web-template-styles";
+import type { TemplateStyle } from "../web-template-styles";
 import { getImgUrl } from "@/lib/img-url";
 
 export type Palette = { primary: string; accent: string; bg: string; text: string };
