@@ -1,0 +1,85 @@
+export interface GalleryItem { objectType: string; label: string; w: number; h: number; keywords?: string[]; }
+export interface GalleryCategory { id: string; label: string; items: GalleryItem[]; }
+
+// Objects already in the default library panel — excluded to avoid duplication
+// (chair, bench, arch, runner, dancefloor, stage, djbooth, piano, photocall,
+//  bar, candybar, gifttable, coatcheck, bathroom, entrance,
+//  flowers, tree, sofa, candelabra, carpet, speaker, screen, outlet)
+
+export const GALLERY: GalleryCategory[] = [
+  { id: "ceremonial", label: "Ceremonial", items: [
+    { objectType: "kuppah",          label: "Chuppah",       w: 4,   h: 4,   keywords: ["juppa", "dosel", "judia"] },
+    { objectType: "atril",           label: "Atril",         w: 0.6, h: 0.5, keywords: ["podium", "lectern"] },
+    { objectType: "mesa_firma",      label: "Mesa firmas",   w: 1.5, h: 0.6, keywords: ["libro", "firmas"] },
+    { objectType: "altar_ceremonia", label: "Altar",         w: 2,   h: 1.5, keywords: ["mesa altar"] },
+    { objectType: "velas_altar",     label: "Velas",         w: 2,   h: 0.3, keywords: ["candelabro altar"] },
+  ]},
+  { id: "asientos", label: "Asientos extra", items: [
+    { objectType: "silla_terraza", label: "Silla terraza", w: 0.6, h: 0.6, keywords: ["exterior"] },
+    { objectType: "tumbona",       label: "Tumbona",       w: 1.8, h: 0.7, keywords: ["piscina", "playa"] },
+    { objectType: "cama_balinesa", label: "Cama balinesa", w: 2,   h: 1.2, keywords: ["chill", "lounge"] },
+    { objectType: "hamaca",        label: "Hamaca",        w: 2,   h: 0.8 },
+    { objectType: "pouf",          label: "Pouf",          w: 0.7, h: 0.7, keywords: ["puf", "cojin"] },
+    { objectType: "taburete",      label: "Taburete",      w: 0.5, h: 0.5, keywords: ["barra"] },
+    { objectType: "sillon",        label: "Sillón",        w: 0.9, h: 0.9, keywords: ["armchair"] },
+    { objectType: "otomana",       label: "Otomana",       w: 1,   h: 0.6, keywords: ["reposapiés"] },
+  ]},
+  { id: "mesas", label: "Mesas extra", items: [
+    { objectType: "mesa_novios",  label: "Mesa novios",  w: 4,   h: 1.2, keywords: ["presidencia", "head table"] },
+    { objectType: "mesa_oval",    label: "Mesa oval",    w: 2.5, h: 1.5, keywords: ["ovalada"] },
+    { objectType: "mesa_cock",    label: "Mesa cóctel",  w: 0.7, h: 0.7, keywords: ["alta", "cocktail"] },
+    { objectType: "mesa_buffet",  label: "Mesa buffet",  w: 3,   h: 1,   keywords: ["bufete"] },
+    { objectType: "mesa_vienesa", label: "Mesa vienesa", w: 2,   h: 2,   keywords: ["redonda buffet"] },
+    { objectType: "mesa_quesos",  label: "Mesa quesos",  w: 2.5, h: 1.5, keywords: ["tabla charcuteria"] },
+    { objectType: "mesa_baja",    label: "Mesa baja",    w: 0.8, h: 0.5, keywords: ["auxiliar", "centro"] },
+  ]},
+  { id: "estructuras", label: "Estructuras", items: [
+    { objectType: "toldo",     label: "Toldo",      w: 5, h: 4, keywords: ["velarium"] },
+    { objectType: "carpa",     label: "Carpa",      w: 8, h: 8, keywords: ["tienda", "marquesina"] },
+    { objectType: "carpa_hex", label: "Carpa hex.", w: 7, h: 7, keywords: ["hexagonal"] },
+    { objectType: "pergola",   label: "Pérgola",    w: 5, h: 4 },
+    { objectType: "tipi",      label: "Tipi",       w: 4, h: 4, keywords: ["yurta"] },
+    { objectType: "glorieta",  label: "Glorieta",   w: 4, h: 4, keywords: ["cenador", "gazebo"] },
+    { objectType: "parasol",   label: "Parasol",    w: 2, h: 2, keywords: ["sombrilla"] },
+    { objectType: "biombo",    label: "Biombo",     w: 3, h: 0.1, keywords: ["separador", "divisor"] },
+    { objectType: "tarima",    label: "Tarima",     w: 3, h: 2,   keywords: ["plataforma", "riser"] },
+  ]},
+  { id: "catering", label: "Catering extra", items: [
+    { objectType: "fuente_chocolate", label: "Fuente choco.", w: 0.6, h: 0.6, keywords: ["chocolate"] },
+    { objectType: "barra_movil",      label: "Barra móvil",  w: 1.5, h: 0.8, keywords: ["carrito bar"] },
+    { objectType: "parrilla",         label: "Parrilla",     w: 1.5, h: 0.8, keywords: ["bbq", "grill", "barbacoa"] },
+    { objectType: "fogon",            label: "Fogón",        w: 1.5, h: 0.8, keywords: ["cocina", "plancha"] },
+    { objectType: "mostrador",        label: "Mostrador",    w: 3,   h: 1,   keywords: ["recepcion"] },
+    { objectType: "carrito",          label: "Carrito",      w: 1,   h: 0.6, keywords: ["trolley"] },
+    { objectType: "nevera",           label: "Nevera",       w: 0.6, h: 0.6, keywords: ["fridge"] },
+    { objectType: "urna_regalos",     label: "Urna regalos", w: 0.5, h: 0.5, keywords: ["caja regalo"] },
+  ]},
+  { id: "piscina", label: "Piscina / Terraza", items: [
+    { objectType: "piscina",   label: "Piscina",   w: 8,   h: 5,   keywords: ["pool", "pileta"] },
+    { objectType: "lago",      label: "Lago",      w: 6,   h: 4,   keywords: ["estanque grande"] },
+    { objectType: "palmera",   label: "Palmera",   w: 1.5, h: 1.5 },
+    { objectType: "parrilla",  label: "Parrilla",  w: 1.5, h: 0.8, keywords: ["bbq"] },
+  ]},
+  { id: "decor_extra", label: "Decoración extra", items: [
+    { objectType: "fuente",       label: "Fuente",      w: 1.5, h: 1.5, keywords: ["fountain"] },
+    { objectType: "brasero",      label: "Brasero",     w: 0.8, h: 0.8, keywords: ["chimenea"] },
+    { objectType: "jardinera",    label: "Jardinera",   w: 2,   h: 0.5, keywords: ["maceta larga"] },
+    { objectType: "columna",      label: "Columna",     w: 0.4, h: 0.4 },
+    { objectType: "seto",         label: "Seto",        w: 3,   h: 1,   keywords: ["arbusto lineal"] },
+    { objectType: "farola",       label: "Farola",      w: 0.3, h: 0.3, keywords: ["lampara exterior"] },
+    { objectType: "arco_globos",  label: "Arco globos", w: 3,   h: 3,   keywords: ["balloon arch"] },
+    { objectType: "espejo_grande",label: "Espejo",      w: 0.8, h: 1.2, keywords: ["mirror"] },
+    { objectType: "maceta_grande",label: "Macetón",     w: 1,   h: 0.8, keywords: ["planter"] },
+    { objectType: "pino",         label: "Pino",        w: 1.5, h: 1.5, keywords: ["árbol pino"] },
+    { objectType: "arbusto",      label: "Arbusto",     w: 1.5, h: 1.5, keywords: ["bush"] },
+  ]},
+  { id: "evento", label: "Evento / Espacio", items: [
+    { objectType: "seating_chart", label: "Mapa mesas",  w: 0.8, h: 1.2, keywords: ["plano invitados", "seating chart"] },
+    { objectType: "zona_kids",     label: "Zona niños",  w: 4,   h: 3,   keywords: ["kids area", "infantil"] },
+    { objectType: "area_lounge",   label: "Área lounge", w: 5,   h: 4,   keywords: ["chill out"] },
+    { objectType: "inflable",      label: "Inflable",    w: 4,   h: 3,   keywords: ["castillo", "tobogan"] },
+    { objectType: "cabina_foto",   label: "Cabina foto", w: 1.5, h: 1.5, keywords: ["photobooth"] },
+    { objectType: "proyector",     label: "Proyector",   w: 0.4, h: 0.3, keywords: ["beamer"] },
+    { objectType: "generador",     label: "Generador",   w: 1.2, h: 0.6, keywords: ["luz electricidad"] },
+  ]},
+];
