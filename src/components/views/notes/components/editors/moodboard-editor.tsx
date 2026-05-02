@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Download, Image as ImageIcon } from "lucide-react";
 import { uploadImage } from "@/lib/upload";
 import type { Note } from "@/types";
-import { PREDEFINED_CATEGORIES } from "../constants/notes.constants";
+import { PREDEFINED_CATEGORIES } from "../../constants/notes.constants";
 import { MoodboardCategorySection } from "./moodboard-category-section";
 
 interface MoodboardEditorProps {

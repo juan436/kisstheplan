@@ -1,6 +1,6 @@
 import type { Task, PaymentSchedule } from "@/types";
-import { DAYS_ES } from "../constants/calendar.constants";
-import { getDaysInMonth, firstDayOfMonth } from "../helpers/calendar.helpers";
+import { DAYS_ES } from "../../constants/calendar.constants";
+import { getDaysInMonth, firstDayOfMonth } from "../../helpers/calendar.helpers";
 
 interface MonthViewProps {
   year: number; month: number; today: string; selectedDay: string;

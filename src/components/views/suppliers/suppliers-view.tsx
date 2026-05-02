@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { FileText, Plus, List, LayoutGrid, Grid3X3 } from "lucide-react";
 import type { Vendor } from "@/types";
 import { type View, type GridMode } from "./constants/suppliers.constants";
-import { GridView } from "./components/grid-view";
-import { FlatGridView } from "./components/flat-grid-view";
-import { ListView } from "./components/list-view";
-import { QuickAddModal } from "./components/quick-add-modal";
-import { DetailView } from "./components/detail-view";
+import { GridView } from "./components/views/grid-view";
+import { FlatGridView } from "./components/views/flat-grid-view";
+import { ListView } from "./components/views/list-view";
+import { QuickAddModal } from "./components/views/quick-add-modal";
+import { DetailView } from "./components/detail/detail-view";
 
 export default function ProveedoresPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);

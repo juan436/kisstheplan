@@ -6,9 +6,9 @@ import type { NoteType } from "@/types";
 import { useNotes } from "./hooks/use-notes";
 import { NoteCard } from "./components/note-card";
 import { CreateNoteModal } from "./components/create-note-modal";
-import { TextEditor } from "./components/text-editor";
-import { PdfViewer } from "./components/pdf-viewer";
-import { MoodboardEditor } from "./components/moodboard-editor";
+import { TextEditor } from "./components/editors/text-editor";
+import { PdfViewer } from "./components/editors/pdf-viewer";
+import { MoodboardEditor } from "./components/editors/moodboard-editor";
 import { api } from "@/services";
 
 export function NotesView() {

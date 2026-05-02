@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, ChevronDown, AlignLeft } from "lucide-react";
 import type { ScriptEntry } from "@/types";
-import { formatTimeDisplay } from "../helpers/script.helpers";
-import type { TimePillMode } from "../helpers/script.helpers";
+import { formatTimeDisplay } from "../../helpers/script.helpers";
+import type { TimePillMode } from "../../helpers/script.helpers";
 
 export function TimePill({ entry, onUpdate }: { entry: ScriptEntry; onUpdate: (d: Partial<ScriptEntry>) => void }) {
   const [open, setOpen] = useState(false);

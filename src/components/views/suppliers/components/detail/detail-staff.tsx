@@ -1,6 +1,6 @@
 import { Check, Paperclip, Trash2 } from "lucide-react";
 import type { Vendor } from "@/types";
-import { STATUS_COLOR } from "../constants/suppliers.constants";
+import { STATUS_COLOR } from "../../constants/suppliers.constants";
 
 interface DetailStaffProps {
   vendor: Vendor;

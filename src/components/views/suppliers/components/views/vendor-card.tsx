@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Vendor } from "@/types";
-import { STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
+import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
 
 interface VendorCardProps {
   vendor: Vendor;

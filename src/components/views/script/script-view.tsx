@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 import type { TabType, ScriptViewProps } from "./helpers/script.helpers";
-import { ResumenTab } from "./components/resumen-tab";
-import { GuionDetalladoTab } from "./components/guion-detallado-tab";
+import { ResumenTab } from "./components/tabs/resumen-tab";
+import { GuionDetalladoTab } from "./components/tabs/guion-detallado-tab";
 import { useScript } from "./hooks/use-script";
 
 function ScriptPanel({

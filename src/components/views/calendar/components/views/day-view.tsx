@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Task, PaymentSchedule } from "@/types";
-import { toYMD } from "../helpers/calendar.helpers";
+import { toYMD } from "../../helpers/calendar.helpers";
 
 interface DayViewProps {
   day: string; tasks: Task[]; payments: PaymentSchedule[];

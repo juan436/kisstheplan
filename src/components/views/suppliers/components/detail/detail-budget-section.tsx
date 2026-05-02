@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import { api } from "@/services";
-import { useVendorBudget } from "../hooks/use-vendor-budget";
-import { VendorCategoryBlock } from "./vendor-category-block";
-import { VendorPaymentModal } from "./vendor-payment-modal";
-import { VendorAllPaymentsModal } from "./vendor-all-payments-modal";
+import { useVendorBudget } from "../../hooks/use-vendor-budget";
+import { VendorCategoryBlock } from "../budget/vendor-category-block";
+import { VendorPaymentModal } from "../budget/vendor-payment-modal";
+import { VendorAllPaymentsModal } from "../budget/vendor-all-payments-modal";
 import type { Vendor } from "@/types";
 
 interface DetailBudgetSectionProps {

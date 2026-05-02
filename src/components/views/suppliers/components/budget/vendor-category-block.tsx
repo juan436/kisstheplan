@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { VendorBudgetItemRow } from "./vendor-budget-item-row";
 import type { ExpenseCategory, Vendor } from "@/types";
-import type { VendorBudgetEditState } from "../hooks/use-vendor-budget";
+import type { VendorBudgetEditState } from "../../hooks/use-vendor-budget";
 
 interface VendorCategoryBlockProps {
   category: ExpenseCategory;

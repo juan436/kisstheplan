@@ -4,7 +4,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useNavigation } from "@/hooks/useNavigation";
 import { NumCell } from "@/components/views/budget/components/table/num-cell";
 import type { ExpenseItem, Vendor } from "@/types";
-import type { VendorBudgetEditState } from "../hooks/use-vendor-budget";
+import type { VendorBudgetEditState } from "../../hooks/use-vendor-budget";
 
 interface VendorBudgetItemRowProps extends VendorBudgetEditState {
   item: ExpenseItem;

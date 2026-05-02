@@ -1,8 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Task, PaymentSchedule } from "@/types";
-import { MONTHS_ES, DAYS_ES } from "../constants/calendar.constants";
-import { toYMD } from "../helpers/calendar.helpers";
+import { MONTHS_ES, DAYS_ES } from "../../constants/calendar.constants";
+import { toYMD } from "../../helpers/calendar.helpers";
 
 interface WeekViewProps {
   selectedDay: string;

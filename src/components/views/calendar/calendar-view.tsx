@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus, Copy, Check, CalendarDays, CreditCard, Link2 } from "lucide-react";
 import type { ViewMode } from "./helpers/calendar.helpers";
-import { MonthView } from "./components/month-view";
-import { WeekView } from "./components/week-view";
-import { DayView } from "./components/day-view";
+import { MonthView } from "./components/views/month-view";
+import { WeekView } from "./components/views/week-view";
+import { DayView } from "./components/views/day-view";
 import { AddTaskModal } from "./components/add-task-modal";
 import { useCalendar } from "./hooks/use-calendar";
 

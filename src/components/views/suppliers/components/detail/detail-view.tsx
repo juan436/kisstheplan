@@ -2,8 +2,8 @@
 
 import { Check } from "lucide-react";
 import type { Vendor } from "@/types";
-import { STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
-import { useVendorDetail } from "../hooks/use-vendor-detail";
+import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
+import { useVendorDetail } from "../../hooks/use-vendor-detail";
 import { DetailContact } from "./detail-contact";
 import { DetailBudgetSection } from "./detail-budget-section";
 import { DetailStaff } from "./detail-staff";

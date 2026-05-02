@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Image as ImageIcon, Settings2 } from "lucide-react";
-import type { ScriptViewProps } from "../helpers/script.helpers";
-import { sortEntries, formatTimeDisplay } from "../helpers/script.helpers";
+import type { ScriptViewProps } from "../../helpers/script.helpers";
+import { sortEntries, formatTimeDisplay } from "../../helpers/script.helpers";
 
 type ResumenTabProps = Pick<ScriptViewProps, "entries" | "areas" | "onCreateArea" | "onUpdateArea" | "onDeleteArea">;
 

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, } from "framer-motion";
 import { Plus } from "lucide-react";
-import type { ScriptViewProps } from "../helpers/script.helpers";
-import { sortEntries, formatTimeDisplay } from "../helpers/script.helpers";
-import { EntryRow } from "./entry-row";
+import type { ScriptViewProps } from "../../helpers/script.helpers";
+import { sortEntries, formatTimeDisplay } from "../../helpers/script.helpers";
+import { EntryRow } from "../entry/entry-row";
 
 type GuionTabProps = Pick<ScriptViewProps, "entries" | "areas" | "guestStats" | "onCreateEntry" | "onUpdateEntry" | "onDeleteEntry" | "onReorderEntries">;
 

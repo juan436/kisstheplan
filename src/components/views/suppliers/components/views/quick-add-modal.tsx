@@ -4,7 +4,7 @@ import { api } from "@/services";
 import { Button } from "@/components/ui/button";
 import type { Vendor, VendorStatus, ExpenseCategory } from "@/types";
 import type { CreateVendorData } from "@/services/api";
-import { STATUS_COLOR, STATUS_LABEL } from "../constants/suppliers.constants";
+import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
 
 interface QuickAddModalProps {
   onClose: () => void;
