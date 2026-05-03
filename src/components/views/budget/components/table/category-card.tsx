@@ -1,12 +1,21 @@
 "use client";
 
+/**
+ * CategoryCard
+ *
+ * Qué hace: card colapsable de una categoría de presupuesto; muestra nombre editable,
+ *           lista de items (ItemRow), fila de subtotales y botón para añadir concepto.
+ * Recibe:   cat (ExpenseCategory), vendors, estado de colapso, handlers de edición/delete/pagos.
+ * Provee:   export { CategoryCard } — usado por BudgetTable.
+ */
+
 import { ChevronDown, ChevronRight, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import type { ExpenseCategory, Vendor } from "@/types";
-import { BudgetItemRow } from "./budget-item-row";
+import { ItemRow } from "./item-row";
 
-interface BudgetCategoryCardProps {
+interface CategoryCardProps {
   cat: ExpenseCategory;
   vendors: Vendor[];
   isOpen: boolean;
@@ -30,13 +39,13 @@ interface BudgetCategoryCardProps {
   onLinkVendor: (itemId: string, vendorId: string | null, vendorName: string | null) => void;
 }
 
-export function BudgetCategoryCard({
+export function CategoryCard({
   cat, vendors, isOpen, onToggle,
   isEditing, editValue, setEditValue, startEdit, saveEdit, handleKeyDown,
   deletingId, setDeletingId, addingItemToCat, newItemName,
   setAddingItemToCat, setNewItemName, handleAddItem,
   handleDeleteCat, handleDeleteItem, openPayments, onLinkVendor,
-}: BudgetCategoryCardProps) {
+}: CategoryCardProps) {
   const catEst  = cat.items.reduce((s, i) => s + i.estimated, 0);
   const catReal = cat.items.reduce((s, i) => s + i.real, 0);
   const catPaid = cat.items.reduce((s, i) => s + i.paid, 0);
@@ -77,7 +86,7 @@ export function BudgetCategoryCard({
       {isOpen && (
         <div>
           {cat.items.map((item) => (
-            <BudgetItemRow key={item.id} item={item} catId={cat.id} vendors={vendors}
+            <ItemRow key={item.id} item={item} catId={cat.id} vendors={vendors}
               isEditing={isEditing} editValue={editValue} setEditValue={setEditValue}
               startEdit={startEdit} saveEdit={saveEdit} handleKeyDown={handleKeyDown}
               deletingId={deletingId} setDeletingId={setDeletingId}

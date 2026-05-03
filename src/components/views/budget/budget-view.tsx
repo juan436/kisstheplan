@@ -5,7 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useBudget } from "./hooks/use-budget";
 import { BudgetTable } from "./components/table/budget-table";
 import { CategoryModal } from "./components/payments/modals/category-modal";
-import { TotalBox } from "./components/total-box";
+import { TotalBox } from "./components/utils/total-box";
 
 export default function PresupuestoPage() {
   const b = useBudget();

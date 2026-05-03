@@ -1,3 +1,12 @@
+/**
+ * TotalBox
+ *
+ * Qué hace: componente de utilidad para mostrar métricas totales (Presupuesto, Gastado, Restante)
+ *           con formato condicional de color según el signo.
+ * Recibe:   label (string), value (number), color (opcional), signed (booleano opcional).
+ * Provee:   export { TotalBox } — usado en budget-view.tsx.
+ */
+
 import { formatCurrency } from "@/lib/utils";
 
 export function TotalBox({ label, value, color = "text-text", signed = false }: {

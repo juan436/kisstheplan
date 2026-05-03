@@ -1,3 +1,12 @@
+/**
+ * NumCell
+ *
+ * Qué hace: celda numérica atómica; muestra un importe formateado y al hacer clic
+ *           se convierte en input de edición inline.
+ * Recibe:   value, isEditing, editValue, onStart, onChange, onSave, onKeyDown.
+ * Provee:   export { NumCell } — usado por BudgetItemRow y vendor-budget-item-row.
+ */
+
 import { formatCurrency } from "@/lib/utils";
 
 export function NumCell({ value, isEditing, editValue, onStart, onChange, onSave, onKeyDown }: {

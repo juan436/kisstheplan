@@ -1,12 +1,21 @@
 "use client";
 
+/**
+ * BudgetTable
+ *
+ * Qué hace: orquestador de la tabla de presupuesto; mapea categorías a BudgetCategoryCard
+ *           y gestiona el formulario inline para añadir nueva categoría.
+ * Recibe:   lista de categorías, estado de colapso, handlers de edición/delete/pagos/add-cat.
+ * Provee:   export { BudgetTable } — usado directamente por budget-view.tsx.
+ */
+
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/services";
 import type { ExpenseCategory } from "@/types";
 import type { Vendor } from "@/types";
-import { BudgetCategoryCard } from "./budget-category-card";
+import { CategoryCard } from "./category-card";
 
 interface BudgetTableProps {
   categories: ExpenseCategory[];
@@ -57,7 +66,7 @@ export function BudgetTable(props: BudgetTableProps) {
   return (
     <div className="space-y-3">
       {categories.map((cat) => (
-        <BudgetCategoryCard
+        <CategoryCard
           key={cat.id}
           cat={cat} vendors={vendors}
           isOpen={!collapsed.has(cat.id)}

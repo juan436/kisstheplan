@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * ItemRow
+ *
+ * Qué hace: fila de un concepto de presupuesto con edición inline de nombre e importes,
+ *           selector de proveedor vinculado y acceso al calendario de pagos.
+ * Recibe:   item (ExpenseItem), catId, vendors, handlers de edición/delete/pagos/link-vendor.
+ * Provee:   export { ItemRow } — usado por CategoryCard.
+ */
+
 import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -8,7 +17,7 @@ import { NumCell } from "./num-cell";
 import type { ExpenseItem } from "@/types";
 import type { Vendor } from "@/types";
 
-interface BudgetItemRowProps {
+interface ItemRowProps {
   item: ExpenseItem;
   catId: string;
   vendors: Vendor[];
@@ -25,10 +34,10 @@ interface BudgetItemRowProps {
   onLinkVendor: (itemId: string, vendorId: string | null, vendorName: string | null) => void;
 }
 
-export function BudgetItemRow({
+export function ItemRow({
   item, catId, vendors, isEditing, editValue, setEditValue, startEdit, saveEdit,
   handleKeyDown, deletingId, setDeletingId, handleDeleteItem, openPayments, onLinkVendor,
-}: BudgetItemRowProps) {
+}: ItemRowProps) {
   const { navigateTo } = useNavigation();
   const [changingVendor, setChangingVendor] = useState(false);
   const diff    = item.estimated - item.real;
