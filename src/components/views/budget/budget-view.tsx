@@ -4,7 +4,7 @@ import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useBudget } from "./hooks/use-budget";
 import { BudgetTable } from "./components/table/budget-table";
-import { PaymentModal } from "./components/payments/payment-modal";
+import { CategoryModal } from "./components/payments/modals/category-modal";
 import { TotalBox } from "./components/total-box";
 
 export default function PresupuestoPage() {
@@ -85,7 +85,7 @@ export default function PresupuestoPage() {
         <TotalBox label="Pendiente"  value={b.summary.totalPending} color="text-cta" />
       </div>
 
-      <PaymentModal
+      <CategoryModal
         open={b.showPayments} onClose={b.closePayments}
         paymentCat={b.paymentCat} onRefresh={b.loadData}
       />

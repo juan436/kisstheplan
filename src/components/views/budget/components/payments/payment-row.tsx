@@ -1,20 +1,29 @@
 "use client";
 
+/**
+ * PaymentRow
+ *
+ * Qué hace: fila expandible de un item de presupuesto con su lista de pagos parciales.
+ *           Permite marcar pagos como completados, eliminarlos y añadir nuevos.
+ * Recibe:   item (ExpenseItem), catId, onPaidChange (callback refresco), defaultExpanded.
+ * Provee:   export { PaymentRow } — usado por CategoryModal, ItemModal y archivos de suppliers.
+ */
+
 import { useEffect, useState } from "react";
 import { Check, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useItemPayments } from "../../hooks/use-item-payments";
-import { AddPaymentForm } from "./add-payment-form";
+import { PaymentForm } from "./form/payment-form";
 import type { ExpenseItem } from "@/types";
 
-interface PaymentItemRowProps {
+interface PaymentRowProps {
   item: ExpenseItem;
   catId: string;
   onPaidChange: () => void;
   defaultExpanded?: boolean;
 }
 
-export function PaymentItemRow({ item, catId, onPaidChange, defaultExpanded = false }: PaymentItemRowProps) {
+export function PaymentRow({ item, catId, onPaidChange, defaultExpanded = false }: PaymentRowProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const hook = useItemPayments(catId, item.id, item.real);
 
@@ -75,7 +84,7 @@ export function PaymentItemRow({ item, catId, onPaidChange, defaultExpanded = fa
           )}
 
           {hook.showForm ? (
-            <AddPaymentForm suggestedAmount={hook.suggestedNext}
+            <PaymentForm suggestedAmount={hook.suggestedNext}
               onAdd={async (...args) => { await hook.addPayment(...args); onPaidChange(); }}
               onCancel={() => hook.setShowForm(false)} />
           ) : (

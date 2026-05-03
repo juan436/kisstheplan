@@ -2,7 +2,7 @@
 
 import { Paperclip } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "@/components/views/budget/components/payments/payment-item-row";
+import { PaymentRow } from "@/components/views/budget/components/payments/payment-row";
 import type { LinkedBudgetItem, ItemPayment } from "@/types";
 
 interface DetailLinkedPaymentsProps {
@@ -33,7 +33,7 @@ export function DetailLinkedPayments({ linkedItems, payments, onRefresh }: Detai
       ) : (
         <div className="space-y-0.5">
           {linkedItems.map((linkedItem) => (
-            <PaymentItemRow
+            <PaymentRow
               key={linkedItem.itemId}
               item={{
                 id: linkedItem.itemId,

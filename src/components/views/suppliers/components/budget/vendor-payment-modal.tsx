@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "@/components/views/budget/components/payments/payment-item-row";
+import { PaymentRow } from "@/components/views/budget/components/payments/payment-row";
 import type { ExpenseCategory } from "@/types";
 
 interface VendorPaymentModalProps {
@@ -42,7 +42,7 @@ export function VendorPaymentModal({
       ) : (
         <div className="max-h-[420px] overflow-y-auto pr-1 space-y-0.5">
           {vendorItems.map((item) => (
-            <PaymentItemRow
+            <PaymentRow
               key={item.id}
               item={item}
               catId={category.id}

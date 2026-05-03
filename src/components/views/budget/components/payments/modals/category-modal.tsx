@@ -1,18 +1,27 @@
 "use client";
 
+/**
+ * CategoryModal
+ *
+ * Qué hace: modal con el calendario de pagos completo de una categoría de presupuesto.
+ *           Lista todos los items de la categoría usando PaymentRow con expand/collapse.
+ * Recibe:   open, onClose, paymentCat (ExpenseCategory | null), onRefresh.
+ * Provee:   export { CategoryModal } — usado por budget-view.tsx al hacer clic en una categoría.
+ */
+
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "./payment-item-row";
+import { PaymentRow } from "../payment-row";
 import type { ExpenseCategory } from "@/types";
 
-interface PaymentModalProps {
+interface CategoryModalProps {
   open: boolean;
   onClose: () => void;
   paymentCat: ExpenseCategory | null;
   onRefresh: () => void;
 }
 
-export function PaymentModal({ open, onClose, paymentCat, onRefresh }: PaymentModalProps) {
+export function CategoryModal({ open, onClose, paymentCat, onRefresh }: CategoryModalProps) {
   const totalReal    = paymentCat?.items.reduce((s, i) => s + i.real, 0) ?? 0;
   const totalPaid    = paymentCat?.items.reduce((s, i) => s + i.paid, 0) ?? 0;
   const totalPending = Math.max(0, totalReal - totalPaid);
@@ -39,7 +48,7 @@ export function PaymentModal({ open, onClose, paymentCat, onRefresh }: PaymentMo
       ) : (
         <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-0.5">
           {paymentCat.items.map((item) => (
-            <PaymentItemRow key={item.id} item={item} catId={paymentCat.id} onPaidChange={onRefresh} />
+            <PaymentRow key={item.id} item={item} catId={paymentCat.id} onPaidChange={onRefresh} />
           ))}
         </div>
       )}

@@ -1,11 +1,20 @@
 "use client";
 
+/**
+ * ItemModal
+ *
+ * Qué hace: modal de pagos parciales para un único item de presupuesto.
+ *           Muestra el importe de factura y abre PaymentRow en modo expandido por defecto.
+ * Recibe:   open, onClose, item (ExpenseItem), catId, onRefresh.
+ * Provee:   export { ItemModal } — usado cuando el usuario hace clic en un item específico.
+ */
+
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
-import { PaymentItemRow } from "./payment-item-row";
+import { PaymentRow } from "../payment-row";
 import type { ExpenseItem } from "@/types";
 
-interface ItemPaymentModalProps {
+interface ItemModalProps {
   open: boolean;
   onClose: () => void;
   item: ExpenseItem;
@@ -13,7 +22,7 @@ interface ItemPaymentModalProps {
   onRefresh: () => void;
 }
 
-export function ItemPaymentModal({ open, onClose, item, catId, onRefresh }: ItemPaymentModalProps) {
+export function ItemModal({ open, onClose, item, catId, onRefresh }: ItemModalProps) {
   const invoiceAmount = item.real > 0 ? item.real : item.estimated;
 
   return (
@@ -32,7 +41,7 @@ export function ItemPaymentModal({ open, onClose, item, catId, onRefresh }: Item
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto pr-1">
-        <PaymentItemRow item={item} catId={catId} onPaidChange={onRefresh} defaultExpanded={true} />
+        <PaymentRow item={item} catId={catId} onPaidChange={onRefresh} defaultExpanded={true} />
       </div>
     </Modal>
   );

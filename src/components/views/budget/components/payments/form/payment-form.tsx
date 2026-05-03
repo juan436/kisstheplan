@@ -1,15 +1,23 @@
 "use client";
 
+/**
+ * PaymentForm
+ *
+ * Qué hace: formulario inline para añadir un pago programado a un item de presupuesto.
+ * Recibe:   suggestedAmount (importe sugerido), onAdd (callback async), onCancel.
+ * Provee:   export { PaymentForm } — usado por PaymentRow al expandir un item.
+ */
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-interface AddPaymentFormProps {
+interface PaymentFormProps {
   suggestedAmount: number;
   onAdd: (concept: string, amount: number, dueDate: string, notes?: string) => Promise<void>;
   onCancel: () => void;
 }
 
-export function AddPaymentForm({ suggestedAmount, onAdd, onCancel }: AddPaymentFormProps) {
+export function PaymentForm({ suggestedAmount, onAdd, onCancel }: PaymentFormProps) {
   const [concept, setConcept] = useState("");
   const [amount,  setAmount]  = useState(suggestedAmount > 0 ? String(suggestedAmount) : "");
   const [dueDate, setDueDate] = useState("");
