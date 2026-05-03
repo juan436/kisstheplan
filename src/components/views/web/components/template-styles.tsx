@@ -1,3 +1,11 @@
+/**
+ * template-styles
+ *
+ * Qué hace: define los 4 estilos de plantilla de la web pública (Classic/Modern/Romantic/Rustic).
+ * Recibe:   nada — exporta constantes y el tipo TemplateStyle.
+ * Provee:   TEMPLATE_STYLES (record), TemplateStyle (tipo) — usados por LivePreview y LivePreviewSections.
+ */
+
 export type TemplateStyle = {
   heroAlign: "center" | "left";
   heroGradient: (bg: string, primary: string) => string;

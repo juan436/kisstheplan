@@ -1,3 +1,11 @@
+/**
+ * MonthView
+ *
+ * Qué hace: grilla mensual del calendario con celdas por día mostrando tareas y pagos.
+ * Recibe:   year, month, tasks, payments, selectedDate, onDayClick.
+ * Provee:   export { MonthView } — usado por CalendarView.
+ */
+
 import type { Task, PaymentSchedule } from "@/types";
 import { DAYS_ES } from "../../constants/calendar.constants";
 import { getDaysInMonth, firstDayOfMonth } from "../../helpers/calendar.helpers";

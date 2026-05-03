@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * WebView
+ *
+ * Qué hace: builder de la web pública de la boda en 3 pasos (Diseño, RSVP, Contenido)
+ *           con preview en tiempo real y botón de publicación.
+ * Recibe:   datos de useWebBuilder (draft, slug, handlers de guardar/publicar).
+ * Provee:   export default WebView — montado en /app/web.
+ */
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

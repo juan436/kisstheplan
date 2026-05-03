@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * usePhotoUpload
+ *
+ * Qué hace: hook para subir y gestionar la foto de portada de la web pública.
+ * Recibe:   weddingId, initialUrl (URL actual de la foto).
+ * Provee:   photoUrl, uploading flag, handleUpload, handleRemove.
+ */
+
 import { useState, useCallback } from "react";
 import { api } from "@/services";
 

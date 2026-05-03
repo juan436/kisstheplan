@@ -1,11 +1,20 @@
 "use client";
 
+/**
+ * NotesView
+ *
+ * Qué hace: vista principal de notas; muestra grid de NoteCard, abre NoteModal para crear
+ *           y navega al editor correspondiente según el tipo (texto/PDF/moodboard).
+ * Recibe:   datos de useNotes (notas, vendors, handlers CRUD).
+ * Provee:   export default NotesView — montado en /app/notas.
+ */
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, FileText, Loader2 } from "lucide-react";
 import type { NoteType } from "@/types";
 import { useNotes } from "./hooks/use-notes";
 import { NoteCard } from "./components/note-card";
-import { CreateNoteModal } from "./components/create-note-modal";
+import { NoteModal } from "./components/modals/note-modal";
 import { TextEditor } from "./components/editors/text-editor";
 import { PdfViewer } from "./components/editors/pdf-viewer";
 import { MoodboardEditor } from "./components/editors/moodboard-editor";
@@ -102,7 +111,7 @@ export function NotesView() {
 
       <AnimatePresence>
         {showCreate && (
-          <CreateNoteModal vendors={vendors} onClose={() => setShowCreate(false)} onCreate={handleCreate} />
+          <NoteModal vendors={vendors} onClose={() => setShowCreate(false)} onCreate={handleCreate} />
         )}
       </AnimatePresence>
     </div>

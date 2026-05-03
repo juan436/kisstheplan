@@ -1,3 +1,11 @@
+/**
+ * TaskRowExpanded
+ *
+ * Qué hace: panel expandible de una tarea con campos de fecha, asignado y notas editables.
+ * Recibe:   ExpandedPanelProps (task, handlers de guardar fecha/nota/asignado, saving flag).
+ * Provee:   export { TaskRowExpanded } — usado por TaskRow al expandirse.
+ */
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, User, MessageSquare, Check, Loader2 } from "lucide-react";
 

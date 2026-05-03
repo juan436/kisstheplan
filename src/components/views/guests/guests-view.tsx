@@ -4,10 +4,10 @@ import { AddGuestModal } from "@/components/features/guests/add-guest-modal";
 import { GuestHistoryModal } from "@/components/features/guests/guest-history-modal";
 import { useGuests } from "./hooks/use-guests";
 import { useGuestHistory } from "./hooks/use-guest-history";
-import { GuestsStatsBar } from "./components/guests-stats-bar";
-import { GuestsToolbar } from "./components/guests-toolbar";
-import { GuestsTable } from "./components/guests-table";
-import { GroupsModal, ConfigModal } from "./components/groups-modal";
+import { GuestsStatsBar } from "./components/stats-bar";
+import { GuestsToolbar } from "./components/toolbar";
+import { GuestsTable } from "./components/table/table";
+import { GroupsModal, ConfigModal } from "./components/modals/groups-modal";
 
 export default function InvitadosPage() {
   const g = useGuests();

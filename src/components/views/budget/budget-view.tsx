@@ -1,4 +1,11 @@
 "use client";
+/**
+ * budget-view.tsx
+ * 
+ * Qué hace: componente principal que orquesta el flujo de datos del presupuesto.
+ * Recibe:   weddings (desde useAuth), llamadas a api para obtener categorías y resumen.
+ * Provee:   estado de categorías, tabla, edición, filtros, y modals (pagos, añadir categoría).
+ */
 
 import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";

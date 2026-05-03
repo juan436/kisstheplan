@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * useNotes
+ *
+ * Qué hace: hook principal de notas; carga, crea, actualiza y elimina notas y sus imágenes.
+ * Recibe:   nada (obtiene weddingId desde useAuth internamente).
+ * Provee:   notes, vendors, activeNote, handlers CRUD + estado de carga.
+ */
+
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";

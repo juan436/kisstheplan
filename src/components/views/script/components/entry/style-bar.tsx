@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * StyleBar
+ *
+ * Qué hace: barra de herramientas de estilos para una entrada del guión (negrita, color, tamaño).
+ * Recibe:   entry (ScriptEntry), onStyleChange callback.
+ * Provee:   export { StyleBar } — usado por EntryRow.
+ */
+
 import type { ScriptEntry } from "@/types";
 
 const FONT_SIZES = [{ value: "sm", label: "S" }, { value: "base", label: "M" }, { value: "lg", label: "L" }, { value: "xl", label: "XL" }] as const;

@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * useWebBuilder
+ *
+ * Qué hace: hook principal del builder web; gestiona el borrador de configuración,
+ *           slug, publicación y sincronización con la API.
+ * Recibe:   nada (obtiene weddingId desde useAuth).
+ * Provee:   draft, slug, handlers de actualizar/guardar/publicar + estado de UI.
+ */
+
 import { useState, useCallback, useEffect } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";

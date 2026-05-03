@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * GuionDetalladoTab
+ *
+ * Qué hace: pestaña de guión detallado; renderiza el timeline línea a línea con EntryRow y drag-and-drop.
+ * Recibe:   entries, handlers de crear/actualizar/eliminar/reordenar entradas.
+ * Provee:   export { GuionDetalladoTab } — usado por ScriptView.
+ */
+
 import { useState, useEffect } from "react";
 import { AnimatePresence, } from "framer-motion";
 import { Plus } from "lucide-react";

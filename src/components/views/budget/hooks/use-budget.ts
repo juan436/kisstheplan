@@ -1,4 +1,11 @@
 "use client";
+/**
+ * use-budget.ts
+ *
+ * Qué hace: hook principal que orquesta el flujo de datos del presupuesto.
+ * Recibe:   weddings (desde useAuth), llamadas a api para obtener categorías y resumen.
+ * Provee:   estado de categorías, tabla, edición, filtros, y modals (pagos, añadir categoría).
+ */
 
 import { useEffect, useState, useCallback } from "react";
 import { api } from "@/services";

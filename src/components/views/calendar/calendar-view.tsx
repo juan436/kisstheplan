@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * CalendarView
+ *
+ * Qué hace: vista principal del calendario; alterna entre vistas mes/semana/día y abre TaskModal al crear.
+ * Recibe:   datos del hook useCalendar (tareas, pagos, eventos, handlers).
+ * Provee:   export default CalendarView — montado en /app/calendario.
+ */
+
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus, Copy, Check, CalendarDays, CreditCard, Link2 } from "lucide-react";
@@ -7,7 +15,7 @@ import type { ViewMode } from "./helpers/calendar.helpers";
 import { MonthView } from "./components/views/month-view";
 import { WeekView } from "./components/views/week-view";
 import { DayView } from "./components/views/day-view";
-import { AddTaskModal } from "./components/add-task-modal";
+import { TaskModal } from "./components/modals/task-modal";
 import { useCalendar } from "./hooks/use-calendar";
 
 export default function CalendarioPage() {
@@ -152,7 +160,7 @@ export default function CalendarioPage() {
         </div>
 
         {showAddTask && (
-          <AddTaskModal initialDate={addTaskDate} onClose={() => setShowAddTask(false)}
+          <TaskModal initialDate={addTaskDate} onClose={() => setShowAddTask(false)}
             onCreated={() => { setShowAddTask(false); load(); }} />
         )}
       </div>

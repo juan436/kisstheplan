@@ -1,4 +1,11 @@
 "use client";
+/**
+ * use-item-payments.ts
+ *
+ * Qué hace: hook dedicado a manejar los pagos de un item (ingreso o egreso).
+ * Recibe:   catId, itemId, itemReal.
+ * Provee:   lista de pagos, CRUD, cálculo de totales y sugerencias.
+ */
 
 import { useState, useCallback } from "react";
 import { api } from "@/services";

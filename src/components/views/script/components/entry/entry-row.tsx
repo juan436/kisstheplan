@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * EntryRow
+ *
+ * Qué hace: fila de una entrada del guión con edición inline de texto, hora (TimePill) y estilos (StyleBar).
+ * Recibe:   entry (ScriptEntry), handlers de guardar/eliminar/reordenar.
+ * Provee:   export { EntryRow } — usado por GuionDetalladoTab.
+ */
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GripVertical, Trash2, Type, Lock, Globe } from "lucide-react";

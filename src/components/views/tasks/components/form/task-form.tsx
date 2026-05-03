@@ -1,8 +1,16 @@
+/**
+ * TaskForm
+ *
+ * Qué hace: formulario animado para crear una nueva tarea con título, categoría y etapa.
+ * Recibe:   show, valores controlados (title/category/stage), addingTask flag, callbacks onChange/onAdd/onClose.
+ * Provee:   export { TaskForm } — usado por TasksView.
+ */
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Loader2 } from "lucide-react";
-import { ALL_CATEGORIES, STAGE_ORDER } from "../constants/tasks.constants";
+import { ALL_CATEGORIES, STAGE_ORDER } from "../../constants/tasks.constants";
 
-interface AddTaskFormProps {
+interface TaskFormProps {
   show: boolean;
   newTitle: string;
   newCategory: string;
@@ -15,10 +23,10 @@ interface AddTaskFormProps {
   onClose: () => void;
 }
 
-export function AddTaskForm({
+export function TaskForm({
   show, newTitle, newCategory, newStage, addingTask,
   onTitleChange, onCategoryChange, onStageChange, onAdd, onClose,
-}: AddTaskFormProps) {
+}: TaskFormProps) {
   return (
     <AnimatePresence>
       {show && (

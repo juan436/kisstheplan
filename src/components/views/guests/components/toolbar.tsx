@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * GuestsToolbar
+ * Qué hace: barra de acciones de invitados; búsqueda, filtros RSVP/grupo, alta rápida, columnas, import/export excel.
+ * Recibe:   props de useGuests (búsqueda, filtros, refs, handlers).
+ * Provee:   export { GuestsToolbar }.
+ */
+
 import { useRef } from "react";
 import { UserPlus, Upload, Download, Search, X, Users, SlidersHorizontal, Columns } from "lucide-react";
 import { Button } from "@/components/ui/button";

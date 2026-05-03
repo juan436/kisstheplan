@@ -1,5 +1,14 @@
 "use client";
 
+/**
+ * GroupsModal / ConfigModal
+ * Qué hace: dos modales de configuración de invitados.
+ *   GroupsModal — gestionar grupos (crear, renombrar, eliminar).
+ *   ConfigModal — configurar platos, alergias y puntos de transporte con colores.
+ * Recibe:   open, onClose, datos y handlers del hook useGuests.
+ * Provee:   export { GroupsModal, ConfigModal }.
+ */
+
 import { useState, useEffect } from "react";
 import { Plus, Trash2, X, Pencil, Check } from "lucide-react";
 import { pickNextColor, MEAL_PALETTE, ALLERGY_PALETTE } from "@/lib/allergy-colors";
@@ -102,7 +111,6 @@ export function ConfigModal({ open, onClose, mealOptions, mealColors: initMealCo
   const [aColors, setAColors] = useState<Record<string, string>>(initAllergyColors ?? {});
   const [newVal, setNewVal] = useState("");
 
-  // Sync state when props change or modal opens
   useEffect(() => {
     if (open) {
       setMeals(mealOptions);

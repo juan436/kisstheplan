@@ -1,3 +1,11 @@
+/**
+ * MoodboardEditor
+ *
+ * Qué hace: editor de moodboard; gestiona categorías, imágenes de inspiración y paleta de colores.
+ * Recibe:   note (Note), onSave, onClose callbacks.
+ * Provee:   export { MoodboardEditor } — usado por NotesView al abrir una nota de tipo "moodboard".
+ */
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Download, Image as ImageIcon } from "lucide-react";

@@ -1,3 +1,11 @@
+/**
+ * script.helpers.ts
+ *
+ * Qué hace: funciones puras de utilidad para el módulo de guión (ordenación, formateo de horas).
+ * Recibe:   tipos ScriptEntry, ScriptArea, GuestStats.
+ * Provee:   helpers y tipos TabType / TimePillMode exportados al módulo.
+ */
+
 import type { ScriptEntry, ScriptArea, GuestStats } from "@/types";
 
 export type TabType = "resumen" | "guion";

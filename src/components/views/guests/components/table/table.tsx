@@ -1,12 +1,19 @@
 "use client";
 
+/**
+ * GuestsTable
+ * Qué hace: tabla de invitados con cabecera dinámica según columnas visibles; delega cada fila a GuestTableRow.
+ * Recibe:   filteredGuests, columnas visibles, filtros activos, handlers de edición.
+ * Provee:   export { GuestsTable }.
+ */
+
 import {
   Table, TableHeader, TableBody, TableRow,
   TableHead, TableCell,
 } from "@/components/ui/table";
 import type { Guest, GuestGroup } from "@/types";
-import type { ColKey } from "../constants/guests.constants";
-import { GuestTableRow, type GuestRowProps } from "./guests-table-row";
+import type { ColKey } from "../../constants/guests.constants";
+import { GuestTableRow, type GuestRowProps } from "./table-row";
 
 interface GuestsTableProps extends Omit<GuestRowProps, "guest" | "index"> {
   filteredGuests: Guest[];

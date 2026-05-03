@@ -1,3 +1,11 @@
+/**
+ * NoteCard
+ *
+ * Qué hace: tarjeta de vista previa de una nota con icono de tipo, título, proveedor y botón eliminar.
+ * Recibe:   note (Note), vendor opcional, onOpen, onDelete callbacks.
+ * Provee:   export { NoteCard } — usado por NotesView.
+ */
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";

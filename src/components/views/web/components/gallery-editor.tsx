@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * GalleryEditor
+ *
+ * Qué hace: editor de galería de fotos de la web pública; permite añadir y eliminar imágenes.
+ * Recibe:   images[], onAdd, onRemove callbacks.
+ * Provee:   export { GalleryEditor } — usado por ContentStep.
+ */
+
 import { Plus, X } from "lucide-react";
 import { getImgUrl } from "@/lib/img-url";
 import { usePhotoUpload } from "../hooks/use-photo-upload";

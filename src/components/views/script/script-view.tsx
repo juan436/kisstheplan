@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * ScriptView
+ *
+ * Qué hace: vista principal del guión del día; alterna entre pestaña Resumen y Guión Detallado.
+ * Recibe:   datos de useScript (entradas, áreas, handlers CRUD).
+ * Provee:   export default ScriptView — montado en /app/guion.
+ */
+
 import { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
 import type { TabType, ScriptViewProps } from "./helpers/script.helpers";

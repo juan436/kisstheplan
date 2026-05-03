@@ -1,12 +1,20 @@
 "use client";
 
+/**
+ * TaskModal
+ *
+ * Qué hace: modal para crear una nueva tarea desde el calendario con título, categoría y fecha.
+ * Recibe:   initialDate (string YYYY-MM-DD), onClose, onCreated callbacks.
+ * Provee:   export { TaskModal } — usado por CalendarView al hacer clic en un día.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { api } from "@/services";
 import { Button } from "@/components/ui/button";
 import type { CreateTaskData } from "@/services/api";
 
-export function AddTaskModal({ initialDate, onClose, onCreated }: {
+export function TaskModal({ initialDate, onClose, onCreated }: {
   initialDate: string; onClose: () => void; onCreated: () => void;
 }) {
   const [title,      setTitle]      = useState("");

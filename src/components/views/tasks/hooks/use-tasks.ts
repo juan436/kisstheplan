@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * useTasks
+ *
+ * Qué hace: hook principal de tareas; carga, filtra, agrupa y expone CRUD de tareas.
+ * Recibe:   nada (obtiene weddingId desde useAuth internamente).
+ * Provee:   tasks agrupadas, filtros activos, handlers de completar/añadir/eliminar + estado UI.
+ */
+
 import { useState, useMemo } from "react";
 import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";

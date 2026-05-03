@@ -1,3 +1,11 @@
+/**
+ * SectionEditor
+ *
+ * Qué hace: wrapper de sección editable con toggle de visibilidad y campo de título.
+ * Recibe:   title, enabled, onToggle, children (contenido de la sección).
+ * Provee:   export { SectionEditor } — usado por ContentStep para cada sección de la web.
+ */
+
 import type { ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";

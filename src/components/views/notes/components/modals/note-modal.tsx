@@ -1,16 +1,25 @@
+/**
+ * NoteModal
+ *
+ * Qué hace: modal para crear una nueva nota; permite elegir tipo (texto/PDF/moodboard),
+ *           escribir el título y opcionalmente asociarla a un proveedor.
+ * Recibe:   vendors[], onClose, onCreate callback con { type, title, vendorId? }.
+ * Provee:   export { NoteModal } — usado por NotesView.
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X, Check, ChevronDown } from "lucide-react";
 import type { NoteType, Vendor } from "@/types";
-import { TYPE_LABELS, TYPE_ICONS } from "../constants/notes.constants";
+import { TYPE_LABELS, TYPE_ICONS } from "../../constants/notes.constants";
 
-interface CreateNoteModalProps {
+interface NoteModalProps {
   vendors: Vendor[];
   onClose: () => void;
   onCreate: (data: { type: NoteType; title: string; vendorId?: string }) => void;
 }
 
-export function CreateNoteModal({ vendors, onClose, onCreate }: CreateNoteModalProps) {
+export function NoteModal({ vendors, onClose, onCreate }: NoteModalProps) {
   const [type, setType] = useState<NoteType>("text");
   const [title, setTitle] = useState("");
   const [vendorId, setVendorId] = useState("");

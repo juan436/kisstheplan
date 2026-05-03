@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * useScript
+ *
+ * Qué hace: hook principal del guión; carga entradas y áreas, expone CRUD y estado de UI.
+ * Recibe:   nada (obtiene weddingId desde useAuth internamente).
+ * Provee:   entries, areas, handlers de crear/editar/eliminar/reordenar + estado de tabs.
+ */
+
 import { useState, useEffect } from "react";
 import type { ScriptEntry, ScriptArea, GuestStats } from "@/types";
 import { api } from "@/services";

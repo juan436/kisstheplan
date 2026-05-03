@@ -1,3 +1,10 @@
+/**
+ * GuestsStatsBar
+ * Qué hace: muestra 4 cajas de estadísticas de invitados (total, confirmados, rechazados, pendientes).
+ * Recibe:   stats (GuestStats | null).
+ * Provee:   export { GuestsStatsBar }.
+ */
+
 import type { GuestStats } from "@/types";
 
 function StatBox({ label, value, color }: { label: string; value: number; color: string }) {

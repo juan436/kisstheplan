@@ -1,3 +1,11 @@
+/**
+ * PdfViewer
+ *
+ * Qué hace: visor/subidor de PDF para notas de tipo PDF; permite subir y previsualizar el archivo.
+ * Recibe:   note (Note), onSave, onClose callbacks.
+ * Provee:   export { PdfViewer } — usado por NotesView al abrir una nota de tipo "pdf".
+ */
+
 import { useState, useRef } from "react";
 import { X, File, Loader2 } from "lucide-react";
 import { uploadPdf } from "@/lib/upload";

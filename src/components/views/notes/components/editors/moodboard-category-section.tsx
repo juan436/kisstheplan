@@ -1,3 +1,11 @@
+/**
+ * MoodboardCategorySection
+ *
+ * Qué hace: sección de una categoría dentro del moodboard; muestra grid de imágenes con upload/delete.
+ * Recibe:   category (MoodboardCategory), onAddImage, onDeleteImage, onRename, onDelete callbacks.
+ * Provee:   export { MoodboardCategorySection } — usado por MoodboardEditor.
+ */
+
 import { useState } from "react";
 import { Image as ImageIcon, Plus, Trash2, X } from "lucide-react";
 import type { MoodboardCategory } from "@/types";

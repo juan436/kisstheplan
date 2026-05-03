@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * TimePill
+ *
+ * Qué hace: píldora editable de hora para una entrada del guión; soporta hora exacta, rango o ninguna.
+ * Recibe:   mode (TimePillMode), timeStart, timeEnd, onSave callback.
+ * Provee:   export { TimePill } — usado por EntryRow.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, ChevronDown, AlignLeft } from "lucide-react";

@@ -1,3 +1,11 @@
+/**
+ * WeekView
+ *
+ * Qué hace: vista semanal del calendario; muestra 7 columnas de día con tareas y pagos por día.
+ * Recibe:   selectedDate, tasks, payments, onDayClick, onPrev/onNext para navegar semanas.
+ * Provee:   export { WeekView } — usado por CalendarView.
+ */
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Task, PaymentSchedule } from "@/types";

@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * RsvpStep
+ *
+ * Qué hace: paso 2 del builder web; configura fecha límite RSVP, opciones de plato y transporte.
+ * Recibe:   draft (WebPageConfig), onUpdate callback.
+ * Provee:   export { RsvpStep } — usado por WebView.
+ */
+
 import { Plus, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

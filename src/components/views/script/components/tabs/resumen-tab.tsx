@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * ResumenTab
+ *
+ * Qué hace: pestaña de resumen del guión; lista horarios principales y áreas del espacio con imágenes.
+ * Recibe:   entries, areas, handlers CRUD de áreas (crear/editar/eliminar/subir imagen).
+ * Provee:   export { ResumenTab } — usado por ScriptView.
+ */
+
 import { useState } from "react";
 import { Plus, Trash2, Image as ImageIcon, Settings2 } from "lucide-react";
 import type { ScriptViewProps } from "../../helpers/script.helpers";

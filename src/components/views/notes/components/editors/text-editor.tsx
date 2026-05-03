@@ -1,3 +1,11 @@
+/**
+ * TextEditor
+ *
+ * Qué hace: editor de texto enriquecido para notas de tipo texto (negrita, cursiva, subrayado).
+ * Recibe:   note (Note), onSave, onClose callbacks.
+ * Provee:   export { TextEditor } — usado por NotesView al abrir una nota de tipo "text".
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { X, Bold, Italic, Underline } from "lucide-react";
 import type { Note } from "@/types";

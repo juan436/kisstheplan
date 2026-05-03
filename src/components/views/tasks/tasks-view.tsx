@@ -1,10 +1,18 @@
 "use client";
 
+/**
+ * TasksView
+ *
+ * Qué hace: vista principal de tareas; agrupa por etapa o categoría, filtra y permite añadir/completar.
+ * Recibe:   datos de useTasks (tareas agrupadas, filtros, handlers CRUD).
+ * Provee:   export default TasksView — montado en /app/tareas.
+ */
+
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Check, LayoutList, Clock } from "lucide-react";
 import { useTasks } from "./hooks/use-tasks";
 import { TaskRow } from "./components/task-row";
-import { AddTaskForm } from "./components/add-task-form";
+import { TaskForm } from "./components/form/task-form";
 
 export default function TasksView() {
   const {
@@ -54,7 +62,7 @@ export default function TasksView() {
         </div>
       )}
 
-      <AddTaskForm show={showAdd} newTitle={newTitle} newCategory={newCategory} newStage={newStage}
+      <TaskForm show={showAdd} newTitle={newTitle} newCategory={newCategory} newStage={newStage}
         addingTask={addingTask} onTitleChange={setNewTitle} onCategoryChange={setNewCategory}
         onStageChange={setNewStage} onAdd={handleAddTask}
         onClose={() => { setShowAdd(false); setNewTitle(""); }} />

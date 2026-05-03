@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * ContentStep
+ *
+ * Qué hace: paso 3 del builder web; edita historia, horarios, transporte, alojamiento y secciones custom.
+ * Recibe:   draft (WebPageConfig), onUpdate callback.
+ * Provee:   export { ContentStep } — usado por WebView.
+ */
+
 import { Plus, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

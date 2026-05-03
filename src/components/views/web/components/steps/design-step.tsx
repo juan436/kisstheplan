@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * DesignStep
+ *
+ * Qué hace: paso 1 del builder web; permite elegir plantilla, foto portada, paleta y tipografías.
+ * Recibe:   draft (WebPageConfig), onUpdate, hooks de foto (usePhotoUpload).
+ * Provee:   export { DesignStep } — usado por WebView.
+ */
+
 import { Upload, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import type { WebPageConfig } from "@/types";

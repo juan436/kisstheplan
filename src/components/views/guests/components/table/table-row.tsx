@@ -1,11 +1,18 @@
 "use client";
 
+/**
+ * GuestTableRow
+ * Qué hace: fila de la tabla de invitados con edición inline por celda; RSVP, plato, alergias, transporte, grupo.
+ * Recibe:   guest, index, grupos, opciones configurables, handlers del hook useGuests.
+ * Provee:   export { GuestTableRow, GuestRowProps }.
+ */
+
 import { api } from "@/services";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Trash2, History } from "lucide-react";
 import type { Guest, GuestGroup, GuestRole, RsvpStatus } from "@/types";
 import type { UpdateGuestData } from "@/services/api";
-import { ROLE_OPTIONS, ROLE_LABELS, type ColKey } from "../constants/guests.constants";
+import { ROLE_OPTIONS, ROLE_LABELS, type ColKey } from "../../constants/guests.constants";
 import { TableMultiSelect, MultiSelectDisplay } from "@/components/features/guests/multi-select-chips";
 
 const RSVP_CFG: Record<string, { color: string; label: string }> = {

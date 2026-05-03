@@ -1,3 +1,11 @@
+/**
+ * TaskRow
+ *
+ * Qué hace: fila de una tarea con checkbox de completado, título y panel expandible (TaskRowExpanded).
+ * Recibe:   task (Task), onToggle, onDelete, onUpdate callbacks.
+ * Provee:   export { TaskRow } — usado por TasksView.
+ */
+
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Check, Loader2 } from "lucide-react";

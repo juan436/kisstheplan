@@ -1,3 +1,11 @@
+/**
+ * DayView
+ *
+ * Qué hace: vista detallada de un único día con lista de tareas y pagos, y botón añadir tarea.
+ * Recibe:   selectedDate, tasks, payments, onDayClick, onAddTask, onToggleTask.
+ * Provee:   export { DayView } — usado por CalendarView.
+ */
+
 import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import type { Task, PaymentSchedule } from "@/types";
