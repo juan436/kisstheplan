@@ -1,11 +1,18 @@
 "use client";
 
+/**
+ * PaymentModal
+ * Qué hace: modal de calendario de pagos de una categoría de presupuesto filtrada por proveedor.
+ * Recibe:   open, onClose, category, currentVendorId, onRefresh.
+ * Provee:   export { PaymentModal }.
+ */
+
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
 import { PaymentRow } from "@/components/views/budget/components/payments/payment-row";
 import type { ExpenseCategory } from "@/types";
 
-interface VendorPaymentModalProps {
+interface PaymentModalProps {
   open: boolean;
   onClose: () => void;
   category: ExpenseCategory;
@@ -13,10 +20,9 @@ interface VendorPaymentModalProps {
   onRefresh: () => void;
 }
 
-export function VendorPaymentModal({
+export function PaymentModal({
   open, onClose, category, currentVendorId, onRefresh,
-}: VendorPaymentModalProps) {
-  // INVOICE AMOUNT = ONLY this vendor's items (items from other vendors are excluded)
+}: PaymentModalProps) {
   const vendorItems  = category.items.filter((i) => i.vendorId === currentVendorId);
   const invoiceAmount = vendorItems.reduce((s, i) => s + (i.real > 0 ? i.real : i.estimated), 0);
   const totalPaid    = vendorItems.reduce((s, i) => s + i.paid, 0);
@@ -42,12 +48,7 @@ export function VendorPaymentModal({
       ) : (
         <div className="max-h-[420px] overflow-y-auto pr-1 space-y-0.5">
           {vendorItems.map((item) => (
-            <PaymentRow
-              key={item.id}
-              item={item}
-              catId={category.id}
-              onPaidChange={onRefresh}
-            />
+            <PaymentRow key={item.id} item={item} catId={category.id} onPaidChange={onRefresh} />
           ))}
         </div>
       )}

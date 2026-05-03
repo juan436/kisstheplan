@@ -1,6 +1,12 @@
+﻿/**
+ * DetailPayments
+ * QuÃ© hace: secciÃ³n de pagos del proveedor (propios + vinculados al presupuesto).
+ * Recibe:   vendor, linkedBudget, handlers...
+ * Provee:   export { DetailPayments }.
+ */
 import { CalendarDays, Plus, Trash2, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { DetailLinkedPayments } from "./detail-linked-payments";
+import { DetailLinkedPayments } from "./linked-payments";
 import type { Vendor, VendorPayment, VendorBudgetPaymentsResult } from "@/types";
 import type { CreateVendorPaymentData } from "@/services/api";
 
@@ -48,7 +54,7 @@ export function DetailPayments({
       <div className="mb-4">
         <label className="text-[11px] text-brand block mb-1">Importe total contratado</label>
         <div className="flex items-center gap-2">
-          <span className="text-[13px] text-text">€</span>
+          <span className="text-[13px] text-text">â‚¬</span>
           <input type="number" defaultValue={contracted || ""}
             onBlur={(e) => onUpdateTotalAmount(Number(e.target.value))}
             placeholder="0"
@@ -138,7 +144,7 @@ export function DetailPayments({
                 </td>
                 <td className="py-2 flex gap-1">
                   <button onClick={onAddPayment} className="text-[11px] bg-accent text-white px-2 py-0.5 rounded">OK</button>
-                  <button onClick={() => { setAddingPayment(false); setNewPayment({}); }} className="text-[11px] text-brand hover:text-danger">✕</button>
+                  <button onClick={() => { setAddingPayment(false); setNewPayment({}); }} className="text-[11px] text-brand hover:text-danger">âœ•</button>
                 </td>
               </tr>
             )}
@@ -148,9 +154,11 @@ export function DetailPayments({
 
       {!addingPayment && (
         <button onClick={() => setAddingPayment(true)} className="flex items-center gap-1 text-[12px] text-brand hover:text-cta transition-colors">
-          <Plus size={12} />Añadir pago
+          <Plus size={12} />AÃ±adir pago
         </button>
       )}
     </div>
   );
 }
+
+

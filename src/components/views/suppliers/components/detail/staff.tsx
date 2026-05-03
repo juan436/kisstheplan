@@ -1,3 +1,9 @@
+﻿/**
+ * DetailStaff
+ * Qué hace: sección de gestión técnica y staff del proveedor.
+ * Recibe:   vendor, handlers...
+ * Provee:   export { DetailStaff }.
+ */
 import { Check, Paperclip, Trash2 } from "lucide-react";
 import type { Vendor } from "@/types";
 import { STATUS_COLOR } from "../../constants/suppliers.constants";
@@ -39,7 +45,7 @@ export function DetailStaff({ vendor, confirmDelete, setConfirmDelete, onSave, o
               style={{ borderColor: vendor.needsStaffMenu ? STATUS_COLOR.confirmed : "#D4C9B8", backgroundColor: vendor.needsStaffMenu ? STATUS_COLOR.confirmed : "transparent" }}>
               {vendor.needsStaffMenu && <Check size={10} className="text-white" />}
             </button>
-            <span className="text-[13px] text-text">Necesita menú staff</span>
+            <span className="text-[13px] text-text">¿Necesita menú staff?</span>
           </div>
           {vendor.needsStaffMenu && (
             <div className="mt-3 pl-8 space-y-2">
@@ -87,3 +93,5 @@ export function DetailStaff({ vendor, confirmDelete, setConfirmDelete, onSave, o
     </>
   );
 }
+
+

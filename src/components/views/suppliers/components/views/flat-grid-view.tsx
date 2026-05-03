@@ -1,6 +1,13 @@
+/**
+ * FlatGridView
+ * Qué hace: vista de todos los proveedores en grid plano sin agrupar por categoría.
+ * Recibe:   vendors[], onOpen, onDelete.
+ * Provee:   export { FlatGridView }.
+ */
+
 import { FileText } from "lucide-react";
 import type { Vendor } from "@/types";
-import { VendorCard } from "./vendor-card";
+import { VendorCard } from "./card";
 
 interface FlatGridViewProps {
   vendors: Vendor[];

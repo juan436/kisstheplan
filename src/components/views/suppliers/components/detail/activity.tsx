@@ -1,3 +1,9 @@
+﻿/**
+ * DetailActivity
+ * QuÃ© hace: secciÃ³n de actividad/chat del proveedor.
+ * Recibe:   vendor, chatInput, handlers...
+ * Provee:   export { DetailActivity }.
+ */
 import { useRef } from "react";
 import { Plus, Paperclip, Send } from "lucide-react";
 import { api } from "@/services";
@@ -25,7 +31,7 @@ export function DetailActivity({
       <div className="p-4 border-b border-border flex items-center gap-2 flex-shrink-0">
         <button onClick={onBack}
           className="flex items-center gap-1.5 text-[12px] font-medium text-text px-3 py-1.5 rounded-full border border-border hover:bg-bg2 transition-colors">
-          ← Atrás
+          Atrás
         </button>
         <button
           onClick={() => {
@@ -82,7 +88,7 @@ export function DetailActivity({
         <div className="flex items-center gap-2 bg-bg2 rounded-xl px-3 py-2 border border-border focus-within:border-cta transition-colors">
           <input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSendChat()}
-            placeholder="Chat para escribir o subir documentación..."
+            placeholder="Chat para escribir o subir documentaciÃ³n..."
             className="flex-1 bg-transparent text-[12px] text-text placeholder:text-brand outline-none" />
           <button onClick={onSendChat} disabled={sending || !chatInput.trim()}
             className="text-cta hover:text-accent transition-colors disabled:opacity-40">
@@ -93,3 +99,5 @@ export function DetailActivity({
     </div>
   );
 }
+
+

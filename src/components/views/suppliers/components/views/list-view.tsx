@@ -1,3 +1,10 @@
+/**
+ * ListView
+ * Qué hace: vista de proveedores en tabla con columnas de contacto y menú staff.
+ * Recibe:   vendors[], onOpen.
+ * Provee:   export { ListView }.
+ */
+
 import { FileText } from "lucide-react";
 import type { Vendor } from "@/types";
 import { STATUS_COLOR } from "../../constants/suppliers.constants";

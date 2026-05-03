@@ -1,12 +1,18 @@
+﻿/**
+ * DetailBudgetSection
+ * QuÃ© hace: secciÃ³n de presupuesto vinculada al proveedor.
+ * Recibe:   vendor.
+ * Provee:   export { DetailBudgetSection }.
+ */
 "use client";
 
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import { api } from "@/services";
 import { useVendorBudget } from "../../hooks/use-vendor-budget";
-import { VendorCategoryBlock } from "../budget/vendor-category-block";
-import { VendorPaymentModal } from "../budget/vendor-payment-modal";
-import { VendorAllPaymentsModal } from "../budget/vendor-all-payments-modal";
+import { CategoryBlock } from "../budget/category-block";
+import { PaymentModal } from "../budget/payment-modal";
+import { AllPaymentsModal } from "../budget/all-payments-modal";
 import type { Vendor } from "@/types";
 
 interface DetailBudgetSectionProps {
@@ -57,11 +63,11 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
       {loading && <p className="text-[13px] text-brand text-center py-4">Cargando...</p>}
 
       {!loading && categories.length === 0 && (
-        <p className="text-[13px] text-brand text-center py-4">Sin categorías de presupuesto vinculadas</p>
+        <p className="text-[13px] text-brand text-center py-4">Sin categorÃ­as de presupuesto vinculadas</p>
       )}
 
       {!loading && categories.map((cat) => (
-        <VendorCategoryBlock
+        <CategoryBlock
           key={cat.id}
           category={cat}
           currentVendorId={vendor.id}
@@ -74,7 +80,7 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
       ))}
 
       {selectedCat && (
-        <VendorPaymentModal
+        <PaymentModal
           open={true}
           onClose={() => setSelectedCatId(null)}
           category={selectedCat}
@@ -84,7 +90,7 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
       )}
 
       {allPaymentsOpen && (
-        <VendorAllPaymentsModal
+        <AllPaymentsModal
           open={true}
           onClose={() => setAllPaymentsOpen(false)}
           categories={categories}
@@ -96,3 +102,6 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
     </div>
   );
 }
+
+
+

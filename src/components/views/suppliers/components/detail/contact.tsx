@@ -1,3 +1,9 @@
+/**
+ * DetailContact
+ * Qué hace: sección de datos de contacto del proveedor (editable).
+ * Recibe:   vendor, onFieldBlur.
+ * Provee:   export { DetailContact }.
+ */
 import type { Vendor } from "@/types";
 
 interface DetailContactProps {
@@ -19,7 +25,7 @@ export function DetailContact({ vendor, onFieldBlur }: DetailContactProps) {
         <div key={field} className="flex items-baseline gap-3">
           <span className="text-[10px] font-bold text-brand uppercase tracking-widest w-36 flex-shrink-0">{label}</span>
           <input
-            defaultValue={value || ""}
+            defaultValue={value as string}
             onBlur={(e) => onFieldBlur(field, e.target.value)}
             placeholder="—"
             className="flex-1 bg-transparent border-b border-border/50 text-[13px] text-text outline-none focus:border-cta pb-0.5 transition-colors"

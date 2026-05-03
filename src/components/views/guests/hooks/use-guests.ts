@@ -10,7 +10,7 @@ import { buildGuestUpdate, loadHiddenCols, saveHiddenCols, exportGuestsToExcel }
 import { getAllergyColors, getItemColors } from "@/lib/allergy-colors";
 
 export function useGuests() {
-  const { wedding } = useAuth();
+  const { wedding, refreshUserData } = useAuth();
 
   const [guests,   setGuests]   = useState<Guest[]>([]);
   const [groups,   setGroups]   = useState<GuestGroup[]>([]);

@@ -1,3 +1,9 @@
+﻿/**
+ * DetailLinkedPayments
+ * QuÃ© hace: lista de pagos vinculados a conceptos del presupuesto del proveedor.
+ * Recibe:   linkedItems, payments, onRefresh.
+ * Provee:   export { DetailLinkedPayments }.
+ */
 "use client";
 
 import { Paperclip } from "lucide-react";
@@ -61,3 +67,5 @@ export function DetailLinkedPayments({ linkedItems, payments, onRefresh }: Detai
     </div>
   );
 }
+
+

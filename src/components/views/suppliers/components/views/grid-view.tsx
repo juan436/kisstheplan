@@ -1,6 +1,13 @@
+/**
+ * GridView
+ * Qué hace: vista de proveedores agrupados por categoría en grid de tarjetas.
+ * Recibe:   vendors[], onOpen, onDelete.
+ * Provee:   export { GridView }.
+ */
+
 import { FileText } from "lucide-react";
 import type { Vendor } from "@/types";
-import { VendorCard } from "./vendor-card";
+import { VendorCard } from "./card";
 
 interface GridViewProps {
   vendors: Vendor[];

@@ -1,12 +1,19 @@
+/**
+ * CategoryBlock
+ * Qué hace: bloque colapsable de categoría de presupuesto en vista proveedor; subtotales y añadir concepto.
+ * Recibe:   category, currentVendorId, vendors[], editState, handlers.
+ * Provee:   export { CategoryBlock }.
+ */
+
 import { useState } from "react";
 import { Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { VendorBudgetItemRow } from "./vendor-budget-item-row";
+import { ItemRow } from "./item-row";
 import type { ExpenseCategory, Vendor } from "@/types";
 import type { VendorBudgetEditState } from "../../hooks/use-vendor-budget";
 
-interface VendorCategoryBlockProps {
+interface CategoryBlockProps {
   category: ExpenseCategory;
   currentVendorId: string;
   vendors: Vendor[];
@@ -16,15 +23,14 @@ interface VendorCategoryBlockProps {
   onOpenPayments: (catId: string) => void;
 }
 
-export function VendorCategoryBlock({
+export function CategoryBlock({
   category, currentVendorId, vendors, editState, onLinkVendor, onAddItem, onOpenPayments,
-}: VendorCategoryBlockProps) {
+}: CategoryBlockProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [adding, setAdding]       = useState(false);
   const [newConcept, setNewConcept] = useState("");
   const [saving, setSaving]       = useState(false);
 
-  // Subtotal uses ONLY this vendor's items (critical calculation rule)
   const myItems = category.items.filter((i) => i.vendorId === currentVendorId);
   const catEst  = myItems.reduce((s, i) => s + i.estimated, 0);
   const catReal = myItems.reduce((s, i) => s + i.real, 0);
@@ -41,7 +47,6 @@ export function VendorCategoryBlock({
 
   return (
     <div className="bg-white rounded-2xl border border-border shadow-card overflow-hidden group/card mb-3">
-      {/* Category header — whole row opens payment modal, chevron only collapses */}
       <div
         className="flex items-center gap-2 px-4 py-3 bg-bg2 cursor-pointer hover:bg-bg3 transition-colors"
         onClick={() => onOpenPayments(category.id)}
@@ -60,7 +65,7 @@ export function VendorCategoryBlock({
       {!collapsed && (
         <div>
           {category.items.map((item) => (
-            <VendorBudgetItemRow
+            <ItemRow
               key={item.id}
               item={item}
               catId={category.id}
@@ -72,7 +77,6 @@ export function VendorCategoryBlock({
             />
           ))}
 
-          {/* Add item */}
           <div className="px-4 py-2 pl-10 border-b border-border/50">
             {adding ? (
               <div className="flex items-center gap-2">
@@ -91,7 +95,6 @@ export function VendorCategoryBlock({
             )}
           </div>
 
-          {/* Subtotal row — only this vendor's items */}
           <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2 bg-bg2 items-center">
             <div className="pl-6 text-[12px] font-semibold text-accent">Subtotal</div>
             <div className="text-right text-[12px] font-semibold text-accent pr-2">{formatCurrency(catEst)}</div>

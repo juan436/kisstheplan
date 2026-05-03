@@ -1,11 +1,18 @@
 "use client";
 
+/**
+ * AllPaymentsModal
+ * Qué hace: modal con todos los pagos de un proveedor agrupados por categoría de presupuesto.
+ * Recibe:   open, onClose, categories[], currentVendorId, vendorName, onRefresh.
+ * Provee:   export { AllPaymentsModal }.
+ */
+
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";
 import { PaymentRow } from "@/components/views/budget/components/payments/payment-row";
 import type { ExpenseCategory } from "@/types";
 
-interface VendorAllPaymentsModalProps {
+interface AllPaymentsModalProps {
   open: boolean;
   onClose: () => void;
   categories: ExpenseCategory[];
@@ -14,9 +21,9 @@ interface VendorAllPaymentsModalProps {
   onRefresh: () => void;
 }
 
-export function VendorAllPaymentsModal({
+export function AllPaymentsModal({
   open, onClose, categories, currentVendorId, vendorName, onRefresh,
-}: VendorAllPaymentsModalProps) {
+}: AllPaymentsModalProps) {
   const catData = categories.map((cat) => {
     const items = cat.items.filter((i) => i.vendorId === currentVendorId);
     return { cat, items };
@@ -29,7 +36,6 @@ export function VendorAllPaymentsModal({
 
   return (
     <Modal open={open} onClose={onClose} className="max-w-xl">
-      {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
           <h2 className="font-display text-[22px] text-text">Calendario de pagos</h2>
@@ -43,7 +49,6 @@ export function VendorAllPaymentsModal({
         </div>
       </div>
 
-      {/* Body */}
       {catData.length === 0 ? (
         <p className="text-[14px] text-brand text-center py-8">Sin conceptos vinculados a este proveedor</p>
       ) : (
@@ -55,12 +60,7 @@ export function VendorAllPaymentsModal({
               </div>
               <div className="space-y-0.5">
                 {items.map((item) => (
-                  <PaymentRow
-                    key={item.id}
-                    item={item}
-                    catId={cat.id}
-                    onPaidChange={onRefresh}
-                  />
+                  <PaymentRow key={item.id} item={item} catId={cat.id} onPaidChange={onRefresh} />
                 ))}
               </div>
             </div>
@@ -68,7 +68,6 @@ export function VendorAllPaymentsModal({
         </div>
       )}
 
-      {/* Footer */}
       {allItems.length > 0 && (
         <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
           <span className="text-[12px] text-brand">{allItems.length} concepto{allItems.length !== 1 ? "s" : ""}</span>

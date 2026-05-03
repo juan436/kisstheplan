@@ -1,3 +1,9 @@
+﻿/**
+ * ProveedoresPage
+ * Que hace: vista principal del modulo de proveedores; maneja listado, mosaico, alta y detalle.
+ * Recibe:   ---
+ * Provee:   export default ProveedoresPage.
+ */
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -10,8 +16,8 @@ import { type View, type GridMode } from "./constants/suppliers.constants";
 import { GridView } from "./components/views/grid-view";
 import { FlatGridView } from "./components/views/flat-grid-view";
 import { ListView } from "./components/views/list-view";
-import { QuickAddModal } from "./components/views/quick-add-modal";
-import { DetailView } from "./components/detail/detail-view";
+import { AddModal } from "./components/views/modals/add-modal";
+import { DetailView } from "./components/detail/view";
 
 export default function ProveedoresPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -124,8 +130,13 @@ export default function ProveedoresPage() {
       )}
 
       {showAddModal && (
-        <QuickAddModal onClose={() => setShowAddModal(false)} onCreate={handleVendorCreated} />
+        <AddModal onClose={() => setShowAddModal(false)} onCreate={handleVendorCreated} />
       )}
     </div>
   );
 }
+
+
+
+
+

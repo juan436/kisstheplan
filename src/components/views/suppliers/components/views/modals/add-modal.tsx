@@ -1,17 +1,24 @@
+/**
+ * AddModal
+ * Qué hace: modal de alta rápida de proveedor; nombre, categorías (de BD + custom) y estado.
+ * Recibe:   onClose, onCreate callback con Vendor creado.
+ * Provee:   export { AddModal } — usado por SuppliersView.
+ */
+
 import { useState, useEffect } from "react";
 import { Check, Plus } from "lucide-react";
 import { api } from "@/services";
 import { Button } from "@/components/ui/button";
 import type { Vendor, VendorStatus, ExpenseCategory } from "@/types";
 import type { CreateVendorData } from "@/services/api";
-import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
+import { STATUS_COLOR, STATUS_LABEL } from "../../../constants/suppliers.constants";
 
-interface QuickAddModalProps {
+interface AddModalProps {
   onClose: () => void;
   onCreate: (v: Vendor) => void;
 }
 
-export function QuickAddModal({ onClose, onCreate }: QuickAddModalProps) {
+export function AddModal({ onClose, onCreate }: AddModalProps) {
   const [name, setName] = useState("");
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [status, setStatus] = useState<VendorStatus>("considering");

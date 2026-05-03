@@ -1,13 +1,19 @@
+﻿/**
+ * DetailView
+ * QuÃ© hace: vista de detalle de un proveedor (columna izquierda de info + columna derecha de actividad).
+ * Recibe:   vendor, onBack, onUpdate, onDelete.
+ * Provee:   export { DetailView }.
+ */
 "use client";
 
 import { Check } from "lucide-react";
 import type { Vendor } from "@/types";
 import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
 import { useVendorDetail } from "../../hooks/use-vendor-detail";
-import { DetailContact } from "./detail-contact";
-import { DetailBudgetSection } from "./detail-budget-section";
-import { DetailStaff } from "./detail-staff";
-import { DetailActivity } from "./detail-activity";
+import { DetailContact } from "./contact";
+import { DetailBudgetSection } from "./budget-section";
+import { DetailStaff } from "./staff";
+import { DetailActivity } from "./activity";
 
 interface DetailViewProps {
   vendor: Vendor;
@@ -65,3 +71,5 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
     </div>
   );
 }
+
+

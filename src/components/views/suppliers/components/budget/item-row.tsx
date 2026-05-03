@@ -1,3 +1,10 @@
+/**
+ * ItemRow
+ * Qué hace: fila de un concepto de presupuesto en la vista de proveedor; edición inline, vinculación a proveedor.
+ * Recibe:   item, catId, isMyVendor, vendors[], editState, handlers.
+ * Provee:   export { ItemRow, VendorBudgetItemRowProps }.
+ */
+
 import { useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -15,7 +22,7 @@ interface VendorBudgetItemRowProps extends VendorBudgetEditState {
   onLinkVendor: (catId: string, itemId: string, vendorId: string | null, vendorName: string | null) => void;
 }
 
-export function VendorBudgetItemRow({
+export function ItemRow({
   item, catId, isMyVendor, vendors,
   isEditing, editValue, setEditValue, startEdit, saveEdit, handleKeyDown,
   deletingId, setDeletingId, handleDeleteItem,
@@ -26,13 +33,11 @@ export function VendorBudgetItemRow({
   const diff    = item.estimated - item.real;
   const pending = item.real - item.paid;
 
-  // Other-vendor rows get a tinted background — NO text opacity (accessibility)
   const rowBg = isMyVendor ? "hover:bg-bg2" : "bg-[#f5efe9]";
 
   return (
     <div className={`grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2.5 border-b border-border/50 transition-colors group/item items-center ${rowBg}`}>
 
-      {/* Concept + vendor sub-label */}
       <div className="flex items-center gap-2 pl-6">
         <div className="flex-1 min-w-0">
           {isMyVendor && isEditing(item.id, "concept") ? (
@@ -47,7 +52,6 @@ export function VendorBudgetItemRow({
             </span>
           )}
 
-          {/* Vendor sub-label — same as BudgetItemRow, only for non-my items */}
           {!isMyVendor && (
             item.vendorName && !changingVendor ? (
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -95,31 +99,26 @@ export function VendorBudgetItemRow({
         )}
       </div>
 
-      {/* Estimated */}
       {isMyVendor
         ? <NumCell value={item.estimated} isEditing={isEditing(item.id, "estimated")} editValue={editValue}
             onStart={() => startEdit(item.id, "estimated", item.estimated)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
         : <div className="text-right text-[13px] text-[#866857] pr-2">{formatCurrency(item.estimated)}</div>}
 
-      {/* Real */}
       {isMyVendor
         ? <NumCell value={item.real} isEditing={isEditing(item.id, "actual")} editValue={editValue}
             onStart={() => startEdit(item.id, "actual", item.real)} onChange={setEditValue} onSave={saveEdit} onKeyDown={handleKeyDown} />
         : <div className="text-right text-[13px] text-[#866857] pr-2">{formatCurrency(item.real)}</div>}
 
-      {/* Difference */}
       <div className="text-right text-[13px] font-medium pr-2"
         style={{ color: diff < 0 ? "var(--color-danger)" : diff > 0 ? "var(--color-success)" : "var(--color-text)" }}>
         {diff > 0 ? "+" : ""}{formatCurrency(diff)}
       </div>
 
-      {/* Paid */}
       <div className={`text-right text-[13px] text-[#866857] pr-2 ${isMyVendor ? "cursor-pointer hover:text-cta transition-colors" : ""}`}
         onClick={() => isMyVendor && openPayments(catId)} title={isMyVendor ? "Ver pagos" : undefined}>
         {formatCurrency(item.paid)}
       </div>
 
-      {/* Pending */}
       <div className={`text-right text-[13px] text-[#866857] pr-2 ${isMyVendor ? "cursor-pointer hover:text-cta transition-colors" : ""}`}
         onClick={() => isMyVendor && openPayments(catId)} title={isMyVendor ? "Ver pagos" : undefined}>
         {formatCurrency(pending)}

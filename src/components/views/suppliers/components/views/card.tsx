@@ -1,3 +1,10 @@
+/**
+ * VendorCard
+ * Qué hace: tarjeta de proveedor con barra de estado, pagos resumen y botón de eliminar.
+ * Recibe:   vendor, onOpen, onDelete.
+ * Provee:   export { VendorCard } — usado por GridView y FlatGridView.
+ */
+
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
