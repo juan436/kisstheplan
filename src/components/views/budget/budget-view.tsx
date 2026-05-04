@@ -72,7 +72,7 @@ export default function PresupuestoPage() {
           <BudgetTable
             categories={b.categories} collapsed={b.collapsed} toggleCollapse={b.toggleCollapse}
             isEditing={b.isEditing} editValue={b.editValue} setEditValue={b.setEditValue} startEdit={b.startEdit}
-            saveEdit={b.saveEdit} handleKeyDown={b.handleKeyDown}
+            saveEdit={b.saveEdit} cancelEdit={b.cancelEdit} handleKeyDown={b.handleKeyDown}
             deletingId={b.deletingId} setDeletingId={b.setDeletingId}
             addingItemToCat={b.addingItemToCat} newItemName={b.newItemName}
             setAddingItemToCat={b.setAddingItemToCat} setNewItemName={b.setNewItemName}
@@ -95,6 +95,7 @@ export default function PresupuestoPage() {
       <CategoryModal
         open={b.showPayments} onClose={b.closePayments}
         paymentCat={b.paymentCat} onRefresh={b.loadData}
+        selectedItemId={b.paymentItemId}
       />
     </div>
   );

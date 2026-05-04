@@ -3,19 +3,18 @@
 /**
  * ItemRow
  *
- * Qué hace: fila de un concepto de presupuesto con edición inline de nombre e importes,
- *           selector de proveedor vinculado y acceso al calendario de pagos.
- * Recibe:   item (ExpenseItem), catId, vendors, handlers de edición/delete/pagos/link-vendor.
+ * Qué hace: fila de un concepto de presupuesto. Click en concepto abre calendario de pagos.
+ *           Botón editar unifica edición de nombre y proveedor en un solo gesto.
+ * Recibe:   item, catId, vendors, handlers de edición/delete/pagos/link-vendor.
  * Provee:   export { ItemRow } — usado por CategoryCard.
  */
 
 import { useState } from "react";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useNavigation } from "@/hooks/useNavigation";
 import { NumCell } from "./num-cell";
-import type { ExpenseItem } from "@/types";
-import type { Vendor } from "@/types";
+import type { ExpenseItem, Vendor } from "@/types";
 
 interface ItemRowProps {
   item: ExpenseItem;
@@ -29,19 +28,28 @@ interface ItemRowProps {
   handleKeyDown: (e: React.KeyboardEvent) => void;
   deletingId: string | null;
   setDeletingId: (id: string | null) => void;
+  cancelEdit: () => void;
   handleDeleteItem: (catId: string, itemId: string) => void;
-  openPayments: (catId: string) => void;
+  openPayments: (catId: string, itemId: string) => void;
   onLinkVendor: (itemId: string, vendorId: string | null, vendorName: string | null) => void;
 }
 
 export function ItemRow({
   item, catId, vendors, isEditing, editValue, setEditValue, startEdit, saveEdit,
-  handleKeyDown, deletingId, setDeletingId, handleDeleteItem, openPayments, onLinkVendor,
+  handleKeyDown, cancelEdit, deletingId, setDeletingId, handleDeleteItem, openPayments, onLinkVendor,
 }: ItemRowProps) {
   const { navigateTo } = useNavigation();
   const [changingVendor, setChangingVendor] = useState(false);
   const diff    = item.estimated - item.real;
   const pending = item.real - item.paid;
+
+  const isEditingItem = isEditing(item.id, "concept");
+
+  const handleEditClick = () => {
+    if (isEditingItem) { cancelEdit(); setChangingVendor(false); return; }
+    startEdit(item.id, "concept", item.concept);
+    setChangingVendor(true);
+  };
 
   return (
     <div className="grid grid-cols-[1fr_100px_100px_100px_100px_100px] gap-2 px-4 py-2.5 border-b border-border/50 hover:bg-bg2 transition-colors group/item items-center">
@@ -53,28 +61,23 @@ export function ItemRow({
               className="bg-white border border-cta rounded px-2 py-0.5 text-[13px] outline-none w-full" />
           ) : (
             <span className="text-[13px] text-[#866857] cursor-pointer hover:text-cta transition-colors block truncate"
-              onClick={() => startEdit(item.id, "concept", item.concept)}>{item.concept}</span>
+              onClick={() => openPayments(catId, item.id)}>{item.concept}</span>
           )}
           {item.vendorName && !changingVendor ? (
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <button onClick={() => navigateTo("proveedores", item.vendorId ?? undefined)}
-                className="text-[11px] text-cta hover:underline cursor-pointer leading-tight block truncate">
-                {item.vendorName}
-              </button>
-              <button onClick={() => setChangingVendor(true)} className="text-[#866857]/50 hover:text-accent transition-colors shrink-0">
-                <Pencil size={10} />
-              </button>
-            </div>
-          ) : vendors.length > 0 && (
-            <select value=""
+            <button onClick={() => navigateTo("proveedores", item.vendorId ?? undefined)}
+              className="text-[11px] text-cta hover:underline cursor-pointer leading-tight block truncate mt-0.5">
+              {item.vendorName}
+            </button>
+          ) : changingVendor && vendors.length > 0 && (
+            <select value={item.vendorId ?? ""}
               onChange={(e) => {
                 if (e.target.value === "__unlink__") { onLinkVendor(item.id, null, null); }
                 else if (e.target.value) { const v = vendors.find((x) => x.id === e.target.value); if (v) onLinkVendor(item.id, v.id, v.name); }
                 setChangingVendor(false);
               }}
-              onBlur={() => setChangingVendor(false)}
-              className="text-[11px] text-brand/50 bg-transparent outline-none cursor-pointer hover:text-cta transition-colors mt-0.5">
-              <option value="">{item.vendorName ? "Seleccionar..." : "Añadir proveedor..."}</option>
+              onBlur={() => setTimeout(() => setChangingVendor(false), 150)}
+              className="text-[11px] text-[#866857] bg-white border border-border rounded outline-none cursor-pointer mt-0.5 w-full">
+              <option value="">{item.vendorName ? "Cambiar proveedor..." : "Añadir proveedor..."}</option>
               {item.vendorName && <option value="__unlink__">— Sin proveedor —</option>}
               {vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
@@ -86,9 +89,14 @@ export function ItemRow({
             <button onClick={() => setDeletingId(null)} className="text-[11px] text-brand hover:underline">No</button>
           </span>
         ) : (
-          <button onClick={() => setDeletingId(`item-${item.id}`)} className="opacity-0 group-hover/item:opacity-100 text-brand hover:text-danger transition-all shrink-0">
-            <Trash2 size={12} />
-          </button>
+          <span className={`flex items-center gap-1 transition-all shrink-0 ${isEditingItem ? "opacity-100" : "opacity-0 group-hover/item:opacity-100"}`}>
+            <button onClick={handleEditClick} className="text-brand hover:text-accent transition-colors">
+              {isEditingItem ? <X size={12} /> : <Pencil size={12} />}
+            </button>
+            <button onClick={() => setDeletingId(`item-${item.id}`)} className="text-brand hover:text-danger transition-colors">
+              <Trash2 size={12} />
+            </button>
+          </span>
         )}
       </div>
 
@@ -102,11 +110,11 @@ export function ItemRow({
         {diff > 0 ? "+" : ""}{formatCurrency(diff)}
       </div>
       <div className="text-right text-[13px] text-[#866857] pr-2 cursor-pointer hover:text-cta transition-colors"
-        onClick={() => openPayments(catId)} title="Ver calendario de pagos">
+        onClick={() => openPayments(catId, item.id)} title="Ver calendario de pagos">
         {formatCurrency(item.paid)}
       </div>
       <div className="text-right text-[13px] text-[#866857] pr-2 cursor-pointer hover:text-cta transition-colors"
-        onClick={() => openPayments(catId)} title="Ver calendario de pagos">
+        onClick={() => openPayments(catId, item.id)} title="Ver calendario de pagos">
         {formatCurrency(pending)}
       </div>
     </div>

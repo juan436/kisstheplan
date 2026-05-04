@@ -26,6 +26,7 @@ interface BudgetTableProps {
   setEditValue: (v: string) => void;
   startEdit: (id: string, field: string, value: number | string) => void;
   saveEdit: () => void;
+  cancelEdit: () => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
   deletingId: string | null;
   setDeletingId: (id: string | null) => void;
@@ -36,7 +37,7 @@ interface BudgetTableProps {
   handleAddItem: (catId: string) => void;
   handleDeleteCat: (id: string) => void;
   handleDeleteItem: (catId: string, itemId: string) => void;
-  openPayments: (catId: string) => void;
+  openPayments: (catId: string, itemId?: string) => void;
   showAddCat: boolean;
   newCatName: string;
   setShowAddCat: (v: boolean) => void;
@@ -47,7 +48,7 @@ interface BudgetTableProps {
 
 export function BudgetTable(props: BudgetTableProps) {
   const { categories, collapsed, toggleCollapse, isEditing, editValue, setEditValue,
-    startEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, addingItemToCat,
+    startEdit, saveEdit, cancelEdit, handleKeyDown, deletingId, setDeletingId, addingItemToCat,
     newItemName, setAddingItemToCat, setNewItemName, handleAddItem, handleDeleteCat,
     handleDeleteItem, openPayments, showAddCat, newCatName, setShowAddCat, setNewCatName,
     handleAddCat, loadData } = props;
@@ -72,7 +73,7 @@ export function BudgetTable(props: BudgetTableProps) {
           isOpen={!collapsed.has(cat.id)}
           onToggle={() => toggleCollapse(cat.id)}
           isEditing={isEditing} editValue={editValue} setEditValue={setEditValue}
-          startEdit={startEdit} saveEdit={saveEdit} handleKeyDown={handleKeyDown}
+          startEdit={startEdit} saveEdit={saveEdit} cancelEdit={cancelEdit} handleKeyDown={handleKeyDown}
           deletingId={deletingId} setDeletingId={setDeletingId}
           addingItemToCat={addingItemToCat} newItemName={newItemName}
           setAddingItemToCat={setAddingItemToCat} setNewItemName={setNewItemName}

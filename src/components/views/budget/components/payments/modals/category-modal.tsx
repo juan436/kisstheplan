@@ -19,9 +19,10 @@ interface CategoryModalProps {
   onClose: () => void;
   paymentCat: ExpenseCategory | null;
   onRefresh: () => void;
+  selectedItemId?: string | null;
 }
 
-export function CategoryModal({ open, onClose, paymentCat, onRefresh }: CategoryModalProps) {
+export function CategoryModal({ open, onClose, paymentCat, onRefresh, selectedItemId }: CategoryModalProps) {
   const totalReal    = paymentCat?.items.reduce((s, i) => s + i.real, 0) ?? 0;
   const totalPaid    = paymentCat?.items.reduce((s, i) => s + i.paid, 0) ?? 0;
   const totalPending = Math.max(0, totalReal - totalPaid);
@@ -42,7 +43,8 @@ export function CategoryModal({ open, onClose, paymentCat, onRefresh }: Category
       ) : (
         <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-0.5">
           {paymentCat.items.map((item) => (
-            <PaymentRow key={item.id} item={item} catId={paymentCat.id} onPaidChange={onRefresh} />
+            <PaymentRow key={item.id} item={item} catId={paymentCat.id} onPaidChange={onRefresh}
+              defaultExpanded={selectedItemId === item.id} />
           ))}
         </div>
       )}

@@ -25,6 +25,7 @@ interface CategoryCardProps {
   setEditValue: (v: string) => void;
   startEdit: (id: string, field: string, value: number | string) => void;
   saveEdit: () => void;
+  cancelEdit: () => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
   deletingId: string | null;
   setDeletingId: (id: string | null) => void;
@@ -35,13 +36,13 @@ interface CategoryCardProps {
   handleAddItem: (catId: string) => void;
   handleDeleteCat: (id: string) => void;
   handleDeleteItem: (catId: string, itemId: string) => void;
-  openPayments: (catId: string) => void;
+  openPayments: (catId: string, itemId?: string) => void;
   onLinkVendor: (itemId: string, vendorId: string | null, vendorName: string | null) => void;
 }
 
 export function CategoryCard({
   cat, vendors, isOpen, onToggle,
-  isEditing, editValue, setEditValue, startEdit, saveEdit, handleKeyDown,
+  isEditing, editValue, setEditValue, startEdit, saveEdit, cancelEdit, handleKeyDown,
   deletingId, setDeletingId, addingItemToCat, newItemName,
   setAddingItemToCat, setNewItemName, handleAddItem,
   handleDeleteCat, handleDeleteItem, openPayments, onLinkVendor,
@@ -88,7 +89,7 @@ export function CategoryCard({
           {cat.items.map((item) => (
             <ItemRow key={item.id} item={item} catId={cat.id} vendors={vendors}
               isEditing={isEditing} editValue={editValue} setEditValue={setEditValue}
-              startEdit={startEdit} saveEdit={saveEdit} handleKeyDown={handleKeyDown}
+              startEdit={startEdit} saveEdit={saveEdit} cancelEdit={cancelEdit} handleKeyDown={handleKeyDown}
               deletingId={deletingId} setDeletingId={setDeletingId}
               handleDeleteItem={handleDeleteItem} openPayments={openPayments}
               onLinkVendor={onLinkVendor} />

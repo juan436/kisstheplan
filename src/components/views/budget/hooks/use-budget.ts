@@ -28,8 +28,9 @@ export function useBudget() {
   const [showAddCat,      setShowAddCat]      = useState(false);
   const [newCatName,      setNewCatName]      = useState("");
 
-  const paymentsModal = useModal<string>();  // payload = catId
-  const paymentCatId  = paymentsModal.payload ?? null;
+  const paymentsModal = useModal<{ catId: string; itemId: string | null }>();
+  const paymentCatId  = paymentsModal.payload?.catId ?? null;
+  const paymentItemId = paymentsModal.payload?.itemId ?? null;
   const showPayments  = paymentsModal.open;
   const paymentCat    = categories.find((c) => c.id === paymentCatId) ?? null;
 
@@ -89,7 +90,7 @@ export function useBudget() {
   const handleDeleteCat  = async (id: string) => { await api.deleteCategory(id); setDeletingId(null); await loadData(); };
   const handleDeleteItem = async (catId: string, itemId: string) => { await api.deleteItem(catId, itemId); setDeletingId(null); await loadData(); };
 
-  const openPayments  = (catId: string) => paymentsModal.openWith(catId);
+  const openPayments  = (catId: string, itemId: string | null = null) => paymentsModal.openWith({ catId, itemId });
   const closePayments = () => paymentsModal.close();
 
   const paidPct    = totalBudget > 0 ? Math.min((summary?.totalPaid ?? 0) / totalBudget * 100, 100) : 0;
@@ -100,8 +101,8 @@ export function useBudget() {
     editingCell, editValue, setEditValue, isEditing, startEdit, saveEdit, handleKeyDown,
     deletingId, setDeletingId, addingItemToCat, newItemName, setAddingItemToCat, setNewItemName,
     showAddCat, newCatName, setShowAddCat, setNewCatName, handleAddCat, handleAddItem,
-    handleDeleteCat, handleDeleteItem, openPayments, closePayments,
-    showPayments, paymentCat, loadData,
+    cancelEdit, handleDeleteCat, handleDeleteItem, openPayments, closePayments,
+    showPayments, paymentCat, paymentItemId, loadData,
     paidPct, enteredPct,
   };
 }
