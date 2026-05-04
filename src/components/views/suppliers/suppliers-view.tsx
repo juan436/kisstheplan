@@ -23,7 +23,7 @@ import { DetailView } from "./components/detail/view";
 export default function ProveedoresPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [view, setView] = useState<View>("grid");
-  const [gridMode, setGridMode] = useState<GridMode>("category");
+  const [gridMode, setGridMode] = useState<GridMode>("flat");
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
