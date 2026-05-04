@@ -1,8 +1,13 @@
 /**
  * AddModal
- * Qué hace: modal de alta rápida de proveedor; nombre, categorías (de BD + custom) y estado.
- * Recibe:   onClose, onCreate callback con Vendor creado.
- * Provee:   export { AddModal } — usado por SuppliersView.
+ *
+ * Qué hace: Modal de creación rápida para nuevos proveedores. Permite definir el 
+ *           nombre, asignar múltiples categorías (desde BD o personalizadas) y 
+ *           establecer el estado inicial.
+ * Recibe:   - onClose: Callback para cerrar el modal.
+ *           - onCreate: Callback ejecutado tras la creación exitosa del proveedor.
+ * Provee:   Interfaz de formulario con autocompletado de categorías, gestión de 
+ *           estados de carga y validaciones básicas antes del envío a la API.
  */
 
 import { useState, useEffect } from "react";

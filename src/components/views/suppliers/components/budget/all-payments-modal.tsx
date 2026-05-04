@@ -1,11 +1,19 @@
-"use client";
-
 /**
  * AllPaymentsModal
- * Qué hace: modal con todos los pagos de un proveedor agrupados por categoría de presupuesto.
- * Recibe:   open, onClose, categories[], currentVendorId, vendorName, onRefresh.
- * Provee:   export { AllPaymentsModal }.
+ *
+ * Qué hace: Diálogo de resumen financiero total para el proveedor. Agrupa todos los conceptos 
+ *           del presupuesto global vinculados a este proveedor, organizados por sus categorías 
+ *           respectivas, y muestra el estado consolidado de pagos.
+ * Recibe:   - open: Booleano que controla la visibilidad del modal.
+ *           - onClose: Función para cerrar el diálogo.
+ *           - categories: Array completo de ExpenseCategory del presupuesto global.
+ *           - currentVendorId: ID del proveedor actual para filtrar conceptos.
+ *           - vendorName: Nombre del proveedor para el título del modal.
+ *           - onRefresh: Callback para recargar datos tras actualizaciones de pago.
+ * Provee:   - Interfaz con scroll que lista PaymentRow para cada concepto vinculado.
+ *           - Resumen de totales al pie: Importe Total, Pagado y Pendiente.
  */
+"use client";
 
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";

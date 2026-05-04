@@ -1,8 +1,12 @@
 /**
  * GridView
- * Qué hace: vista de proveedores agrupados por categoría en grid de tarjetas.
- * Recibe:   vendors[], onOpen, onDelete.
- * Provee:   export { GridView }.
+ *
+ * Qué hace: Galería de proveedores organizada por categorías. Agrupa las tarjetas 
+ *           bajo encabezados de sección según el tipo de servicio.
+ * Recibe:   - vendors: Lista completa de proveedores.
+ *           - onOpen: Callback heredado para abrir detalle.
+ *           - onDelete: Callback heredado para eliminar.
+ * Provee:   Estructura categorizada de la información y estado "vacío" si no hay elementos.
  */
 
 import { FileText } from "lucide-react";

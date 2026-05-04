@@ -1,8 +1,19 @@
 /**
  * ItemRow
- * Qué hace: fila de un concepto de presupuesto en la vista de proveedor; edición inline, vinculación a proveedor.
- * Recibe:   item, catId, isMyVendor, vendors[], editState, handlers.
- * Provee:   export { ItemRow, VendorBudgetItemRowProps }.
+ *
+ * Qué hace: Fila individual de concepto de presupuesto. Proporciona edición inline de importes 
+ *           (estimado vs real), visualización de diferencias, estado de pago y vinculación dinámica
+ *           de proveedores mediante un selector interactivo.
+ * Recibe:   - item: Objeto ExpenseItem con los datos financieros.
+ *           - catId: ID de la categoría a la que pertenece el ítem.
+ *           - isMyVendor: Booleano que indica si el ítem pertenece al proveedor actualmente visualizado.
+ *           - vendors: Lista de proveedores para el selector de vinculación.
+ *           - isEditing, editValue, startEdit, saveEdit, etc: Utilidades de edición inline.
+ *           - openPayments: Función para abrir el modal de desglose de pagos.
+ *           - onLinkVendor: Función para cambiar o desvincular el proveedor del ítem.
+ * Provee:   - Celda de concepto con soporte para navegación a otros proveedores.
+ *           - Celdas numéricas editables (NumCell) si el ítem pertenece al proveedor actual.
+ *           - Feedback visual de ahorro/exceso de gasto.
  */
 
 import { useState } from "react";

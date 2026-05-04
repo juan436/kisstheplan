@@ -1,11 +1,11 @@
-"use client";
-
 /**
  * PaymentModal
- * Qué hace: modal de calendario de pagos de una categoría de presupuesto filtrada por proveedor.
- * Recibe:   open, onClose, category, currentVendorId, onRefresh.
- * Provee:   export { PaymentModal }.
+ *
+ * Qué hace: Muestra un modal con el calendario de pagos para una categoría específica del presupuesto, filtrada por proveedor.
+ * Recibe:   Estado de apertura, función de cierre, categoría, ID del proveedor actual y función de refresco.
+ * Provee:   Un modal con el desglose de ítems, importes facturados, pagados y pendientes.
  */
+"use client";
 
 import { Modal } from "@/components/ui/modal";
 import { formatCurrency } from "@/lib/utils";

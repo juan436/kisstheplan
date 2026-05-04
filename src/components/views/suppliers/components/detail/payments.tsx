@@ -1,8 +1,18 @@
-﻿/**
+/**
  * DetailPayments
- * QuÃ© hace: secciÃ³n de pagos del proveedor (propios + vinculados al presupuesto).
- * Recibe:   vendor, linkedBudget, handlers...
- * Provee:   export { DetailPayments }.
+ *
+ * Qué hace: Gestor de pagos cuando el proveedor NO tiene un presupuesto vinculado detallado. 
+ *           Permite definir el importe total contratado y planificar una lista de pagos manuales.
+ * Recibe:   - vendor: Objeto Vendor con su array de payments.
+ *           - linkedBudget: Objeto de verificación para alternar a vista de presupuesto vinculado.
+ *           - onRefreshLinked: Refresco de datos vinculados.
+ *           - addingPayment: Estado para mostrar/ocultar el formulario de nuevo pago.
+ *           - newPayment / setNewPayment: Estado y setter para el nuevo pago en curso.
+ *           - onTogglePaid, onUpdateDate, onUpdateNotes, onAddPayment, onDeletePayment: CRUD.
+ *           - onUpdateTotalAmount: Actualiza el campo totalAmount del proveedor.
+ * Provee:   - Resumen financiero (Contratado, Pagado, Restante).
+ *           - Tabla editable de pagos con fechas, estados de pagado y notas.
+ *           - Formulario inline para añadir nuevos pagos.
  */
 import { CalendarDays, Plus, Trash2, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -54,7 +64,7 @@ export function DetailPayments({
       <div className="mb-4">
         <label className="text-[11px] text-brand block mb-1">Importe total contratado</label>
         <div className="flex items-center gap-2">
-          <span className="text-[13px] text-text">â‚¬</span>
+          <span className="text-[13px] text-text">€</span>
           <input type="number" defaultValue={contracted || ""}
             onBlur={(e) => onUpdateTotalAmount(Number(e.target.value))}
             placeholder="0"
@@ -144,7 +154,7 @@ export function DetailPayments({
                 </td>
                 <td className="py-2 flex gap-1">
                   <button onClick={onAddPayment} className="text-[11px] bg-accent text-white px-2 py-0.5 rounded">OK</button>
-                  <button onClick={() => { setAddingPayment(false); setNewPayment({}); }} className="text-[11px] text-brand hover:text-danger">âœ•</button>
+                  <button onClick={() => { setAddingPayment(false); setNewPayment({}); }} className="text-[11px] text-brand hover:text-danger">✕</button>
                 </td>
               </tr>
             )}
@@ -154,7 +164,7 @@ export function DetailPayments({
 
       {!addingPayment && (
         <button onClick={() => setAddingPayment(true)} className="flex items-center gap-1 text-[12px] text-brand hover:text-cta transition-colors">
-          <Plus size={12} />AÃ±adir pago
+          <Plus size={12} />Añadir pago
         </button>
       )}
     </div>

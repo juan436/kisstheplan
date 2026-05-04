@@ -1,10 +1,20 @@
-﻿/**
+/**
  * DetailActivity
- * QuÃ© hace: secciÃ³n de actividad/chat del proveedor.
- * Recibe:   vendor, chatInput, handlers...
- * Provee:   export { DetailActivity }.
+ *
+ * Qué hace: Panel lateral de interacción y seguimiento. Gestiona el historial de actividad 
+ *           (notas y archivos) y proporciona un chat en tiempo real para comunicación interna.
+ * Recibe:   - vendor: Objeto Vendor con el array de actividad.
+ *           - chatInput: Estado del texto actual en el input del chat.
+ *           - setChatInput: Función para actualizar el texto del chat.
+ *           - sending: Flag booleano para indicar el estado de envío de un mensaje.
+ *           - activityEndRef: Referencia al final del scroll para auto-scroll al recibir mensajes.
+ *           - onBack: Función para regresar al listado.
+ *           - onSendChat: Método para procesar y enviar el mensaje actual.
+ *           - onVendorUpdated: Callback para refrescar el componente padre tras añadir actividad.
+ * Provee:   - Feed cronológico de notas y archivos adjuntos.
+ *           - Input de chat con soporte para envío con 'Enter'.
+ *           - Botón rápido para añadir notas mediante prompt.
  */
-import { useRef } from "react";
 import { Plus, Paperclip, Send } from "lucide-react";
 import { api } from "@/services";
 import type { Vendor } from "@/types";
@@ -88,7 +98,7 @@ export function DetailActivity({
         <div className="flex items-center gap-2 bg-bg2 rounded-xl px-3 py-2 border border-border focus-within:border-cta transition-colors">
           <input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSendChat()}
-            placeholder="Chat para escribir o subir documentaciÃ³n..."
+            placeholder="Chat para escribir o subir documentación..."
             className="flex-1 bg-transparent text-[12px] text-text placeholder:text-brand outline-none" />
           <button onClick={onSendChat} disabled={sending || !chatInput.trim()}
             className="text-cta hover:text-accent transition-colors disabled:opacity-40">

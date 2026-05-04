@@ -1,8 +1,15 @@
-﻿/**
+/**
  * DetailView
- * QuÃ© hace: vista de detalle de un proveedor (columna izquierda de info + columna derecha de actividad).
- * Recibe:   vendor, onBack, onUpdate, onDelete.
- * Provee:   export { DetailView }.
+ *
+ * Qué hace: Componente de vista detallada para un proveedor. Orquestra la visualización y edición 
+ *           de contacto, presupuestos vinculados, gestión de staff y el panel de actividad/chat.
+ * Recibe:   - vendor: Objeto Vendor inicial con toda la información del proveedor.
+ *           - onBack: Función para regresar a la vista de listado/mosaico.
+ *           - onUpdate: Callback que se dispara cuando el proveedor es modificado.
+ *           - onDelete: Función para eliminar definitivamente el proveedor.
+ * Provee:   - Interfaz de dos columnas (Scrollable info + Sticky activity).
+ *           - Gestión de estado interno mediante el hook useVendorDetail.
+ *           - Cambio rápido de estado (Confirmado/Considerando).
  */
 "use client";
 

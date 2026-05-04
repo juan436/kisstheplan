@@ -1,8 +1,13 @@
-﻿/**
+/**
  * DetailLinkedPayments
- * QuÃ© hace: lista de pagos vinculados a conceptos del presupuesto del proveedor.
- * Recibe:   linkedItems, payments, onRefresh.
- * Provee:   export { DetailLinkedPayments }.
+ *
+ * Qué hace: Vista especializada de pagos que se activa cuando el proveedor está vinculado a 
+ *           conceptos específicos del presupuesto global. Los pagos se derivan de dichos conceptos.
+ * Recibe:   - linkedItems: Lista de conceptos de presupuesto asociados a este proveedor.
+ *           - payments: Lista de pagos técnicos (ItemPayment) asociados a esos conceptos.
+ *           - onRefresh: Función para recargar los datos tras cambios.
+ * Provee:   - Integración con el componente PaymentRow del módulo de presupuesto.
+ *           - Cálculo automático de totales basados en la vinculación real.
  */
 "use client";
 

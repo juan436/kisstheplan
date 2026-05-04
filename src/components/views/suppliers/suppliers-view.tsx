@@ -1,8 +1,9 @@
-﻿/**
+/**
  * ProveedoresPage
- * Que hace: vista principal del modulo de proveedores; maneja listado, mosaico, alta y detalle.
- * Recibe:   ---
- * Provee:   export default ProveedoresPage.
+ *
+ * Qué hace: Componente principal del módulo de proveedores que gestiona el listado, filtrado, creación y vista de detalle.
+ * Recibe:   No recibe props directas (usa hooks para navegación y estado).
+ * Provee:   La interfaz principal con alternancia entre vistas (mosaico, listado) y gestión de proveedores.
  */
 "use client";
 

@@ -1,8 +1,12 @@
 /**
  * FlatGridView
- * Qué hace: vista de todos los proveedores en grid plano sin agrupar por categoría.
- * Recibe:   vendors[], onOpen, onDelete.
- * Provee:   export { FlatGridView }.
+ *
+ * Qué hace: Galería de tarjetas de proveedores mostrada en una rejilla (grid) simple, 
+ *           sin agrupaciones adicionales.
+ * Recibe:   - vendors: Lista de proveedores a mostrar.
+ *           - onOpen: Callback heredado para abrir detalle.
+ *           - onDelete: Callback heredado para eliminar.
+ * Provee:   Layout responsivo de tarjetas y estado "vacío" (empty state) con mensaje motivador.
  */
 
 import { FileText } from "lucide-react";

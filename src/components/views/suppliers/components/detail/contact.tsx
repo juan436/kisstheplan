@@ -1,8 +1,13 @@
 /**
  * DetailContact
- * Qué hace: sección de datos de contacto del proveedor (editable).
- * Recibe:   vendor, onFieldBlur.
- * Provee:   export { DetailContact }.
+ *
+ * Qué hace: Bloque de visualización y edición rápida de datos de contacto. Permite modificar 
+ *           información esencial como nombre de contacto, email, teléfono, web y redes sociales.
+ * Recibe:   - vendor: Objeto Vendor con los datos actuales.
+ *           - onFieldBlur: Handler común para guardar cambios automáticamente cuando el usuario 
+ *                          deja de editar un campo (onBlur).
+ * Provee:   - Lista de inputs estilizados que se sincronizan con la API mediante blur.
+ *           - Layout adaptativo de etiquetas fijas e inputs flexibles.
  */
 import type { Vendor } from "@/types";
 

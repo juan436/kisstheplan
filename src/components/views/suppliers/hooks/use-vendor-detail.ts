@@ -1,3 +1,10 @@
+/**
+ * useVendorDetail
+ *
+ * Qué hace: Hook personalizado para gestionar el estado de detalle, chat y actualizaciones de un proveedor.
+ * Recibe:   initialVendor, onUpdate (callback).
+ * Provee:   Estado del proveedor, controles de chat, referencias de scroll y manejadores de guardado/blur.
+ */
 "use client";
 
 import { useState, useRef, useCallback } from "react";

@@ -1,8 +1,12 @@
-﻿/**
+/**
  * DetailBudgetSection
- * QuÃ© hace: secciÃ³n de presupuesto vinculada al proveedor.
- * Recibe:   vendor.
- * Provee:   export { DetailBudgetSection }.
+ *
+ * Qué hace: Orquestador de la sección de presupuesto dentro del detalle de proveedor. Filtra el 
+ *           presupuesto global para mostrar solo lo relevante a este proveedor y maneja modales de pago.
+ * Recibe:   - vendor: Objeto Vendor actual (usado para filtrar categorías por nombre/id).
+ * Provee:   - Renderizado de CategoryBlock para cada categoría donde participa el proveedor.
+ *           - Acceso a modales de pago (individual por categoría o resumen de todos los pagos).
+ *           - Integración con el hook useVendorBudget para lógica de edición y vinculación.
  */
 "use client";
 
@@ -63,7 +67,7 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
       {loading && <p className="text-[13px] text-brand text-center py-4">Cargando...</p>}
 
       {!loading && categories.length === 0 && (
-        <p className="text-[13px] text-brand text-center py-4">Sin categorÃ­as de presupuesto vinculadas</p>
+        <p className="text-[13px] text-brand text-center py-4">Sin categorías de presupuesto vinculadas</p>
       )}
 
       {!loading && categories.map((cat) => (

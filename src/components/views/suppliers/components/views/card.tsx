@@ -1,8 +1,12 @@
 /**
  * VendorCard
- * Qué hace: tarjeta de proveedor con barra de estado, pagos resumen y botón de eliminar.
- * Recibe:   vendor, onOpen, onDelete.
- * Provee:   export { VendorCard } — usado por GridView y FlatGridView.
+ *
+ * Qué hace: Tarjeta individual de proveedor con barra de estado dinámica, resumen 
+ *           de presupuesto (total, pagado, próximo pago) y controles de borrado con confirmación.
+ * Recibe:   - vendor: Objeto Vendor con datos de contacto, estado y pagos.
+ *           - onOpen: Callback para abrir la vista de detalle del proveedor.
+ *           - onDelete: Callback para eliminar el proveedor por ID.
+ * Provee:   Renderizado compacto de la información clave del proveedor para grids.
  */
 
 import { useState } from "react";

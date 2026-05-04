@@ -1,8 +1,17 @@
 /**
  * CategoryBlock
- * Qué hace: bloque colapsable de categoría de presupuesto en vista proveedor; subtotales y añadir concepto.
- * Recibe:   category, currentVendorId, vendors[], editState, handlers.
- * Provee:   export { CategoryBlock }.
+ *
+ * Qué hace: Bloque organizador de una categoría presupuestaria en el detalle del proveedor. 
+ *           Permite colapsar la vista, visualizar subtotales automáticos y añadir nuevos conceptos
+ *           vinculados directamente al proveedor actual.
+ * Recibe:   - category: Objeto ExpenseCategory con sus ítems.
+ *           - currentVendorId: ID del proveedor actual para lógica de resaltado y filtrado.
+ *           - vendors: Lista de proveedores disponibles para vinculación.
+ *           - editState: Estado de edición compartido (proveniente de useVendorBudget).
+ *           - onLinkVendor, onAddItem, onOpenPayments: Handlers para acciones de presupuesto.
+ * Provee:   - Acordeón interactivo con cabecera de resumen.
+ *           - Lista de ItemRow para cada concepto de la categoría.
+ *           - Formulario rápido de creación de nuevos ítems presupuestarios.
  */
 
 import { useState } from "react";

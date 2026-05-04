@@ -1,8 +1,18 @@
-﻿/**
+/**
  * DetailStaff
- * Qué hace: sección de gestión técnica y staff del proveedor.
- * Recibe:   vendor, handlers...
- * Provee:   export { DetailStaff }.
+ *
+ * Qué hace: Subcomponente técnico para la gestión de logística de proveedores. Controla el estado 
+ *           de firma del contrato, requerimientos de menú para el staff (conteo y alergias),
+ *           notas persistentes y la zona de peligro (eliminación).
+ * Recibe:   - vendor: Objeto Vendor actual.
+ *           - confirmDelete: Estado booleano para mostrar el diálogo de confirmación.
+ *           - setConfirmDelete: Setter para controlar el flujo de borrado.
+ *           - onSave: Método para persistir cambios directos (ej: contratos, toggles).
+ *           - onFieldBlur: Método para persistir cambios al perder el foco en inputs/textareas.
+ *           - onDelete: Función para ejecutar el borrado lógico/físico.
+ * Provee:   - Formulario de gestión técnica con lógica condicional para el staff.
+ *           - Campo de texto enriquecido (textarea) para notas del organizador.
+ *           - Botón de borrado con doble verificación de seguridad.
  */
 import { Check, Paperclip, Trash2 } from "lucide-react";
 import type { Vendor } from "@/types";

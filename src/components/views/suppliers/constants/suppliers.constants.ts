@@ -1,3 +1,10 @@
+/**
+ * Constantes de Proveedores
+ *
+ * Qué hace: Define categorías, colores de estado, etiquetas y tipos de vista para el módulo de proveedores.
+ * Recibe:   N/A
+ * Provee:   VENDOR_CATEGORIES, STATUS_COLOR, STATUS_LABEL, View, GridMode.
+ */
 import type { VendorStatus } from "@/types";
 
 export const VENDOR_CATEGORIES = [

@@ -1,8 +1,12 @@
 /**
  * ListView
- * Qué hace: vista de proveedores en tabla con columnas de contacto y menú staff.
- * Recibe:   vendors[], onOpen.
- * Provee:   export { ListView }.
+ *
+ * Qué hace: Vista tabular de proveedores diseñada para gestión rápida de datos de 
+ *           contacto y estado del menú de staff.
+ * Recibe:   - vendors: Lista de proveedores.
+ *           - onOpen: Callback para navegar al detalle al hacer clic en una fila.
+ * Provee:   Tabla interactiva con columnas de contacto, categorías y requerimientos 
+ *           de staff, además de botón para exportar PDF.
  */
 
 import { FileText } from "lucide-react";

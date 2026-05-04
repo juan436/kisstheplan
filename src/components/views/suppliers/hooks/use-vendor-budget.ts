@@ -1,3 +1,10 @@
+/**
+ * useVendorBudget
+ *
+ * Qué hace: Hook personalizado para gestionar el presupuesto relacionado con un proveedor específico.
+ * Recibe:   vendorId, vendorName, vendorCategories.
+ * Provee:   categories, loading, refresh, addItem, linkItem y el estado de edición (editState).
+ */
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
