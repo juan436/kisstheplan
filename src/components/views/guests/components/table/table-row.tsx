@@ -9,11 +9,11 @@
 
 import { api } from "@/services";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Trash2, History } from "lucide-react";
+import { Trash2, History, Check } from "lucide-react";
 import type { Guest, GuestGroup, GuestRole, RsvpStatus } from "@/types";
 import type { UpdateGuestData } from "@/services/api";
 import { ROLE_OPTIONS, ROLE_LABELS, type ColKey } from "../../constants/guests.constants";
-import { TableMultiSelect, MultiSelectDisplay } from "@/components/features/guests/multi-select-chips";
+import { TableMultiSelect, MultiSelectDisplay } from "@/components/views/guests/components/multi-select-chips";
 
 const RSVP_CFG: Record<string, { color: string; label: string }> = {
   confirmed: { color: "bg-success", label: "Confirmado" },
@@ -52,6 +52,16 @@ function EC({ guestId, field, value, isEditing, startEdit, editValue, setEditVal
 export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, allergyOptions, transportPoints, show, isEditing, editValue, setEditValue, startEdit, cancelEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, handleDelete, handleAssignGroup, onHistoryClick, getFirst, getLast, loadData }: GuestRowProps) {
   const ecProps = { isEditing, startEdit, editValue, setEditValue, saveEdit, handleKeyDown };
   const { color, label } = RSVP_CFG[guest.rsvp] ?? { color: "bg-brand", label: guest.rsvp };
+
+  const toggleInvitation = async () => {
+    try {
+      await api.updateGuest(guest.id, { invitationSent: !guest.invitationSent });
+      loadData();
+    } catch (error) {
+      console.error("Error toggling invitation status:", error);
+    }
+  };
+
   return (
     <TableRow className="group">
       <TableCell className="text-brand text-[12px]">{index + 1}</TableCell>
@@ -88,6 +98,16 @@ export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, all
         <TableCell className="hidden md:table-cell cursor-pointer" onClick={() => !isEditing(guest.id, "group") && startEdit(guest.id, "group", guest.groupId ?? "")}>
           {isEditing(guest.id, "group") ? <select autoFocus value={editValue} onChange={(e) => handleAssignGroup(guest.id, e.target.value)} onBlur={cancelEdit} className="bg-bg2 border border-cta rounded px-2 py-0.5 text-[12px] outline-none"><option value="">Sin grupo</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select>
             : guest.groupId && groupMap.get(guest.groupId) ? <span className="inline-block max-w-[140px] truncate text-[11px] px-2 py-0.5 rounded-full font-medium bg-bg3 text-accent border border-border/50">{groupMap.get(guest.groupId)}</span> : <span className="text-[12px] text-brand">—</span>}
+        </TableCell>
+      )}
+      {show("invitationSent") && (
+        <TableCell className="text-center">
+          <button
+            onClick={toggleInvitation}
+            className={`w-5 h-5 rounded border flex items-center justify-center mx-auto transition-colors ${guest.invitationSent ? "bg-success border-success text-white" : "border-border hover:border-cta"}`}
+          >
+            {guest.invitationSent && <Check size={14} />}
+          </button>
         </TableCell>
       )}
       <TableCell className="cursor-pointer" onClick={() => !isEditing(guest.id, "rsvp") && startEdit(guest.id, "rsvp", guest.rsvp)}>

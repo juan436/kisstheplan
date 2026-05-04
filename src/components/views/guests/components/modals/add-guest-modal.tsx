@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { User, Users, Sparkles } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { api } from "@/services";
 import type { CreateGuestData } from "@/services/api";
-import { AddGuestGroupForm, PersonRow, emptyPerson } from "./add-guest-group-form";
-import { AddGuestSingleForm, SingleFormState } from "./add-guest-single-form";
+import { AddGuestGroupForm, PersonRow, emptyPerson } from "./add-guest/add-guest-group-form";
+import { AddGuestSingleForm, SingleFormState } from "./add-guest/add-guest-single-form";
 
 interface AddGuestModalProps {
   open: boolean;
@@ -103,48 +104,68 @@ export function AddGuestModal({
 
   return (
     <Modal open={open} onClose={handleClose} className="max-w-2xl">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-[22px] text-text uppercase tracking-wide">Datos Invitados</h2>
-        <div className="flex bg-bg2 rounded-lg p-0.5 text-[12px]">
-          <button type="button" onClick={() => setGroupMode(false)}
-            className={`px-3 py-1.5 rounded-md font-medium transition-colors ${!groupMode ? "bg-white text-text shadow-sm" : "text-brand hover:text-text"}`}>
+      <div className="flex flex-col mb-6">
+        <h2 className="font-display text-[24px] text-text uppercase tracking-wide mb-5">Alta de Invitados</h2>
+        
+        <div className="flex bg-bg2 rounded-xl p-1.5 gap-2 border border-border/50">
+          <button
+            type="button"
+            onClick={() => setGroupMode(false)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all text-[14px] font-bold ${
+              !groupMode 
+                ? "bg-white text-text shadow-sm border border-border" 
+                : "text-brand hover:bg-white/50"
+            }`}
+          >
+            <User size={16} />
             Individual
           </button>
-          <button type="button" onClick={() => setGroupMode(true)}
-            className={`px-3 py-1.5 rounded-md font-medium transition-colors ${groupMode ? "bg-white text-text shadow-sm" : "text-brand hover:text-text"}`}>
-            Grupo / Pareja
+
+          <button
+            type="button"
+            onClick={() => setGroupMode(true)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all text-[14px] font-bold relative ${
+              groupMode 
+                ? "bg-cta text-white shadow-md" 
+                : "bg-white text-brand border border-cta/30 hover:border-cta"
+            }`}
+          >
+            <Users size={16} />
+            Pareja o Grupo
           </button>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        {groupMode ? (
-          <AddGuestGroupForm
-            persons={persons} groupName={groupName} groupId={groupId} groups={groups}
-            mealOptions={mealOptions} allergyOptions={allergyOptions} transportPoints={transportPoints}
-            onUpdatePerson={updatePerson}
-            onAddPerson={() => setPersons((p) => [...p, emptyPerson()])}
-            onRemovePerson={(i) => setPersons((p) => p.filter((_, idx) => idx !== i))}
-            onSetGroupName={setGroupName}
-            onSetGroupId={(v) => { setGroupId(v); if (v) setGroupName(""); }}
-          />
-        ) : (
-          <AddGuestSingleForm
-            state={single}
-            onChange={(field, val) => setSingle((prev) => ({ ...prev, [field]: val }))}
-            error={error} mealOptions={mealOptions} allergyOptions={allergyOptions}
-            transportPoints={transportPoints} groups={groups}
-          />
-        )}
+        <div className="bg-bg2/30 rounded-2xl p-5 border border-border/50 h-[540px] overflow-y-auto custom-scrollbar">
+          {groupMode ? (
+            <AddGuestGroupForm
+              persons={persons} groupName={groupName} groupId={groupId} groups={groups}
+              mealOptions={mealOptions} allergyOptions={allergyOptions} transportPoints={transportPoints}
+              onUpdatePerson={updatePerson}
+              onAddPerson={() => setPersons((p) => [...p, emptyPerson()])}
+              onRemovePerson={(i) => setPersons((p) => p.filter((_, idx) => idx !== i))}
+              onSetGroupName={setGroupName}
+              onSetGroupId={(v) => { setGroupId(v); if (v) setGroupName(""); }}
+            />
+          ) : (
+            <AddGuestSingleForm
+              state={single}
+              onChange={(field, val) => setSingle((prev) => ({ ...prev, [field]: val }))}
+              error={error} mealOptions={mealOptions} allergyOptions={allergyOptions}
+              transportPoints={transportPoints} groups={groups}
+            />
+          )}
+        </div>
 
-        {error && <p className="text-[13px] text-danger mt-3">{error}</p>}
+        {error && <p className="text-[13px] text-danger mt-3 font-medium">{error}</p>}
 
-        <div className="flex justify-end gap-3 pt-5">
+        <div className="flex justify-end gap-3 pt-6">
           <Button type="button" variant="ghost" onClick={handleClose}>Cancelar</Button>
-          <Button type="submit" variant="cta" disabled={saving}>
+          <Button type="submit" variant="cta" disabled={saving} className="min-w-[140px] h-10 text-[14px]">
             {saving ? "Guardando..." : groupMode
-              ? `Guardar ${persons.filter((p) => p.firstName.trim()).length || ""} invitado(s)`
-              : "Guardar"}
+              ? `Guardar ${persons.filter((p) => p.firstName.trim()).length || ""} invitados`
+              : "Guardar invitado"}
           </Button>
         </div>
       </form>

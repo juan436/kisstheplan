@@ -28,10 +28,6 @@ export function useGuests() {
   const [deletingGroupId, setDeletingGroupId] = useState<string | null>(null);
   const [showColMenu,  setShowColMenu]  = useState(false);
   const [hiddenCols,   setHiddenCols]   = useState<Set<ColKey>>(() => loadHiddenCols(["address", "role", "group"]));
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [quickName,    setQuickName]    = useState("");
-  const [quickGroupId, setQuickGroupId] = useState("");
-  const [quickSaving,  setQuickSaving]  = useState(false);
   const [mealOptions,     setMealOptions]     = useState<string[]>([]);
   const [mealColors,      setMealColors]      = useState<Record<string, string>>({});
   const [allergyOptions,  setAllergyOptions]  = useState<string[]>([]);
@@ -41,7 +37,6 @@ export function useGuests() {
   const [importError,     setImportError]     = useState("");
 
   const colMenuRef   = useRef<HTMLDivElement>(null);
-  const quickAddRef  = useRef<HTMLDivElement>(null);
   const excelInputRef = useRef<HTMLInputElement>(null);
 
   const show = (col: ColKey) => !hiddenCols.has(col);
@@ -51,7 +46,6 @@ export function useGuests() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (colMenuRef.current && !colMenuRef.current.contains(e.target as Node)) setShowColMenu(false);
-      if (quickAddRef.current && !quickAddRef.current.contains(e.target as Node)) setShowQuickAdd(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -94,16 +88,6 @@ export function useGuests() {
       if (result.imported === 0) setImportError("No se encontraron invitados en el archivo.");
     } catch { setImportError("Error al importar. Revisa el formato del archivo."); }
     finally { setImportingExcel(false); if (excelInputRef.current) excelInputRef.current.value = ""; }
-  };
-
-  const handleQuickAdd = async () => {
-    const name = quickName.trim();
-    if (!name) return;
-    setQuickSaving(true);
-    const parts = name.split(" ");
-    await api.createGuest({ firstName: parts[0], lastName: parts.slice(1).join(" "), rsvpStatus: "pending", listName: "A", groupId: quickGroupId || undefined });
-    setQuickName(""); setQuickGroupId(""); setQuickSaving(false);
-    await loadData();
   };
 
   const startEdit = (guestId: string, field: string, val: string) => { setEditingCell({ guestId, field }); setEditValue(val); };
@@ -171,8 +155,6 @@ export function useGuests() {
     newGroupName, setNewGroupName, deletingGroupId, setDeletingGroupId,
     handleAddGuest, handleCreateGroup, handleDeleteGroup, handleRenameGroup, handleAssignGroup, loadGroups,
     showColMenu, setShowColMenu, show, toggleCol, colMenuRef,
-    showQuickAdd, setShowQuickAdd, quickName, setQuickName, quickGroupId, setQuickGroupId,
-    quickSaving, handleQuickAdd, quickAddRef,
     mealOptions, mealColors, allergyOptions, allergyColors, transportPoints,
     handleSaveConfig, handleExportExcel,
     excelInputRef, importingExcel, importError, setImportError, handleExcelFile,

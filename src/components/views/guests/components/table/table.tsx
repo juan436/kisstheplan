@@ -40,6 +40,7 @@ export function GuestsTable({ filteredGuests, searchQuery, rsvpFilter, groupFilt
             {show("list")      && <TableHead className="hidden lg:table-cell">Lista</TableHead>}
             {show("role")      && <TableHead className="hidden md:table-cell">Rol</TableHead>}
             {show("group")     && <TableHead className="hidden md:table-cell">Grupo</TableHead>}
+            {show("invitationSent") && <TableHead className="text-center">Invitación</TableHead>}
             <TableHead>RSVP</TableHead>
             <TableHead className="w-10" />
           </TableRow>

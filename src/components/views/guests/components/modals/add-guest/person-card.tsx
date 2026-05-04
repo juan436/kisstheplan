@@ -2,7 +2,7 @@ import { Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RSVP_OPTIONS, ROLE_OPTIONS, type RsvpVal, type PersonRow } from "./add-guest-group-form";
-import { MultiSelectChips } from "./multi-select-chips";
+import { MultiSelectChips } from "../../multi-select-chips";
 
 interface PersonCardProps {
   person: PersonRow;

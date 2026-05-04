@@ -42,6 +42,7 @@ export interface CreateGuestData {
   transport?: boolean;
   transportPickupPoint?: string;
   listName?: string;
+  invitationSent?: boolean;
   groupId?: string;
   rsvpStatus?: "confirmed" | "pending" | "rejected";
   role?: "groom" | "bride" | "family_groom" | "family_bride" | "child" | "baby" | "";

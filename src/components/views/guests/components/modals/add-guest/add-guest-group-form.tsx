@@ -64,21 +64,21 @@ export function AddGuestGroupForm({
   onUpdatePerson, onAddPerson, onRemovePerson, onSetGroupName, onSetGroupId,
 }: AddGuestGroupFormProps) {
   return (
-    <div className="space-y-3">
-      {/* Group name — always visible above the scrollable person list */}
+    <div className="space-y-4">
+      {/* Group name — always visible above the person list */}
       <div>
-        <Label className="text-[12px] mb-0.5 font-semibold">Nombre del Grupo o Familia *</Label>
+        <Label className="text-[12px] mb-1 font-semibold">Nombre del Grupo o Familia *</Label>
         <Input
           placeholder="Ej: Familia Mendoza, Pareja Juan y Ana..."
           value={groupName}
           onChange={(e) => { onSetGroupName(e.target.value); if (e.target.value) onSetGroupId(""); }}
-          className="bg-[#f2efe9] border-[1.5px] border-border h-9 text-[13px]"
+          className="bg-[#f2efe9] border-[1.5px] border-border h-10 text-[13px]"
           autoFocus
         />
       </div>
 
-      {/* Scrollable person cards */}
-      <div className="space-y-3 max-h-[52vh] overflow-y-auto pr-1">
+      {/* Person cards - NO internal scroll here, handled by parent */}
+      <div className="space-y-4">
         {persons.map((person, i) => (
           <PersonCard
             key={i} person={person} index={i}
@@ -89,16 +89,16 @@ export function AddGuestGroupForm({
         ))}
 
         <button type="button" onClick={onAddPerson}
-          className="flex items-center gap-1.5 text-[13px] text-cta hover:text-[#b08f5d] font-medium transition-colors">
-          <Plus size={15} />
+          className="flex items-center gap-1.5 text-[13px] text-cta hover:text-[#b08f5d] font-bold py-2 px-1 transition-colors">
+          <Plus size={16} />
           Añadir otro invitado
         </button>
       </div>
 
-      {/* Existing group selector — only when no new name typed */}
+      {/* Existing group selector */}
       {groups.length > 0 && !groupName && (
-        <div>
-          <Label className="text-[12px] mb-0.5">o asignar a grupo existente</Label>
+        <div className="pt-2 border-t border-border/50">
+          <Label className="text-[12px] mb-1">o asignar a grupo existente</Label>
           <select value={groupId} onChange={(e) => onSetGroupId(e.target.value)} className={selStyle}>
             <option value="">— Ninguno —</option>
             {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}

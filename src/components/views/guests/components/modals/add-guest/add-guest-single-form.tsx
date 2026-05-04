@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RSVP_OPTIONS, RsvpVal, RoleSelect } from "./add-guest-group-form";
-import { MultiSelectChips } from "./multi-select-chips";
+import { MultiSelectChips } from "../../multi-select-chips";
 
 export interface SingleFormState {
   firstName: string; lastName: string; email: string;

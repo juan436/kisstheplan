@@ -35,12 +35,6 @@ export function CategoryModal({ open, onClose, paymentCat, onRefresh }: Category
             <p className="text-[13px] text-brand mt-0.5 italic">"{paymentCat.name}"</p>
           )}
         </div>
-        <div className="text-right">
-          <div className="font-display text-[28px] text-cta leading-tight">
-            {formatCurrency(totalReal)}
-          </div>
-          <div className="text-[11px] text-brand uppercase tracking-wider">Total</div>
-        </div>
       </div>
 
       {!paymentCat || paymentCat.items.length === 0 ? (

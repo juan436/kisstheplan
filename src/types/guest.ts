@@ -17,6 +17,7 @@ export interface Guest {
   transport: boolean;
   transportPickupPoint?: string;
   plusOne: boolean;
+  invitationSent: boolean;
   role: GuestRole;
   notes?: string;
 }

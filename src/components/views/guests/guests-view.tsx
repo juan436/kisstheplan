@@ -1,7 +1,7 @@
 "use client";
 
-import { AddGuestModal } from "@/components/features/guests/add-guest-modal";
-import { GuestHistoryModal } from "@/components/features/guests/guest-history-modal";
+import { AddGuestModal } from "./components/modals/add-guest-modal";
+import { GuestHistoryModal } from "./components/modals/guest-history-modal";
 import { useGuests } from "./hooks/use-guests";
 import { useGuestHistory } from "./hooks/use-guest-history";
 import { GuestsStatsBar } from "./components/stats-bar";
@@ -27,11 +27,6 @@ export default function InvitadosPage() {
         groupFilter={g.groupFilter} setGroupFilter={g.setGroupFilter}
         showColMenu={g.showColMenu} setShowColMenu={g.setShowColMenu}
         show={g.show} toggleCol={g.toggleCol} colMenuRef={g.colMenuRef}
-        showQuickAdd={g.showQuickAdd} setShowQuickAdd={g.setShowQuickAdd}
-        quickName={g.quickName} setQuickName={g.setQuickName}
-        quickGroupId={g.quickGroupId} setQuickGroupId={g.setQuickGroupId}
-        quickSaving={g.quickSaving} handleQuickAdd={g.handleQuickAdd}
-        quickAddRef={g.quickAddRef}
         excelInputRef={g.excelInputRef}
         importingExcel={g.importingExcel} importError={g.importError}
         setImportError={g.setImportError} handleExcelFile={g.handleExcelFile}

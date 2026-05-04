@@ -23,7 +23,7 @@ export const ROLE_LABELS: Record<string, string> = {
   child: "Niño/a", baby: "Bebé",
 };
 
-export type ColKey = "lastName" | "email" | "role" | "group" | "allergies" | "address" | "transport" | "list";
+export type ColKey = "lastName" | "email" | "role" | "group" | "allergies" | "address" | "transport" | "list" | "invitationSent";
 
 export const ALL_COLS: { key: ColKey; label: string }[] = [
   { key: "lastName",  label: "Apellidos" },
@@ -34,4 +34,5 @@ export const ALL_COLS: { key: ColKey; label: string }[] = [
   { key: "address",   label: "Dirección" },
   { key: "list",      label: "Lista" },
   { key: "transport", label: "Transporte" },
+  { key: "invitationSent", label: "Invitación" },
 ];
