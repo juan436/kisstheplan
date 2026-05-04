@@ -12,7 +12,6 @@ import {
   TableHead, TableCell,
 } from "@/components/ui/table";
 import type { Guest, GuestGroup } from "@/types";
-import type { ColKey } from "../../constants/guests.constants";
 import { GuestTableRow, type GuestRowProps } from "./table-row";
 
 interface GuestsTableProps extends Omit<GuestRowProps, "guest" | "index"> {
