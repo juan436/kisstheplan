@@ -9,7 +9,7 @@
  * Provee:   export { ItemRow } — usado por CategoryCard.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash2, Pencil, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -44,6 +44,10 @@ export function ItemRow({
   const pending = item.real - item.paid;
 
   const isEditingItem = isEditing(item.id, "concept");
+
+  useEffect(() => {
+    if (!isEditingItem) setChangingVendor(false);
+  }, [isEditingItem]);
 
   const handleEditClick = () => {
     if (isEditingItem) { cancelEdit(); setChangingVendor(false); return; }
