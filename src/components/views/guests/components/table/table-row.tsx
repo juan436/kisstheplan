@@ -55,7 +55,7 @@ export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, all
 
   const toggleInvitation = async () => {
     try {
-      await api.updateGuest(guest.id, { invitationSent: !guest.invitationSent });
+      await api.updateGuest(guest.id, { invitationSent: !guest.invitationSent } as UpdateGuestData);
       loadData();
     } catch (error) {
       console.error("Error toggling invitation status:", error);

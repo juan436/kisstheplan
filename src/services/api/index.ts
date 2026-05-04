@@ -3,6 +3,8 @@ import { coreMethods } from "./api-core";
 import { taskVendorMethods } from "./api-tasks-vendors";
 import { contentMethods } from "./api-content";
 
+export * from "../api-types";
+
 export const api: ApiService = {
   ...coreMethods,
   ...taskVendorMethods,
