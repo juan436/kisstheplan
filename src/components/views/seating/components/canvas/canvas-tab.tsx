@@ -66,7 +66,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           onCenter={c.handleCenter}
         />
 
-        <div className="flex-1 overflow-hidden" style={{ position: "relative", background: "#EDE4D9" }}>
+        <div className="flex-1 overflow-hidden" style={{ position: "relative", background: "#6b9854" }}>
           <div ref={c.canvasRef} className="absolute inset-0 overflow-hidden select-none"
             style={{ background: "#EDE4D9", cursor: c.cursor }}
             draggable={false} onDragStart={(e) => e.preventDefault()} onMouseDown={c.onPanMouseDown}>

@@ -64,6 +64,12 @@ export function CanvasSvg({
             <feMergeNode in="glow-inner" /><feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
+        <pattern id="seating-grass-bg" x="0" y="0" width="8" height="12" patternUnits="userSpaceOnUse">
+          <rect width="8" height="12" fill="#6b9854"/>
+          <line x1="1.5" y1="12" x2="1"   y2="7"  stroke="rgba(255,255,255,0.09)" strokeWidth="1.2" strokeLinecap="round"/>
+          <line x1="4"   y1="12" x2="4.5" y2="6"  stroke="rgba(0,0,0,0.07)"       strokeWidth="1"   strokeLinecap="round"/>
+          <line x1="6.5" y1="12" x2="7"   y2="8"  stroke="rgba(255,255,255,0.07)" strokeWidth="1"   strokeLinecap="round"/>
+        </pattern>
         {zones.map((z) => (
           <clipPath key={`clip-${z.id}`} id={`zone-clip-${z.id}`}>
             <polygon points={z.points.map((p) => `${p.x},${p.y}`).join(" ")} />
@@ -73,7 +79,7 @@ export function CanvasSvg({
 
       {bgImage
         ? <image href={bgImage} width={WORLD_W} height={WORLD_H} preserveAspectRatio="xMidYMid slice" style={{ pointerEvents: "none", userSelect: "none" }} />
-        : <rect width={WORLD_W} height={WORLD_H} fill="#EDE4D9" style={{ pointerEvents: "none" }} />
+        : <rect width={WORLD_W} height={WORLD_H} fill="url(#seating-grass-bg)" style={{ pointerEvents: "none" }} />
       }
 
       <CanvasSvgOverlays zones={zones} zonePoints={zonePoints} guides={guides}
