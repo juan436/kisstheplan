@@ -28,15 +28,16 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
   const styleAreaRef = useRef<HTMLDivElement>(null);
+  const styleBtnRef = useRef<HTMLButtonElement>(null);
 
   const closeStyle = useCallback(() => setShowStyle(false), []);
 
   useEffect(() => {
     if (!showStyle) return;
     const handler = (e: MouseEvent) => {
-      if (styleAreaRef.current && !styleAreaRef.current.contains(e.target as Node)) {
-        setShowStyle(false);
-      }
+      const inArea = styleAreaRef.current?.contains(e.target as Node);
+      const inBtn  = styleBtnRef.current?.contains(e.target as Node);
+      if (!inArea && !inBtn) setShowStyle(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -96,7 +97,7 @@ export function EntryRow({ entry, onUpdate, onDelete }: {
         </AnimatePresence>
       </div>
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity mt-2 flex-shrink-0">
-        <button onClick={() => setShowStyle((v) => !v)} title="Estilo"
+        <button ref={styleBtnRef} onClick={() => setShowStyle((v) => !v)} title="Estilo"
           className="p-1 rounded-lg transition-colors"
           style={{ color: showStyle ? "var(--color-accent)" : "var(--color-border)" }}>
           <Type size={13} />

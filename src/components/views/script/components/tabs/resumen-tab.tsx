@@ -22,7 +22,7 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [showFieldMenu, setShowFieldMenu] = useState(false);
-  const [visible, setVisible] = useState<VisibleFields>({ description: true });
+  const [visible, setVisible] = useState<VisibleFields>({ description: false });
   const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart && !e.isPrivate);
 
   const addArea = async () => { if (!newArea.trim()) return; await onCreateArea({ name: newArea.trim() }); setNewArea(""); };

@@ -11,6 +11,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, } from "framer-motion";
 import { Plus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import type { ScriptViewProps } from "../../helpers/script.helpers";
 import { sortEntries, formatTimeDisplay } from "../../helpers/script.helpers";
 import { EntryRow } from "../entry/entry-row";
@@ -38,9 +39,12 @@ export function GuionDetalladoTab({ entries, guestStats, onCreateEntry, onUpdate
     await onReorderEntries(next);
   };
 
+  const { wedding } = useAuth();
   const timedEntries = sortEntries(entries).filter((e) => e.timeType !== "none" && e.timeStart && !e.isPrivate);
   const addEntry = () => onCreateEntry({ title: "Nueva entrada", timeType: "none", style: {}, order: entries.length });
-  const today = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const weddingDateStr = wedding?.date
+    ? new Date(wedding.date + "T00:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    : new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   return (
     <div className="mx-auto mt-6" style={{ maxWidth: 860 }}>
@@ -64,7 +68,7 @@ export function GuionDetalladoTab({ entries, guestStats, onCreateEntry, onUpdate
       <div className="flex-1 pl-6 min-w-0">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-sm font-semibold capitalize" style={{ color: "var(--color-text)" }}>{today}</div>
+            <div className="text-sm font-semibold capitalize" style={{ color: "var(--color-text)" }}>{weddingDateStr}</div>
             {guestStats && (
               <div className="text-xs mt-0.5" style={{ color: "var(--color-accent)" }}>
                 {guestStats.confirmed} invitados confirmados{(guestStats.pending ?? 0) > 0 && ` · ${guestStats.pending} pendientes`}
