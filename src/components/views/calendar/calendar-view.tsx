@@ -10,7 +10,8 @@
 
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Plus, Copy, Check, CalendarDays, CreditCard, Link2 } from "lucide-react";
+import { useNavigation } from "@/hooks/useNavigation";
+import { ChevronLeft, ChevronRight, Plus, Copy, Check, CalendarDays, CreditCard, Link2, ExternalLink } from "lucide-react";
 import type { ViewMode } from "./helpers/calendar.helpers";
 import { MonthView } from "./components/views/month-view";
 import { WeekView } from "./components/views/week-view";
@@ -19,6 +20,7 @@ import { TaskModal } from "./components/modals/task-modal";
 import { useCalendar } from "./hooks/use-calendar";
 
 export default function CalendarioPage() {
+  const { navigateTo } = useNavigation();
   const {
     year, month, viewMode, setViewMode, selectedDay, todayStr,
     taskDays, paymentDays, upcomingPayments, upcomingTasks,
@@ -97,17 +99,25 @@ export default function CalendarioPage() {
               <div className="space-y-2.5">
                 {upcomingPayments.map((p) => {
                   const isOverdue = p.dueDate < todayStr;
+                  const clickable = !!p.vendorId;
                   return (
-                    <div key={p.id} className="flex items-center justify-between gap-2">
+                    <div
+                      key={p.id}
+                      onClick={clickable ? () => navigateTo("proveedores", p.vendorId!, p.categoryId ?? undefined, p.itemId ?? undefined) : undefined}
+                      className={`flex items-center justify-between gap-2 rounded-lg px-2 py-1 -mx-2 transition-colors ${clickable ? "cursor-pointer hover:bg-bg2" : ""}`}
+                    >
                       <div className="min-w-0">
-                        <p className="text-[12px] font-medium text-text truncate">{p.vendorName || p.concept || "Pago"}</p>
+                        <div className="flex items-center gap-1">
+                          <p className="text-[12px] font-medium text-text truncate">{p.vendorName || p.concept || "Pago"}</p>
+                          {clickable && <ExternalLink size={10} className="text-cta flex-shrink-0" />}
+                        </div>
                         <p className={`text-[11px] font-medium ${isOverdue ? "text-red-500" : "text-brand"}`}>
                           {isOverdue ? "⚠ " : ""}
                           {new Date(p.dueDate + "T00:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
                           {isOverdue ? " (vencido)" : ""}
                         </p>
                       </div>
-                      <span className="text-[12px] font-semibold text-cta flex-shrink-0">{formatCurrency(p.amount)}</span>
+                      <span className="text-[12px] font-semibold text-text flex-shrink-0" style={{ fontFamily: "var(--font-playfair)" }}>{formatCurrency(p.amount)}</span>
                     </div>
                   );
                 })}
