@@ -6,7 +6,7 @@
  * Provee:   export { PdfViewer } — usado por NotesView al abrir una nota de tipo "pdf".
  */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { X, File, Loader2, AlertTriangle } from "lucide-react";
 import { uploadPdf } from "@/lib/upload";
 import type { Note } from "@/types";
@@ -23,6 +23,17 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
   const [pdfUrl, setPdfUrl] = useState<string>(note.content || "");
   const [uploading, setUploading] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [checking, setChecking] = useState(!!note.content);
+
+  useEffect(() => {
+    if (!pdfUrl) return;
+    setChecking(true);
+    setLoadError(false);
+    fetch(pdfUrl, { method: "HEAD" })
+      .then((res) => { if (!res.ok) setLoadError(true); })
+      .catch(() => setLoadError(true))
+      .finally(() => setChecking(false));
+  }, [pdfUrl]);
 
   const saveTitle = (t: string) => {
     if (t.trim() && t.trim() !== note.title) onSave(pdfUrl, t.trim());
@@ -63,9 +74,12 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
       </div>
 
       <div className="flex-1 bg-[var(--color-bg-2)] flex flex-col overflow-hidden">
-        {pdfUrl && !loadError ? (
-          <iframe src={pdfUrl} className="w-full border-0" style={{ flex: 1, minHeight: 0, height: "100%" }}
-            onError={() => setLoadError(true)} />
+        {checking ? (
+          <div className="flex items-center justify-center" style={{ minHeight: 420 }}>
+            <Loader2 size={24} className="animate-spin text-[var(--color-text)]/30" />
+          </div>
+        ) : pdfUrl && !loadError ? (
+          <iframe src={pdfUrl} className="w-full border-0" style={{ flex: 1, minHeight: 0, height: "100%" }} />
         ) : pdfUrl && loadError ? (
           <div className="flex flex-col items-center justify-center gap-4" style={{ minHeight: 420 }}>
             <AlertTriangle size={32} style={{ color: "#c47a7a" }} />
