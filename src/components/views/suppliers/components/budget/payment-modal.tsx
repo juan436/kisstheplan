@@ -18,10 +18,11 @@ interface PaymentModalProps {
   category: ExpenseCategory;
   currentVendorId: string;
   onRefresh: () => void;
+  autoExpandItemId?: string;
 }
 
 export function PaymentModal({
-  open, onClose, category, currentVendorId, onRefresh,
+  open, onClose, category, currentVendorId, onRefresh, autoExpandItemId,
 }: PaymentModalProps) {
   const vendorItems  = category.items.filter((i) => i.vendorId === currentVendorId);
   const invoiceAmount = vendorItems.reduce((s, i) => s + (i.real > 0 ? i.real : i.estimated), 0);
@@ -48,7 +49,13 @@ export function PaymentModal({
       ) : (
         <div className="max-h-[420px] overflow-y-auto pr-1 space-y-0.5">
           {vendorItems.map((item) => (
-            <PaymentRow key={item.id} item={item} catId={category.id} onPaidChange={onRefresh} />
+            <PaymentRow
+              key={item.id}
+              item={item}
+              catId={category.id}
+              onPaidChange={onRefresh}
+              defaultExpanded={autoExpandItemId === item.id}
+            />
           ))}
         </div>
       )}

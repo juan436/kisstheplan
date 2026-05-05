@@ -13,6 +13,7 @@
 import { useState, useEffect } from "react";
 import { CalendarDays } from "lucide-react";
 import { api } from "@/services";
+import { useNavigation } from "@/hooks/useNavigation";
 import { useVendorBudget } from "../../hooks/use-vendor-budget";
 import { CategoryBlock } from "../budget/category-block";
 import { PaymentModal } from "../budget/payment-modal";
@@ -32,10 +33,23 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
   const [vendors, setVendors]       = useState<Vendor[]>([]);
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null);
   const [allPaymentsOpen, setAllPaymentsOpen] = useState(false);
+  const { pendingCategoryId, clearPendingCategoryId, pendingItemId, clearPendingItemId } = useNavigation();
+  const [autoExpandItemId, setAutoExpandItemId] = useState<string | null>(null);
 
   useEffect(() => {
     api.getVendors().then((data) => setVendors(data as Vendor[])).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!pendingCategoryId || loading || categories.length === 0) return;
+    const match = categories.find((c) => c.id === pendingCategoryId);
+    if (match) {
+      setAutoExpandItemId(pendingItemId);
+      setSelectedCatId(pendingCategoryId);
+      clearPendingCategoryId();
+      clearPendingItemId();
+    }
+  }, [pendingCategoryId, pendingItemId, loading, categories, clearPendingCategoryId, clearPendingItemId]);
   const selectedCat = categories.find((c) => c.id === selectedCatId) ?? null;
 
   return (
@@ -86,10 +100,11 @@ export function DetailBudgetSection({ vendor }: DetailBudgetSectionProps) {
       {selectedCat && (
         <PaymentModal
           open={true}
-          onClose={() => setSelectedCatId(null)}
+          onClose={() => { setSelectedCatId(null); setAutoExpandItemId(null); }}
           category={selectedCat}
           currentVendorId={vendor.id}
           onRefresh={refresh}
+          autoExpandItemId={autoExpandItemId ?? undefined}
         />
       )}
 

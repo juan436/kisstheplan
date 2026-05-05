@@ -69,7 +69,7 @@ export function DayView({ day, tasks, payments, onAddTask, onPrev, onNext }: Day
                 return (
                   <div
                     key={p.id}
-                    onClick={clickable ? () => navigateTo("proveedores", p.vendorId!) : undefined}
+                    onClick={clickable ? () => navigateTo("proveedores", p.vendorId!, p.categoryId ?? undefined, p.itemId ?? undefined) : undefined}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-opacity ${clickable ? "cursor-pointer hover:opacity-80" : ""}`}
                     style={{ backgroundColor: "#CBA97815", borderLeft: "3px solid #CBA978" }}
                   >

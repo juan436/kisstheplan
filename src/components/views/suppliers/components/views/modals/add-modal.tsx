@@ -48,10 +48,26 @@ export function AddModal({ onClose, onCreate }: AddModalProps) {
   };
 
   const handleAdd = async () => {
-    if (!name.trim() || selectedCats.length === 0) return;
+    const finalCats = [...selectedCats];
+    const trimmedCustom = customCat.trim();
+    if (trimmedCustom && !finalCats.includes(trimmedCustom)) {
+      finalCats.push(trimmedCustom);
+    }
+
+    if (!name.trim() || finalCats.length === 0) return;
     setSaving(true);
-    const vendor = await api.createVendor({ name: name.trim(), categories: selectedCats, status } as CreateVendorData);
-    onCreate(vendor);
+    try {
+      const vendor = await api.createVendor({ 
+        name: name.trim(), 
+        categories: finalCats, 
+        status 
+      } as CreateVendorData);
+      onCreate(vendor);
+    } catch (error) {
+      console.error("Error creating vendor:", error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

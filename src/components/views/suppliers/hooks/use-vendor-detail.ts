@@ -27,6 +27,10 @@ export function useVendorDetail(
     onUpdate(updated);
   }, [vendor.id, onUpdate]);
 
+  const updateCategories = useCallback(async (categories: string[]) => {
+    await save({ categories });
+  }, [save]);
+
   const handleFieldBlur = useCallback((field: string, value: string | boolean | number) => {
     save({ [field]: value });
   }, [save]);
@@ -47,6 +51,6 @@ export function useVendorDetail(
     vendor, chatInput, setChatInput, sending,
     confirmDelete, setConfirmDelete,
     activityEndRef,
-    save, handleFieldBlur, handleSendChat,
+    save, handleFieldBlur, handleSendChat, updateCategories
   };
 }

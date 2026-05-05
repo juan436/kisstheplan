@@ -17,7 +17,7 @@ import { Check } from "lucide-react";
 import type { Vendor } from "@/types";
 import { STATUS_COLOR, STATUS_LABEL } from "../../constants/suppliers.constants";
 import { useVendorDetail } from "../../hooks/use-vendor-detail";
-import { DetailContact } from "./contact";
+import { GeneralInfo } from "./general-info";
 import { DetailBudgetSection } from "./budget-section";
 import { DetailStaff } from "./staff";
 import { DetailActivity } from "./activity";
@@ -33,7 +33,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
   const {
     vendor, chatInput, setChatInput, sending,
     confirmDelete, setConfirmDelete, activityEndRef,
-    save, handleFieldBlur, handleSendChat,
+    save, handleFieldBlur, handleSendChat, updateCategories
   } = useVendorDetail(initialVendor, onUpdate);
 
   const barColor = STATUS_COLOR[vendor.status];
@@ -61,8 +61,14 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
           ))}
         </div>
 
-        <DetailContact vendor={vendor} onFieldBlur={handleFieldBlur} />
+        <GeneralInfo 
+          vendor={vendor} 
+          onFieldBlur={handleFieldBlur} 
+          onUpdateCategories={updateCategories} 
+        />
+        
         <DetailBudgetSection vendor={vendor} />
+        
         <DetailStaff
           vendor={vendor} confirmDelete={confirmDelete} setConfirmDelete={setConfirmDelete}
           onSave={save} onFieldBlur={handleFieldBlur} onDelete={onDelete}
