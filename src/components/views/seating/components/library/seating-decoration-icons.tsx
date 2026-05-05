@@ -22,6 +22,7 @@ import {
   Kuppah, Atril, MesaFirma, AltarCeremonia, VelasAltar,
   ArcoGlobos, UrnaRegalos, SeatingChart, ZonaKids, AreaLounge, Biombo,
   EspejoGrande, CabinaFoto, Proyector, Tarima, Generador, Inflable, Fogon,
+  Novio, Novia,
 } from "./seating-decoration-icons/deco-ceremony";
 
 const ICON_MAP: Record<string, React.FC> = {
@@ -55,6 +56,7 @@ const ICON_MAP: Record<string, React.FC> = {
   espejo_grande: EspejoGrande, cabina_foto: CabinaFoto,
   proyector: Proyector, tarima: Tarima,
   generador: Generador, inflable: Inflable, fogon: Fogon,
+  novio: Novio, novia: Novia,
 };
 
 export function hasDecoIcon(objectType?: string): boolean {

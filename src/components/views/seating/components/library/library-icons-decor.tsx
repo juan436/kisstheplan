@@ -102,3 +102,25 @@ export function IconCarpet({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+export function IconNovio({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" style={s}>
+      <circle cx="16" cy="8" r="5" fill="currentColor" opacity="0.55" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="11" y="13" width="10" height="10" rx="1" fill="currentColor" opacity="0.55" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M14 15 L16 17.5 L14 20" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.8"/>
+      <path d="M18 15 L16 17.5 L18 20" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.8"/>
+      <rect x="11" y="23" width="4" height="7" rx="1" fill="currentColor" opacity="0.4" stroke="currentColor" strokeWidth="1"/>
+      <rect x="17" y="23" width="4" height="7" rx="1" fill="currentColor" opacity="0.4" stroke="currentColor" strokeWidth="1"/>
+    </svg>
+  );
+}
+export function IconNovia({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" style={s}>
+      <circle cx="16" cy="7" r="5" fill="currentColor" opacity="0.55" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M12 5 Q16 2 20 5" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.2" strokeLinecap="round"/>
+      <path d="M11 12 L21 12 L26 30 L6 30 Z" fill="currentColor" opacity="0.45" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M13 18 Q16 16 19 18" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.5" strokeLinecap="round"/>
+    </svg>
+  );
+}

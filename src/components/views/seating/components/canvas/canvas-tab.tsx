@@ -30,7 +30,16 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     const { uploadImage } = await import("@/lib/upload");
-    try { c.setBgImage(await uploadImage(file)); } catch { alert("Error al subir la imagen."); }
+    try {
+      const url = await uploadImage(file);
+      c.setBgImage(url);
+      api.updateSeatingPlan(plan.id, { backgroundImageUrl: url });
+    } catch { alert("Error al subir la imagen."); }
+  };
+
+  const handleClearBg = () => {
+    c.setBgImage(null);
+    api.updateSeatingPlan(plan.id, { backgroundImageUrl: undefined });
   };
 
   return (
@@ -43,7 +52,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           resizeMode={c.resizeMode} deleteMode={c.deleteMode} previewEnabled={c.previewEnabled}
           hideNames={c.hideNames} showLegend={c.showLegend} showTableLegend={c.showTableLegend}
           bgImage={c.bgImage} fileInputRef={c.fileInputRef}
-          onBgUpload={handleBgUpload} onClearBg={() => c.setBgImage(null)}
+          onBgUpload={handleBgUpload} onClearBg={handleClearBg}
           onToggleSnap={() => c.setSnapEnabled((v) => !v)}
           onToggleZone={c.zones.toggleZoningMode} onClearZones={c.zones.clearZones}
           onToggleRulers={() => c.setRulersEnabled((v) => !v)}

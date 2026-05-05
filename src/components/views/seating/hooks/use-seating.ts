@@ -125,18 +125,28 @@ export function useSeating() {
   const handleAssignSeat = async (tableId: string, seatNumber: number, guestId?: string) => {
     if (!selectedPlanId) return;
     setPlans((prev) =>
-      prev.map((p) =>
-        p.id === selectedPlanId
-          ? {
-              ...p,
-              tables: p.tables.map((t) =>
-                t.id === tableId
-                  ? { ...t, assignments: t.assignments.map((a) => (a.seatNumber === seatNumber ? { ...a, guestId } : a)) }
-                  : t
+      prev.map((p) => {
+        if (p.id !== selectedPlanId) return p;
+        // Remove guest from any existing seat across all tables before assigning
+        const cleared = guestId
+          ? p.tables.map((t) => ({
+              ...t,
+              assignments: t.assignments.map((a) =>
+                a.guestId === guestId && !(t.id === tableId && a.seatNumber === seatNumber)
+                  ? { ...a, guestId: undefined }
+                  : a
               ),
-            }
-          : p
-      )
+            }))
+          : p.tables;
+        return {
+          ...p,
+          tables: cleared.map((t) =>
+            t.id === tableId
+              ? { ...t, assignments: t.assignments.map((a) => (a.seatNumber === seatNumber ? { ...a, guestId } : a)) }
+              : t
+          ),
+        };
+      })
     );
     await api.assignSeat(selectedPlanId, tableId, seatNumber, guestId);
   };

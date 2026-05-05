@@ -9,6 +9,7 @@ import {
   IconBar, IconCandyBar, IconGiftTable, IconCoatCheck, IconBathroom, IconEntrance,
   IconSofa, IconFlowers, IconTree, IconCandelabra, IconCarpet,
   IconSpeaker, IconScreen, IconOutlet,
+  IconNovio, IconNovia,
 } from "./library-icons";
 
 export interface LibraryItem {
@@ -43,8 +44,10 @@ export const CATEGORIES: { id: string; label: string; items: LibraryItem[] }[] =
   {
     id: "ceremony", label: "Ceremonia",
     items: [
-      { label: "Arco",    icon: <IconArch size={ICON_SIZE} />,   decoType: "custom_emoji", objectType: "arch",   physicalWidth: 3,   physicalHeight: 3, keywords: ["altar", "arco floral"] },
-      { label: "Pasillo", icon: <IconRunner size={ICON_SIZE} />, decoType: "custom_emoji", objectType: "runner", physicalWidth: 1.2, physicalHeight: 8, keywords: ["alfombra"] },
+      { label: "Arco",    icon: <IconArch size={ICON_SIZE} />,   decoType: "custom_emoji", objectType: "arch",   physicalWidth: 3,   physicalHeight: 3,   keywords: ["altar", "arco floral"] },
+      { label: "Pasillo", icon: <IconRunner size={ICON_SIZE} />, decoType: "custom_emoji", objectType: "runner", physicalWidth: 1.2, physicalHeight: 8,   keywords: ["alfombra"] },
+      { label: "Novio",   icon: <IconNovio size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novio",  physicalWidth: 0.6, physicalHeight: 0.6, keywords: ["groom", "traje", "novios"] },
+      { label: "Novia",   icon: <IconNovia size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novia",  physicalWidth: 0.6, physicalHeight: 0.8, keywords: ["bride", "vestido", "novios"] },
     ],
   },
   {

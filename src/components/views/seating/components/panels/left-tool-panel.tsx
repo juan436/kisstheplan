@@ -44,7 +44,7 @@ interface Props {
 
 export function LeftToolPanel({ mode, snapEnabled, zoningMode, hasZones, rulersEnabled, hasGuides, panMode, resizeMode, deleteMode, previewEnabled, hideNames, showLegend, showTableLegend, bgImage, fileInputRef, onBgUpload, onClearBg, onToggleSnap, onToggleZone, onClearZones, onToggleRulers, onClearGuides, onTogglePan, onToggleResize, onToggleDelete, onTogglePreview, onToggleHideNames, onToggleLegend, onToggleTableLegend, onCenter }: Props) {
   return (
-    <div className="flex flex-col gap-1 p-2 border-r border-[var(--color-border)] bg-white flex-shrink-0" style={{ width: 160 }}>
+    <div className="flex flex-col gap-1 p-2 border-r border-[var(--color-border)] bg-white flex-shrink-0 overflow-y-auto" style={{ width: 160 }}>
 
       {/* Grupo: Opciones de Fondo */}
       <p className="text-[9px] uppercase tracking-wider text-[var(--color-text)]/30 px-0.5 mt-0.5">Fondo</p>
