@@ -27,6 +27,8 @@ export interface BudgetSummary {
 export interface PaymentSchedule {
   id: string;
   categoryId?: string | null;
+  categoryName?: string | null;
+  vendorId?: string | null;
   vendorName: string;
   concept: string;
   amount: number;

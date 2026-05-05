@@ -6,8 +6,9 @@
  * Provee:   export { DayView } — usado por CalendarView.
  */
 
-import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Check, ExternalLink } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { useNavigation } from "@/hooks/useNavigation";
 import type { Task, PaymentSchedule } from "@/types";
 import { toYMD } from "../../helpers/calendar.helpers";
 
@@ -17,6 +18,7 @@ interface DayViewProps {
 }
 
 export function DayView({ day, tasks, payments, onAddTask, onPrev, onNext }: DayViewProps) {
+  const { navigateTo } = useNavigation();
   const d = new Date(day + "T00:00:00");
   const isToday = day === toYMD(new Date());
   const formatted = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -62,19 +64,30 @@ export function DayView({ day, tasks, payments, onAddTask, onPrev, onNext }: Day
           {payments.length > 0 && (
             <div>
               <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-2">Pagos</p>
-              {payments.map((p) => (
-                <div key={p.id} className="flex items-center justify-between px-4 py-3 rounded-xl mb-2"
-                  style={{ backgroundColor: "#CBA97815", borderLeft: "3px solid #CBA978" }}>
-                  <div>
-                    <p className="text-[13px] font-medium text-text">{p.vendorName}</p>
-                    {p.concept && <p className="text-[11px] text-brand">{p.concept}</p>}
+              {payments.map((p) => {
+                const clickable = !!p.vendorId;
+                return (
+                  <div
+                    key={p.id}
+                    onClick={clickable ? () => navigateTo("proveedores", p.vendorId!) : undefined}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-opacity ${clickable ? "cursor-pointer hover:opacity-80" : ""}`}
+                    style={{ backgroundColor: "#CBA97815", borderLeft: "3px solid #CBA978" }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[13px] font-medium text-text">{p.vendorName}</p>
+                        {clickable && <ExternalLink size={11} className="text-cta flex-shrink-0" />}
+                      </div>
+                      {p.concept && <p className="text-[11px] text-brand">{p.concept}</p>}
+                      {p.categoryName && <p className="text-[10px] text-brand opacity-70">{p.categoryName}</p>}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-[14px] font-semibold text-cta">{formatCurrency(p.amount)}</p>
+                      {p.paid && <p className="text-[10px] text-[#4A773C]">Pagado</p>}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[14px] font-semibold text-cta">{formatCurrency(p.amount)}</p>
-                    {p.paid && <p className="text-[10px] text-[#4A773C]">Pagado</p>}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
