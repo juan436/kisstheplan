@@ -1,15 +1,16 @@
 /**
  * NoteCard
  *
- * Qué hace: tarjeta de vista previa de una nota con icono de tipo, título, proveedor y botón eliminar.
- *           Moodboard muestra primera imagen; texto muestra extracto; PDF muestra icono de archivo.
+ * Qué hace: tarjeta de vista previa de una nota con icono grande por tipo, título, proveedor y botón eliminar.
+ *           Los 3 tipos (texto/PDF/moodboard) muestran icono grande centrado en el área de preview.
+ *           Moodboard con imágenes muestra la primera foto en lugar del icono.
  * Recibe:   note (Note), vendor opcional, onOpen, onDelete callbacks.
  * Provee:   export { NoteCard } — usado por NotesView.
  */
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Trash2, FileText } from "lucide-react";
+import { Trash2, FileText, File, Image as ImageIcon } from "lucide-react";
 import type { Note, Vendor } from "@/types";
 import { NOTE_BG, TYPE_ICONS, formatDate } from "../constants/notes.constants";
 
@@ -20,15 +21,17 @@ interface NoteCardProps {
   onDelete: () => void;
 }
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
+const PREVIEW_ICON: Record<string, { icon: React.ReactNode; color: string }> = {
+  text:      { icon: <FileText size={40} />,  color: "#8c6f5f" },
+  pdf:       { icon: <File size={40} />,      color: "#7b8fb5" },
+  moodboard: { icon: <ImageIcon size={40} />, color: "#b57b8f" },
+};
 
 export function NoteCard({ note, vendors, onOpen, onDelete }: NoteCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const vendor = vendors.find((v) => v.id === note.vendorId);
   const previewImage = note.type === "moodboard" ? note.categories.flatMap((c) => c.images)[0]?.url : null;
-  const textExcerpt = note.type === "text" && note.content ? stripHtml(note.content).slice(0, 100) : null;
+  const { icon, color } = PREVIEW_ICON[note.type] ?? PREVIEW_ICON.text;
 
   return (
     <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
@@ -40,17 +43,9 @@ export function NoteCard({ note, vendors, onOpen, onDelete }: NoteCardProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={previewImage} alt="" className="w-full h-full object-cover" />
         </div>
-      ) : note.type === "pdf" ? (
-        <div className="h-24 flex items-center justify-center" style={{ background: "#eef0f5" }}>
-          <FileText size={32} style={{ color: "#7b8fb5", opacity: 0.6 }} />
-        </div>
-      ) : textExcerpt ? (
-        <div className="h-24 px-4 pt-4 overflow-hidden">
-          <p className="text-xs leading-relaxed text-[var(--color-text)]/50 line-clamp-4">{textExcerpt}</p>
-        </div>
       ) : (
-        <div className="h-24 flex items-center justify-center" style={{ background: NOTE_BG[note.type] }}>
-          <span style={{ opacity: 0.15, color: "var(--color-text)" }}>{TYPE_ICONS[note.type]}</span>
+        <div className="h-28 flex items-center justify-center" style={{ background: NOTE_BG[note.type] }}>
+          <span style={{ color, opacity: 0.45 }}>{icon}</span>
         </div>
       )}
 

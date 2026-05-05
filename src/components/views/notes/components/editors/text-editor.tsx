@@ -117,17 +117,24 @@ export function TextEditor({ note, onSave, onClose }: TextEditorProps) {
             style={{ backgroundColor: color }} />
         ))}
         <div className="w-px h-5 bg-[var(--color-border)] mx-1" />
-        <button onMouseDown={(e) => { e.preventDefault(); exec("insertUnorderedList"); }} title="Lista de viñetas"
+        <button onMouseDown={(e) => { e.preventDefault(); editorRef.current?.focus(); exec("insertUnorderedList"); }} title="Lista de viñetas"
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--color-fill)] text-[var(--color-text)]/60 hover:text-[var(--color-text)] transition-colors">
           <List size={14} />
         </button>
-        <button onMouseDown={(e) => { e.preventDefault(); exec("insertOrderedList"); }} title="Lista numerada"
+        <button onMouseDown={(e) => { e.preventDefault(); editorRef.current?.focus(); exec("insertOrderedList"); }} title="Lista numerada"
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--color-fill)] text-[var(--color-text)]/60 hover:text-[var(--color-text)] transition-colors">
           <ListOrdered size={14} />
         </button>
       </div>
 
+      <style>{`
+        [data-ktp-editor] ul { list-style-type: disc !important; padding-left: 1.5em !important; margin: 0.4em 0 !important; }
+        [data-ktp-editor] ol { list-style-type: decimal !important; padding-left: 1.5em !important; margin: 0.4em 0 !important; }
+        [data-ktp-editor] li { margin: 0.1em 0 !important; }
+        [data-ktp-editor]:empty:before { content: attr(data-placeholder); opacity: 0.3; pointer-events: none; }
+      `}</style>
       <div ref={editorRef} contentEditable suppressContentEditableWarning
+        data-ktp-editor
         className="flex-1 px-8 py-6 overflow-y-auto focus:outline-none text-[var(--color-text)] leading-relaxed"
         style={{ fontFamily: "Quicksand, sans-serif", fontSize: 15, minHeight: 420 }}
         data-placeholder="Empieza a escribir aquí..."
