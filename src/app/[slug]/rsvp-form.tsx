@@ -105,8 +105,8 @@ export function RsvpForm({ slug, page, colors }: RsvpFormProps) {
               <Input value={allergies} onChange={(e) => setAllergies(e.target.value)} placeholder="Celiaco, intolerante a la lactosa..." className="bg-white/80 backdrop-blur" />
             </div>
             <div>
-              <label className="flex items-center gap-3 cursor-pointer select-none py-1">
-                <div className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors" style={{ borderColor: transport ? colors.accent : colors.primary + "40", backgroundColor: transport ? colors.accent : "transparent" }} onClick={() => setTransport(!transport)}>
+              <label className="flex items-center gap-3 cursor-pointer select-none py-1" onClick={() => setTransport((v) => !v)}>
+                <div className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors pointer-events-none" style={{ borderColor: transport ? colors.accent : colors.primary + "40", backgroundColor: transport ? colors.accent : "transparent" }}>
                   {transport && <Check size={12} className="text-white" />}
                 </div>
                 <span className="text-[14px]">Necesito transporte</span>

@@ -1,27 +1,27 @@
 "use client";
 
-/**
- * DesignStep
- *
- * Qué hace: paso 1 del builder web; permite elegir plantilla, foto portada, paleta y tipografías.
- * Recibe:   draft (WebPageConfig), onUpdate, hooks de foto (usePhotoUpload).
- * Provee:   export { DesignStep } — usado por WebView.
- */
-
 import { Upload, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import type { WebPageConfig } from "@/types";
 import { getImgUrl } from "@/lib/img-url";
 import { TEMPLATES, COLOR_PALETTES, FONT_OPTIONS } from "../../constants/web.constants";
 import { usePhotoUpload } from "../../hooks/use-photo-upload";
+import { FontSelect } from "../font-select";
 
 interface DesignStepProps {
   draft: Partial<WebPageConfig>;
   updateDraft: (u: Partial<WebPageConfig>) => void;
+  onPhotoSave?: (url: string) => Promise<void>;
 }
 
-export function DesignStep({ draft, updateDraft }: DesignStepProps) {
-  const { uploading, handleUpload } = usePhotoUpload((url) => updateDraft({ heroImage: url }));
+const SCHEDULE_STYLES = [
+  { id: "A", label: "Vertical con iconos", desc: "Línea central con puntos" },
+  { id: "B", label: "Lista centrada",       desc: "Minimalista, hora encima" },
+  { id: "C", label: "Zigzag",               desc: "Alternado, simétrico" },
+] as const;
+
+export function DesignStep({ draft, updateDraft, onPhotoSave }: DesignStepProps) {
+  const { uploading, handleUpload } = usePhotoUpload((url) => updateDraft({ heroImage: url }), onPhotoSave);
 
   return (
     <div className="space-y-6">
@@ -30,8 +30,8 @@ export function DesignStep({ draft, updateDraft }: DesignStepProps) {
         <div className="grid grid-cols-2 gap-2 mt-2">
           {TEMPLATES.map((t) => (
             <button key={t.id} onClick={() => updateDraft({ templateId: t.id })}
-              className={`p-3 rounded-xl border-2 text-left transition-all ${
-                (draft.templateId || "classic") === t.id ? "border-cta bg-cta/5" : "border-border hover:border-brand"
+              className={`p-3 rounded-xl border-2 text-left transition-all hover:scale-[1.02] ${
+                (draft.templateId || "elegante") === t.id ? "border-cta bg-cta/5" : "border-border hover:border-brand"
               }`}>
               <p className="text-[12px] font-semibold text-text">{t.name}</p>
               <p className="text-[11px] text-brand mt-0.5">{t.desc}</p>
@@ -44,10 +44,10 @@ export function DesignStep({ draft, updateDraft }: DesignStepProps) {
         <Label>Imagen de portada</Label>
         <div className="mt-2">
           {draft.heroImage ? (
-            <div className="relative rounded-lg overflow-hidden h-28">
+            <div className="relative rounded-lg overflow-hidden h-28 group">
               <img src={getImgUrl(draft.heroImage)} alt="Portada" className="w-full h-full object-cover" />
               <button onClick={() => updateDraft({ heroImage: "" })}
-                className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-black/70 transition-colors">
+                className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/70 transition-all">
                 <X size={12} />
               </button>
             </div>
@@ -66,7 +66,7 @@ export function DesignStep({ draft, updateDraft }: DesignStepProps) {
         <div className="grid grid-cols-2 gap-2 mt-2">
           {COLOR_PALETTES.map((p) => (
             <button key={p.name} onClick={() => updateDraft({ colorPalette: p.colors })}
-              className={`p-3 rounded-xl border-2 transition-all ${
+              className={`p-3 rounded-xl border-2 transition-all hover:scale-[1.02] ${
                 draft.colorPalette?.primary === p.colors.primary ? "border-cta" : "border-border hover:border-brand"
               }`}>
               <div className="flex gap-1 mb-1.5">
@@ -83,20 +83,28 @@ export function DesignStep({ draft, updateDraft }: DesignStepProps) {
       <div className="space-y-3">
         <div>
           <Label>Tipografía títulos</Label>
-          <select value={draft.fontTitle || "Playfair Display"} onChange={(e) => updateDraft({ fontTitle: e.target.value })}
-            className="w-full bg-bg2 border-[1.5px] border-border rounded-md px-3 py-2.5 text-[13px] text-text outline-none focus:border-cta mt-1">
-            {FONT_OPTIONS.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
+          <FontSelect value={draft.fontTitle || "Playfair Display"} options={FONT_OPTIONS}
+            onChange={(v) => updateDraft({ fontTitle: v })} />
         </div>
         <div>
           <Label>Tipografía cuerpo</Label>
-          <select value={draft.fontBody || "Quicksand"} onChange={(e) => updateDraft({ fontBody: e.target.value })}
-            className="w-full bg-bg2 border-[1.5px] border-border rounded-md px-3 py-2.5 text-[13px] text-text outline-none focus:border-cta mt-1">
-            <option value="Quicksand">Quicksand</option>
-            <option value="Lato">Lato</option>
-            <option value="Open Sans">Open Sans</option>
-            <option value="Raleway">Raleway</option>
-          </select>
+          <FontSelect value={draft.fontBody || "Quicksand"} options={FONT_OPTIONS}
+            onChange={(v) => updateDraft({ fontBody: v })} />
+        </div>
+      </div>
+
+      <div>
+        <Label>Estilo de horarios del día</Label>
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          {SCHEDULE_STYLES.map((s) => (
+            <button key={s.id} onClick={() => updateDraft({ scheduleStyle: s.id })}
+              className={`p-2.5 rounded-xl border-2 text-center transition-all hover:scale-[1.02] ${
+                (draft.scheduleStyle || "B") === s.id ? "border-cta bg-cta/5" : "border-border hover:border-brand"
+              }`}>
+              <p className="text-[12px] font-semibold text-text">{s.label}</p>
+              <p className="text-[10px] text-brand mt-0.5">{s.desc}</p>
+            </button>
+          ))}
         </div>
       </div>
     </div>

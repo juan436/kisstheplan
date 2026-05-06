@@ -32,6 +32,7 @@ export interface WebPageConfig {
   customSections: Array<{ title: string; content: string }>;
   // Visibilidad
   visibleSections?: Record<string, boolean>;
+  scheduleStyle?: "A" | "B" | "C";
   // Publicación
   isPublished: boolean;
   publishedAt: string | null;

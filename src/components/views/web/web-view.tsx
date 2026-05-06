@@ -25,7 +25,7 @@ export default function WebBuilderPage() {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
 
   const {
-    page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, handlePublish, handleCopyLink,
+    page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, saveHeroImage, handlePublish, handleCopyLink,
     editingSlug, setEditingSlug, slugValue, slugStatus, slugError,
     savingSlug, handleSaveSlug, handleCheckSlug, handleSlugInputChange,
   } = useWebBuilder();
@@ -101,7 +101,7 @@ export default function WebBuilderPage() {
 
         <div className="max-h-[50vh] lg:max-h-none overflow-y-auto lg:flex-1 lg:min-h-0 pr-1">
           <Card className="p-5">
-            {step === 0 && <DesignStep draft={draft} updateDraft={updateDraft} />}
+            {step === 0 && <DesignStep draft={draft} updateDraft={updateDraft} onPhotoSave={saveHeroImage} />}
             {step === 1 && <RsvpStep draft={draft} updateDraft={updateDraft} />}
             {step === 2 && <ContentStep draft={draft} updateDraft={updateDraft} />}
           </Card>

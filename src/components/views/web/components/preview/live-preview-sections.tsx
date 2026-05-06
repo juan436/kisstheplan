@@ -9,6 +9,7 @@
 import type { WebPageConfig } from "@/types";
 import type { TemplateStyle } from "../template-styles";
 import { getImgUrl } from "@/lib/img-url";
+import { ScheduleSection } from "./schedule-section";
 
 export type Palette = { primary: string; accent: string; bg: string; text: string };
 
@@ -47,9 +48,7 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
         <div style={sectionStyle(1)}>
           {tpl.divider(palette.accent)}
           <h2 style={h2Style}>{draft.scheduleTitle || "Horarios del día"}</h2>
-          <pre {...editable("scheduleText")} style={{ ...pStyle, marginTop: "12px", fontFamily: fontBody, whiteSpace: "pre-wrap" }}>
-            {draft.scheduleText || "17:00 — Ceremonia\n18:00 — Cóctel\n20:00 — Cena"}
-          </pre>
+          <ScheduleSection draft={draft} palette={palette} fontTitle={fontTitle} fontBody={fontBody} editable={editable} />
         </div>
       )}
 

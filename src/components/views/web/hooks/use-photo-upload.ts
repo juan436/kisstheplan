@@ -11,7 +11,7 @@
 import { useState, useCallback } from "react";
 import { api } from "@/services";
 
-export function usePhotoUpload(onUploaded: (url: string) => void) {
+export function usePhotoUpload(onUploaded: (url: string) => void, onSave?: (url: string) => Promise<void>) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -21,12 +21,13 @@ export function usePhotoUpload(onUploaded: (url: string) => void) {
     try {
       const { url } = await api.uploadPhoto(file);
       onUploaded(url);
+      if (onSave) await onSave(url);
     } catch {
       setUploadError("Error al subir la imagen");
     } finally {
       setUploading(false);
     }
-  }, [onUploaded]);
+  }, [onUploaded, onSave]);
 
   return { uploading, uploadError, handleUpload };
 }

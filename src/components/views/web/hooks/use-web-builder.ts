@@ -63,6 +63,24 @@ export function useWebBuilder() {
     }
   }, [slugValue]);
 
+  // Auto-save triggered immediately after photo upload to avoid stale-closure race on heroImage
+  const saveHeroImage = useCallback(async (url: string): Promise<void> => {
+    setSaving(true);
+    try {
+      const payload = { ...draft, heroImage: url } as Record<string, unknown>;
+      if (page) {
+        const updated = await api.updateWebPage(payload);
+        setPage(updated);
+        setDraft((prev) => ({ ...prev, ...updated, heroImage: url }));
+      } else {
+        const created = await api.createWebPage(payload);
+        setPage(created);
+        setDraft((prev) => ({ ...prev, ...created, heroImage: url }));
+      }
+    } catch { /* silent — photo visible locally */ }
+    finally { setSaving(false); }
+  }, [page, draft]);
+
   const saveDraft = useCallback(async (): Promise<WebPageConfig | null> => {
     setSaving(true);
     try {
@@ -114,7 +132,7 @@ export function useWebBuilder() {
   }, [slugValue, wedding]);
 
   return {
-    page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, handlePublish, handleCopyLink,
+    page, loading, wedding, saving, copied, draft, updateDraft, saveDraft, saveHeroImage, handlePublish, handleCopyLink,
     editingSlug, setEditingSlug, slugValue, slugStatus, slugError,
     savingSlug, handleSaveSlug, handleCheckSlug, handleSlugInputChange,
   };

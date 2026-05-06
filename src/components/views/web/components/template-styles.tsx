@@ -1,71 +1,89 @@
-/**
- * template-styles
- *
- * Qué hace: define los 4 estilos de plantilla de la web pública (Classic/Modern/Romantic/Rustic).
- * Recibe:   nada — exporta constantes y el tipo TemplateStyle.
- * Provee:   TEMPLATE_STYLES (record), TemplateStyle (tipo) — usados por LivePreview y LivePreviewSections.
- */
+export type HeroShape = "arch" | "fullbleed" | "boxed" | "default";
 
 export type TemplateStyle = {
   heroAlign: "center" | "left";
+  heroShape: HeroShape;
   heroGradient: (bg: string, primary: string) => string;
   titleItalic: boolean;
   titleSize: string;
+  heroPadScale: number;
+  sectionPadScale: number;
   sectionTitleAlign: "center" | "left";
   divider: (accent: string) => React.ReactNode;
   sectionBg: (primary: string, index: number) => string | undefined;
+  sectionBgFull?: (primary: string, accent: string, index: number) => string;
   borderStyle: string;
   sectionRadius: string;
   buttonRadius: string;
+  floralDecor: boolean;
 };
 
 export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
-  classic: {
-    heroAlign: "center",
-    heroGradient: (bg, primary) => `linear-gradient(180deg, ${primary}22 0%, ${bg} 60%)`,
-    titleItalic: true, titleSize: "52px", sectionTitleAlign: "center",
+  elegante: {
+    heroAlign: "center", heroShape: "arch",
+    heroGradient: (bg, primary) => `linear-gradient(180deg, ${primary}20 0%, ${bg} 70%)`,
+    titleItalic: true, titleSize: "52px",
+    heroPadScale: 1.35, sectionPadScale: 1.3,
+    sectionTitleAlign: "center",
     divider: (accent) => (
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-        <div style={{ flex: 1, height: "1px", backgroundColor: `${accent}50` }} />
-        <span style={{ color: accent, fontSize: "18px" }}>✦</span>
-        <div style={{ flex: 1, height: "1px", backgroundColor: `${accent}50` }} />
+      <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "22px", justifyContent: "center" }}>
+        <div style={{ width: "56px", height: "1px", background: `linear-gradient(to right, transparent, ${accent}90)` }} />
+        <span style={{ color: accent, fontSize: "13px", letterSpacing: "10px", lineHeight: 1 }}>◇ ✦ ◇</span>
+        <div style={{ width: "56px", height: "1px", background: `linear-gradient(to left, transparent, ${accent}90)` }} />
+      </div>
+    ),
+    sectionBg: () => undefined, borderStyle: "1px solid",
+    sectionRadius: "0", buttonRadius: "999px", floralDecor: false,
+  },
+
+  inmersivo: {
+    heroAlign: "center", heroShape: "fullbleed",
+    heroGradient: (bg, primary) => `linear-gradient(160deg, ${primary}55 0%, ${bg} 100%)`,
+    titleItalic: false, titleSize: "54px",
+    heroPadScale: 1.2, sectionPadScale: 1.1,
+    sectionTitleAlign: "center",
+    divider: (accent) => (
+      <div style={{ margin: "0 auto 22px", width: "80px", height: "2px", background: `linear-gradient(to right, transparent, ${accent}, transparent)`, borderRadius: "2px" }} />
+    ),
+    sectionBg: (primary, i) => i % 2 !== 0 ? `${primary}18` : undefined,
+    borderStyle: "none", sectionRadius: "0", buttonRadius: "8px", floralDecor: false,
+  },
+
+  minimalista: {
+    heroAlign: "center", heroShape: "boxed",
+    heroGradient: (_bg, primary) => `linear-gradient(180deg, ${primary}10 0%, #fff 100%)`,
+    titleItalic: false, titleSize: "44px",
+    heroPadScale: 1.25, sectionPadScale: 1.2,
+    sectionTitleAlign: "center",
+    divider: (_accent) => <div style={{ marginBottom: "22px" }} />,
+    sectionBg: () => undefined, borderStyle: "none",
+    sectionRadius: "0", buttonRadius: "6px", floralDecor: false,
+  },
+
+  floral: {
+    heroAlign: "center", heroShape: "arch",
+    heroGradient: (bg, primary) => `radial-gradient(ellipse at top, ${primary}35 0%, ${bg} 65%)`,
+    titleItalic: true, titleSize: "52px",
+    heroPadScale: 1.35, sectionPadScale: 1.3,
+    sectionTitleAlign: "center",
+    divider: (accent) => (
+      <div style={{ textAlign: "center", marginBottom: "20px", lineHeight: 1 }}>
+        <span style={{ color: accent, fontSize: "11px", letterSpacing: "5px", opacity: 0.6 }}>❧</span>
+        <span style={{ color: accent, fontSize: "22px", margin: "0 10px", opacity: 0.85 }}>✿</span>
+        <span style={{ color: accent, fontSize: "11px", letterSpacing: "5px", opacity: 0.6 }}>❧</span>
       </div>
     ),
     sectionBg: (primary, i) => i % 2 !== 0 ? `${primary}18` : undefined,
-    borderStyle: "1px solid", sectionRadius: "0", buttonRadius: "999px",
+    sectionBgFull: (primary, accent, i) =>
+      i % 2 !== 0
+        ? `radial-gradient(circle at 92% 8%, ${accent}18 0%, transparent 45%), ${primary}18`
+        : `radial-gradient(circle at 8% 92%, ${accent}12 0%, transparent 40%)`,
+    borderStyle: "1px dashed", sectionRadius: "0", buttonRadius: "999px", floralDecor: true,
   },
-  modern: {
-    heroAlign: "left",
-    heroGradient: (bg, primary) => `linear-gradient(135deg, ${bg} 0%, ${primary}15 100%)`,
-    titleItalic: false, titleSize: "48px", sectionTitleAlign: "left",
-    divider: (accent) => (
-      <div style={{ width: "40px", height: "3px", backgroundColor: accent, marginBottom: "16px", borderRadius: "2px" }} />
-    ),
-    sectionBg: () => undefined, borderStyle: "1px solid", sectionRadius: "0", buttonRadius: "6px",
-  },
-  romantic: {
-    heroAlign: "center",
-    heroGradient: (bg, primary) => `radial-gradient(ellipse at top, ${primary}40 0%, ${bg} 65%)`,
-    titleItalic: true, titleSize: "54px", sectionTitleAlign: "center",
-    divider: (accent) => (
-      <div style={{ textAlign: "center", fontSize: "22px", color: accent, marginBottom: "12px", letterSpacing: "8px" }}>
-        ❧ ❧ ❧
-      </div>
-    ),
-    sectionBg: (primary, i) => i % 2 !== 0 ? `${primary}20` : undefined,
-    borderStyle: "1px dashed", sectionRadius: "0", buttonRadius: "999px",
-  },
-  rustic: {
-    heroAlign: "left",
-    heroGradient: (_bg, primary) => `linear-gradient(160deg, ${primary}55 0%, ${primary}22 100%)`,
-    titleItalic: false, titleSize: "44px", sectionTitleAlign: "left",
-    divider: (accent) => (
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-        <span style={{ color: accent, fontSize: "16px" }}>◆</span>
-        <div style={{ flex: 1, height: "1px", backgroundColor: `${accent}60`, backgroundImage: `repeating-linear-gradient(90deg, ${accent}60 0px, ${accent}60 4px, transparent 4px, transparent 8px)` }} />
-      </div>
-    ),
-    sectionBg: (primary, i) => i % 2 !== 0 ? `${primary}25` : `${primary}08`,
-    borderStyle: "2px solid", sectionRadius: "0", buttonRadius: "4px",
-  },
+
+  // Aliases retrocompatibilidad
+  classic:  { heroAlign: "center", heroShape: "default", heroGradient: (bg, p) => `linear-gradient(180deg, ${p}22 0%, ${bg} 60%)`, titleItalic: true, titleSize: "52px", heroPadScale: 1, sectionPadScale: 1, sectionTitleAlign: "center", divider: (a) => <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}><div style={{ flex: 1, height: "1px", backgroundColor: `${a}50` }} /><span style={{ color: a, fontSize: "18px" }}>✦</span><div style={{ flex: 1, height: "1px", backgroundColor: `${a}50` }} /></div>, sectionBg: (p, i) => i % 2 !== 0 ? `${p}18` : undefined, borderStyle: "1px solid", sectionRadius: "0", buttonRadius: "999px", floralDecor: false },
+  modern:   { heroAlign: "left",   heroShape: "default", heroGradient: (bg, p) => `linear-gradient(135deg, ${bg} 0%, ${p}15 100%)`, titleItalic: false, titleSize: "48px", heroPadScale: 1, sectionPadScale: 1, sectionTitleAlign: "left", divider: (a) => <div style={{ width: "40px", height: "3px", backgroundColor: a, marginBottom: "16px", borderRadius: "2px" }} />, sectionBg: () => undefined, borderStyle: "1px solid", sectionRadius: "0", buttonRadius: "6px", floralDecor: false },
+  romantic: { heroAlign: "center", heroShape: "default", heroGradient: (bg, p) => `radial-gradient(ellipse at top, ${p}40 0%, ${bg} 65%)`, titleItalic: true, titleSize: "54px", heroPadScale: 1, sectionPadScale: 1, sectionTitleAlign: "center", divider: (a) => <div style={{ textAlign: "center", fontSize: "22px", color: a, marginBottom: "12px", letterSpacing: "8px" }}>❧ ❧ ❧</div>, sectionBg: (p, i) => i % 2 !== 0 ? `${p}20` : undefined, borderStyle: "1px dashed", sectionRadius: "0", buttonRadius: "999px", floralDecor: false },
+  rustic:   { heroAlign: "left",   heroShape: "default", heroGradient: (_bg, p) => `linear-gradient(160deg, ${p}55 0%, ${p}22 100%)`, titleItalic: false, titleSize: "44px", heroPadScale: 1, sectionPadScale: 1, sectionTitleAlign: "left", divider: (a) => <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}><span style={{ color: a, fontSize: "16px" }}>◆</span><div style={{ flex: 1, height: "1px", backgroundColor: `${a}60` }} /></div>, sectionBg: (p, i) => i % 2 !== 0 ? `${p}25` : `${p}08`, borderStyle: "2px solid", sectionRadius: "0", buttonRadius: "4px", floralDecor: false },
 };
