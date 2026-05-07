@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TEMPLATE_STYLES } from "@/components/views/web/components/template-styles";
 
 interface ContentSectionProps {
   icon?: ReactNode;
@@ -6,32 +7,34 @@ interface ContentSectionProps {
   colors: Record<string, string>;
   fontTitle: string;
   template: string;
+  sectionIndex?: number;
   children: ReactNode;
 }
 
-export function ContentSection({ icon, title, colors, fontTitle, template, children }: ContentSectionProps) {
+export function ContentSection({ icon, title, colors, fontTitle, template, sectionIndex = 0, children }: ContentSectionProps) {
+  const tpl = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.elegante;
+  const bg  = tpl.sectionBgFull?.(colors.primary, colors.accent, sectionIndex) ?? tpl.sectionBg(colors.primary, sectionIndex);
+
   return (
-    <section className="mt-20 text-center">
+    <section style={{ marginTop: "60px", textAlign: tpl.sectionTitleAlign, padding: "48px 0", backgroundColor: bg || "transparent" }}>
       {icon && (
-        <div
-          className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-5"
-          style={{ backgroundColor: colors.accent + "12", color: colors.accent }}
-        >
+        <div style={{ width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", backgroundColor: `${colors.accent}14`, color: colors.accent }}>
           {icon}
         </div>
       )}
-      <h2
-        className="text-[26px] sm:text-[30px] mb-2"
-        style={{
-          fontFamily: fontTitle,
-          fontStyle: template === "modern" ? "normal" : "italic",
-          fontWeight: template === "modern" ? 600 : 400,
-        }}
-      >
+      {tpl.sectionBadge && (
+        <span style={{ display: "block", fontSize: "9px", letterSpacing: "0.35em", opacity: 0.18, marginBottom: "8px", color: colors.text }}>
+          {String(sectionIndex + 1).padStart(2, "0")}
+        </span>
+      )}
+      {tpl.sectionAccent?.(colors.accent, colors.primary)}
+      <h2 style={{ fontFamily: fontTitle, color: colors.text, fontSize: "clamp(20px, 3vw, 28px)", marginBottom: "6px", ...tpl.h2ExtraStyle }}>
         {title}
       </h2>
-      <div className="w-10 h-0.5 mx-auto mt-3 mb-6 rounded-full" style={{ backgroundColor: colors.accent, opacity: 0.3 }} />
-      {children}
+      {tpl.divider(colors.accent)}
+      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        {children}
+      </div>
     </section>
   );
 }

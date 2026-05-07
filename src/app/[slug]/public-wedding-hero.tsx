@@ -1,8 +1,14 @@
-import { Heart, Calendar, MapPin, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { getImgUrl } from "@/lib/img-url";
 import type { PublicWeddingData } from "@/types";
+import { TEMPLATE_STYLES } from "@/components/views/web/components/template-styles";
 
-interface PublicWeddingHeroProps {
+function parseHeroPos(pos?: string) {
+  const p = (pos || "50% 50%").split(" ");
+  return { imgPos: `${p[0] || "50%"} ${p[1] || "50%"}`, imgZoom: parseFloat(p[2] ?? "1") || 1 };
+}
+
+interface Props {
   wedding: PublicWeddingData["wedding"];
   page: PublicWeddingData["page"];
   colors: Record<string, string>;
@@ -12,87 +18,78 @@ interface PublicWeddingHeroProps {
   hasContent: boolean;
 }
 
-export function PublicWeddingHero({ wedding, page, colors, template, daysLeft, formattedDate, hasContent }: PublicWeddingHeroProps) {
+export function PublicWeddingHero({ wedding, page, colors, template, daysLeft, formattedDate, hasContent }: Props) {
+  const tpl     = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.elegante;
   const heroImg = page.heroImage ? getImgUrl(page.heroImage) : null;
-  const textColor = heroImg ? "#fff" : colors.text;
-  const subOpacity = heroImg ? "rgba(255,255,255,0.75)" : undefined;
+  const { imgPos, imgZoom } = parseHeroPos(page.heroImagePosition);
+  const imgStyle = { objectFit: "cover" as const, objectPosition: imgPos, transform: `scale(${imgZoom})`, transformOrigin: imgPos };
+  const isFullbleed = tpl.heroShape === "fullbleed";
+  const isArch      = tpl.heroShape === "arch";
+  const isBoxed     = tpl.heroShape === "boxed";
+  const titleColor  = isFullbleed && heroImg ? "#fff" : colors.text;
+  const subColor    = isFullbleed && heroImg ? "rgba(255,255,255,0.8)" : `${colors.text}aa`;
+  const accentLine  = isFullbleed && heroImg ? "#ffffff99" : colors.accent;
+
+  const daysNode = daysLeft > 0 && (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginTop: "24px", padding: "10px 24px", borderRadius: "999px", backgroundColor: isFullbleed && heroImg ? "rgba(255,255,255,0.15)" : `${colors.accent}14` }}>
+      <span style={{ fontFamily: page.fontTitle, color: isFullbleed && heroImg ? "#fff" : colors.accent, fontSize: "26px", fontWeight: 600 }}>{daysLeft}</span>
+      <span style={{ color: subColor, fontSize: "13px" }}>días para el gran día</span>
+    </div>
+  );
+
+  const titleBlock = (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "600px", margin: "0 auto" }}>
+      {tpl.divider(accentLine)}
+      <h1 style={{ fontFamily: page.fontTitle, color: titleColor, fontSize: "clamp(36px, 7vw, 68px)", fontStyle: tpl.titleItalic ? "italic" : "normal", lineHeight: 1.15, marginBottom: "14px" }}>
+        {page.heroTitle || `${wedding.partner1Name} & ${wedding.partner2Name}`}
+      </h1>
+      {tpl.divider(accentLine)}
+      <p style={{ color: subColor, fontSize: "15px", letterSpacing: "0.06em", marginBottom: "6px" }}>{page.heroSubtitle || formattedDate}</p>
+      <p style={{ color: subColor, fontSize: "13px", opacity: 0.7 }}>{wedding.venue}{wedding.location ? `, ${wedding.location}` : ""}</p>
+      {daysNode}
+    </div>
+  );
+
+  if (isFullbleed) {
+    return (
+      <section style={{ position: "relative", minHeight: "90vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "80px 32px", backgroundImage: heroImg ? undefined : tpl.heroGradient(colors.bg, colors.primary), backgroundColor: heroImg ? undefined : colors.bg }}>
+        {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", pointerEvents: "none", ...imgStyle }} />}
+        {heroImg && <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)" }} />}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {tpl.heroGlassCard && heroImg
+            ? <div style={{ padding: "36px 52px", borderRadius: "16px", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", backgroundColor: "rgba(0,0,0,0.22)", border: "1px solid rgba(255,255,255,0.12)", display: "flex", flexDirection: "column", alignItems: "center" }}>{titleBlock}</div>
+            : titleBlock}
+        </div>
+        {hasContent && <div style={{ position: "absolute", bottom: "28px", left: "50%", transform: "translateX(-50%)", opacity: 0.35 }}><ChevronDown size={24} color={heroImg ? "#fff" : colors.accent} /></div>}
+      </section>
+    );
+  }
+
+  const W  = isArch ? "clamp(200px, 24vw, 300px)" : isBoxed ? "clamp(260px, 50vw, 420px)" : undefined;
+  const H  = isArch ? "clamp(250px, 30vw, 400px)" : isBoxed ? "clamp(180px, 22vw, 280px)" : undefined;
+  const BR = isArch ? ("50% 50% 0 0 / 35% 35% 0 0" as const) : isBoxed ? "16px" : undefined;
 
   return (
-    <section
-      className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6"
-      style={{
-        backgroundImage: heroImg
-          ? `url(${heroImg})`
-          : template === "modern"
-            ? `linear-gradient(180deg, ${colors.bg} 0%, ${colors.primary}15 100%)`
-            : template === "romantic"
-              ? `radial-gradient(ellipse at center, ${colors.accent}08 0%, ${colors.bg} 70%)`
-              : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {heroImg && <div className="absolute inset-0 bg-black/45" />}
-
-      {/* Decorative elements (sin imagen) */}
-      {!heroImg && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {template === "classic" && (
-            <>
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 w-32 h-0.5 opacity-20" style={{ backgroundColor: colors.accent }} />
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-0.5 opacity-20" style={{ backgroundColor: colors.accent }} />
-            </>
-          )}
-          {template === "romantic" && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03]" style={{ backgroundColor: colors.accent }} />
-          )}
-        </div>
-      )}
-
-      <div className="relative z-10">
-        <Heart size={28} style={{ color: heroImg ? "rgba(255,255,255,0.7)" : colors.accent }} className="mx-auto mb-6 opacity-60" />
-
-        <h1 className="text-[42px] sm:text-[56px] md:text-[72px] leading-tight mb-2"
-          style={{ fontFamily: page.fontTitle, color: textColor, fontStyle: template === "modern" ? "normal" : "italic", fontWeight: template === "modern" ? 600 : 400, letterSpacing: template === "modern" ? "-0.02em" : undefined }}>
-          {page.heroTitle || `${wedding.partner1Name} & ${wedding.partner2Name}`}
-        </h1>
-
-        {page.heroSubtitle && (
-          <p className="text-[16px] sm:text-[18px] mb-6 tracking-wide" style={{ color: subOpacity || textColor, opacity: subOpacity ? 1 : 0.6 }}>{page.heroSubtitle}</p>
-        )}
-
-        <div className="flex items-center justify-center gap-4 my-8">
-          <div className="w-16 h-px opacity-30" style={{ backgroundColor: heroImg ? "#fff" : colors.accent }} />
-          <div className="w-2 h-2 rounded-full opacity-40" style={{ backgroundColor: heroImg ? "#fff" : colors.accent }} />
-          <div className="w-16 h-px opacity-30" style={{ backgroundColor: heroImg ? "#fff" : colors.accent }} />
-        </div>
-
-        <div className="space-y-3">
-          <p className="flex items-center justify-center gap-2 text-[15px]" style={{ color: subOpacity || textColor, opacity: subOpacity ? 1 : 0.7 }}>
-            <Calendar size={16} style={{ color: heroImg ? "rgba(255,255,255,0.8)" : colors.accent }} />
-            <span className="capitalize">{formattedDate}</span>
-          </p>
-          <p className="flex items-center justify-center gap-2 text-[15px]" style={{ color: subOpacity || textColor, opacity: subOpacity ? 1 : 0.7 }}>
-            <MapPin size={16} style={{ color: heroImg ? "rgba(255,255,255,0.8)" : colors.accent }} />
-            {wedding.venue}{wedding.location ? `, ${wedding.location}` : ""}
-          </p>
-        </div>
-
-        {daysLeft > 0 && (
-          <div className="mt-10">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full" style={{ backgroundColor: heroImg ? "rgba(255,255,255,0.15)" : colors.accent + "12" }}>
-              <span className="text-[28px] font-semibold" style={{ fontFamily: page.fontTitle, color: heroImg ? "#fff" : colors.accent }}>{daysLeft}</span>
-              <span className="text-[13px]" style={{ color: subOpacity || textColor, opacity: subOpacity ? 1 : 0.6 }}>{daysLeft === 1 ? "dia" : "dias"} para el gran dia</span>
+    <section style={{ position: "relative", textAlign: "center", padding: "80px 32px 60px", backgroundImage: tpl.heroGradient(colors.bg, colors.primary), backgroundColor: colors.bg, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {tpl.heroBotanical && (<>
+        <div style={{ position: "absolute", top: "16px", left: "24px", fontSize: "28px", opacity: 0.22, transform: "rotate(-25deg)", pointerEvents: "none" }}>✿</div>
+        <div style={{ position: "absolute", top: "20px", right: "24px", fontSize: "22px", opacity: 0.18, transform: "rotate(18deg)", pointerEvents: "none" }}>❧</div>
+        <div style={{ position: "absolute", bottom: "20px", left: "24px", fontSize: "18px", opacity: 0.16, pointerEvents: "none" }}>✿</div>
+        <div style={{ position: "absolute", bottom: "20px", right: "24px", fontSize: "22px", opacity: 0.2, pointerEvents: "none" }}>❧</div>
+      </>)}
+      {heroImg && (
+        <div style={{ margin: "0 auto 36px" }}>
+          <div style={{ padding: tpl.heroDoubleBorder && isArch ? "8px" : undefined, border: tpl.heroDoubleBorder && isArch ? `1px solid ${colors.accent}25` : undefined, borderRadius: BR, margin: "0 auto" }}>
+            <div style={{ width: W, height: H, borderRadius: BR, overflow: "hidden", boxShadow: isBoxed ? "0 12px 48px rgba(0,0,0,0.12)" : undefined, border: isArch ? `1px solid ${colors.primary}40` : undefined, margin: "0 auto" }}>
+              <img src={heroImg} alt="Portada" style={{ width: "100%", height: "100%", ...imgStyle }} />
             </div>
           </div>
-        )}
-      </div>
-
-      {hasContent && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-30">
-          <ChevronDown size={24} style={{ color: heroImg ? "#fff" : colors.accent }} />
         </div>
       )}
+      {tpl.floralDecor && !heroImg && <div style={{ fontSize: "28px", marginBottom: "12px", opacity: 0.4, letterSpacing: "12px" }}>🌿 ✿ 🌿</div>}
+      {titleBlock}
+      {tpl.heroFade && <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "90px", background: `linear-gradient(to bottom, transparent, ${colors.bg})`, pointerEvents: "none" }} />}
+      {hasContent && !tpl.heroFade && <div style={{ marginTop: "36px", opacity: 0.3 }}><ChevronDown size={24} color={colors.accent} /></div>}
     </section>
   );
 }

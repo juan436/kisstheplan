@@ -17,16 +17,18 @@ function show(page: PublicWeddingData["page"], key: string) {
 }
 
 export function PublicWeddingSections({ page, colors, template, slug }: PublicWeddingSectionsProps) {
+  let idx = 0;
+
   return (
     <div className="max-w-[700px] mx-auto px-6 pb-20">
       {page.storyText && show(page, "story") && (
-        <ContentSection icon={<Heart size={20} />} title={page.storyTitle || "Nuestra historia"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Heart size={20} />} title={page.storyTitle || "Nuestra historia"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{page.storyText}</p>
         </ContentSection>
       )}
 
       {page.scheduleText && show(page, "schedule") && (
-        <ContentSection icon={<Clock size={20} />} title={page.scheduleTitle || "Horarios del día"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Clock size={20} />} title={page.scheduleTitle || "Horarios del día"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <div className="space-y-3">
             {page.scheduleText.split("\n").filter(Boolean).map((line, i) => {
               const parts = line.match(/^(\d{1,2}[.:]\d{2})\s*[-—]\s*(.+)$/);
@@ -43,31 +45,31 @@ export function PublicWeddingSections({ page, colors, template, slug }: PublicWe
       )}
 
       {page.locationText && show(page, "location") && (
-        <ContentSection icon={<MapPin size={20} />} title={page.locationTitle || "Cómo llegar"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<MapPin size={20} />} title={page.locationTitle || "Cómo llegar"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{page.locationText}</p>
         </ContentSection>
       )}
 
       {page.transportText && show(page, "transport") && (
-        <ContentSection icon={<Bus size={20} />} title={page.transportTitle || "Transporte"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Bus size={20} />} title={page.transportTitle || "Transporte"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{page.transportText}</p>
         </ContentSection>
       )}
 
       {page.accommodationText && show(page, "accommodation") && (
-        <ContentSection icon={<Hotel size={20} />} title={page.accommodationTitle || "Alojamiento"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Hotel size={20} />} title={page.accommodationTitle || "Alojamiento"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{page.accommodationText}</p>
         </ContentSection>
       )}
 
       {page.dressCode && show(page, "dressCode") && (
-        <ContentSection icon={<Shirt size={20} />} title={page.dressCodeTitle || "Código de vestimenta"} colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Shirt size={20} />} title={page.dressCodeTitle || "Código de vestimenta"} colors={colors} fontTitle={page.fontTitle} template={template}>
           <p className="text-[17px] font-medium opacity-80" style={{ fontFamily: page.fontTitle }}>{page.dressCode}</p>
         </ContentSection>
       )}
 
       {(page.galleryImages || []).length > 0 && show(page, "gallery") && (
-        <ContentSection icon={<Images size={20} />} title="Galería" colors={colors} fontTitle={page.fontTitle} template={template}>
+        <ContentSection sectionIndex={idx++} icon={<Images size={20} />} title="Galería" colors={colors} fontTitle={page.fontTitle} template={template}>
           <div className="grid grid-cols-3 gap-2">
             {(page.galleryImages || []).map((img, i) => (
               <div key={i} className="aspect-square rounded-lg overflow-hidden">
@@ -80,7 +82,7 @@ export function PublicWeddingSections({ page, colors, template, slug }: PublicWe
 
       {page.customSections?.map((section, i) =>
         section.title && (
-          <ContentSection key={i} title={section.title} colors={colors} fontTitle={page.fontTitle} template={template}>
+          <ContentSection key={i} sectionIndex={idx++} title={section.title} colors={colors} fontTitle={page.fontTitle} template={template}>
             <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{section.content}</p>
           </ContentSection>
         )
