@@ -108,16 +108,16 @@ export default function CalendarioPage() {
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-1">
-                          <p className="text-[12px] font-medium text-text truncate">{p.vendorName || p.concept || "Pago"}</p>
+                          <p className="text-[12px] text-text truncate">{p.vendorName || p.concept || "Pago"}</p>
                           {clickable && <ExternalLink size={10} className="text-cta flex-shrink-0" />}
                         </div>
-                        <p className={`text-[11px] font-medium ${isOverdue ? "text-red-500" : "text-brand"}`}>
+                        <p className={`text-[11px] ${isOverdue ? "text-red-500" : "text-brand"}`}>
                           {isOverdue ? "⚠ " : ""}
                           {new Date(p.dueDate + "T00:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
                           {isOverdue ? " (vencido)" : ""}
                         </p>
                       </div>
-                      <span className="text-[12px] font-semibold text-text flex-shrink-0" style={{ fontFamily: "var(--font-playfair)" }}>{formatCurrency(p.amount)}</span>
+                      <span className="text-[12px] font-semibold text-cta flex-shrink-0">{formatCurrency(p.amount)}</span>
                     </div>
                   );
                 })}

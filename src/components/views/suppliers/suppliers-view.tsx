@@ -91,7 +91,7 @@ export default function ProveedoresPage() {
   return (
     <div className="max-w-[1200px] mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <h1 className="font-display text-[20px] sm:text-[26px] italic text-text">Proveedores</h1>
+        <h1 className="font-display text-[22px] text-text">Proveedores</h1>
         <div className="flex flex-wrap items-center gap-3">
           {view === "grid" && (
             <div className="flex items-center rounded-lg border border-border overflow-hidden">

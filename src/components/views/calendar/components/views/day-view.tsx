@@ -47,49 +47,55 @@ export function DayView({ day, tasks, payments, onAddTask, onPrev, onNext }: Day
             <div>
               <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-2">Tareas</p>
               {tasks.map((t) => (
-                <div key={t.id} className="flex items-center gap-3 px-4 py-3 rounded-xl mb-2"
-                  style={{ backgroundColor: "#D4BFB020", borderLeft: "3px solid #D4BFB0" }}>
-                  <div className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
-                    style={{ borderColor: t.status === "done" ? "#4A773C" : "#D4C9B8", backgroundColor: t.status === "done" ? "#4A773C" : "transparent" }}>
-                    {t.status === "done" && <Check size={9} className="text-white" />}
-                  </div>
-                  <div>
-                    <p className={`text-[13px] font-medium ${t.status === "done" ? "line-through text-brand" : "text-text"}`}>{t.title}</p>
-                    {t.category && <p className="text-[11px] text-brand">{t.category}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {payments.length > 0 && (
-            <div>
-              <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-2">Pagos</p>
-              {payments.map((p) => {
-                const clickable = !!p.vendorId;
-                return (
-                  <div
-                    key={p.id}
-                    onClick={clickable ? () => navigateTo("proveedores", p.vendorId!, p.categoryId ?? undefined, p.itemId ?? undefined) : undefined}
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-opacity ${clickable ? "cursor-pointer hover:opacity-80" : ""}`}
-                    style={{ backgroundColor: "#CBA97815", borderLeft: "3px solid #CBA978" }}
-                  >
+                  <div key={t.id} className="flex items-center gap-3 px-4 py-3 rounded-xl mb-2"
+                    style={{ backgroundColor: "#D4BFB020", borderLeft: "3px solid #D4BFB0" }}>
+                    <div className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
+                      style={{ borderColor: t.status === "done" ? "#4A773C" : "#D4C9B8", backgroundColor: t.status === "done" ? "#4A773C" : "transparent" }}>
+                      {t.status === "done" && <Check size={9} className="text-white" />}
+                    </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-[13px] font-medium text-text">{p.vendorName}</p>
-                        {clickable && <ExternalLink size={11} className="text-cta flex-shrink-0" />}
-                      </div>
-                      {p.concept && <p className="text-[11px] text-brand">{p.concept}</p>}
-                      {p.categoryName && <p className="text-[10px] text-brand opacity-70">{p.categoryName}</p>}
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-[14px] font-semibold text-cta">{formatCurrency(p.amount)}</p>
-                      {p.paid && <p className="text-[10px] text-[#4A773C]">Pagado</p>}
+                      <p className={`text-[13px] font-semibold ${t.status === "done" ? "line-through text-brand" : "text-text"}`}>{t.title}</p>
+                      {t.category && <p className="text-[11px] text-brand">{t.category}</p>}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+            {payments.length > 0 && (
+              <div>
+                <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-2">Pagos</p>
+                {payments.map((p) => {
+                  const clickable = !!p.vendorId;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={clickable ? () => navigateTo("proveedores", p.vendorId!, p.categoryId ?? undefined, p.itemId ?? undefined) : undefined}
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl mb-2 transition-opacity ${clickable ? "cursor-pointer hover:opacity-80" : ""}`}
+                      style={{ backgroundColor: "#D4BFB020", borderLeft: "3px solid #D4BFB0" }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Icono de moneda alineado con el círculo de tareas */}
+                        <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center text-brand opacity-60">
+                           <span className="text-[10px] font-bold">€</span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-semibold text-text truncate">{p.vendorName || p.concept || "Pago"}</p>
+                          {(p.concept || p.categoryName) && (
+                            <p className="text-[11px] text-brand truncate">
+                              {p.categoryName || p.concept}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <p className="text-[14px] font-semibold text-cta">{formatCurrency(p.amount)}</p>
+                        {p.paid && <p className="text-[10px] text-[#4A773C]">Pagado</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
         </div>
       )}
     </div>

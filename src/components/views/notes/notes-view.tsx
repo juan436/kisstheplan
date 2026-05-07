@@ -57,7 +57,7 @@ export function NotesView() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="font-playfair text-2xl text-[var(--color-text)]">Notas y Moodboards</h2>
+          <h1 className="font-display text-[22px] text-text">Notas y Moodboards</h1>
           <p className="text-sm text-[var(--color-text)]/50 mt-0.5">{notes.length} nota{notes.length !== 1 ? "s" : ""}</p>
         </div>
         <button onClick={() => setShowCreate(true)}

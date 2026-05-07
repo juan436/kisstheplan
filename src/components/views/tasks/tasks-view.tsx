@@ -28,7 +28,7 @@ export default function TasksView() {
     <div className="max-w-3xl mx-auto w-full">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-text" style={{ fontFamily: "Playfair Display, serif" }}>To Do List</h1>
+          <h1 className="font-display text-[22px] text-text">To Do List</h1>
           {!loading && <p className="text-sm text-text/50 mt-0.5">{done} de {total} tareas completadas</p>}
         </div>
         <button onClick={() => setShowAdd(true)}
