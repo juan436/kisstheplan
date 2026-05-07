@@ -36,7 +36,7 @@ export function useCanvasTab({ plan, mode, onUpdateTablePos, onDeleteTable }: Us
   const [showLegend, setShowLegend]             = useState(false);
   const [legendPos, setLegendPos]               = useState({ x: 8, y: 8 });
   const [showTableLegend, setShowTableLegend]   = useState(false);
-  const [bgImage, setBgImage]                   = useState<string | null>(plan.backgroundImageUrl ?? "/images/finca.png");
+  const [bgImage, setBgImage]                   = useState<string | null>(plan.backgroundImageUrl ?? null);
   const [customEmojis, setCustomEmojis]         = useState<EmojiObject[]>(() => (plan.customEmojis ?? []).filter((e) => !!e.objectType));
   const [canvasDims, setCanvasDims]             = useState({ w: WORLD_W, h: 600 });
 

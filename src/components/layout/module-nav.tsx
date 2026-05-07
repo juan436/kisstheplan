@@ -1,31 +1,24 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  Wallet,
-  CheckSquare,
-  Globe,
-  Store,
-  Grid3X3,
-  Calendar,
-  FileText,
-  StickyNote,
-} from "lucide-react";
+import { Users, CheckSquare, Grid3X3, Calendar, FileText, StickyNote, Store } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-const modules = [
-  { id: "dashboard", name: "Inicio", icon: LayoutDashboard },
-  { id: "tareas", name: "Tareas", icon: CheckSquare },
-  { id: "notas", name: "Notas", icon: StickyNote },
-  { id: "proveedores", name: "Proveedores", icon: Store },
-  { id: "presupuesto", name: "Presupuesto", icon: Wallet },
-  { id: "invitados", name: "Invitados", icon: Users },
-  { id: "web", name: "Web", icon: Globe },
-  { id: "plano-mesas", name: "Plano mesas", icon: Grid3X3 },
-  { id: "guion", name: "Guión", icon: FileText },
-  { id: "calendario", name: "Calendario", icon: Calendar },
+type Module = { id: string; name: string; icon?: LucideIcon; img?: string };
+
+const modules: Module[] = [
+  { id: "dashboard",   name: "Inicio",      img: "/icons/Icono inicio mocha v5.png" },
+  { id: "tareas",      name: "Tareas",       icon: CheckSquare },
+  { id: "notas",       name: "Notas",        icon: StickyNote },
+  { id: "proveedores", name: "Proveedores",  icon: Store },
+  { id: "presupuesto", name: "Presupuesto",  img: "/icons/Icono proveedores y presupuesto mocha v2.png" },
+  { id: "invitados",   name: "Invitados",    icon: Users },
+  { id: "web",         name: "Web",          img: "/icons/Icono web rsvp v2.png" },
+  { id: "plano-mesas", name: "Plano mesas",  icon: Grid3X3 },
+  { id: "guion",       name: "Guión",        icon: FileText },
+  { id: "calendario",  name: "Calendario",   icon: Calendar },
 ];
 
 export function ModuleNav({
@@ -104,11 +97,14 @@ export function ModuleNav({
               className={cn(
                 "flex items-center gap-2 px-3 md:px-4 lg:px-5 py-3 text-[12px] lg:text-[13px] font-medium whitespace-nowrap transition-all border-b-2 outline-none cursor-pointer",
                 isActive
-                  ? "text-text border-cta"
-                  : "text-brand border-transparent hover:text-accent hover:border-border"
+                  ? "text-accent border-cta"
+                  : "text-accent border-transparent hover:border-border"
               )}
             >
-              <Icon size={15} />
+              {mod.img
+                ? <Image src={mod.img} alt="" width={26} height={26} quality={100} unoptimized className="object-contain flex-shrink-0" />
+                : Icon && <Icon size={15} />
+              }
               {mod.name}
             </button>
           );
