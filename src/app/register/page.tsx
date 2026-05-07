@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-bg2 flex flex-col items-center pt-10 pb-10 px-4">
-      <div className="mb-8"><Logo /></div>
+      <div className="mb-12"><Logo variant="mocha" centered /></div>
       <div className="w-full max-w-[800px]">
         <StepIndicator steps={steps} current={step} />
         {error && (

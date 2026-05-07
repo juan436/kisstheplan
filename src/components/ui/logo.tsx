@@ -7,6 +7,7 @@ interface LogoProps {
   href?: string;
   className?: string;
   variant?: "beige" | "mocha" | "light";
+  centered?: boolean;
 }
 
 export function Logo({
@@ -14,29 +15,37 @@ export function Logo({
   href = "/",
   className,
   variant = "beige",
+  centered = false,
 }: LogoProps) {
-  // Las imagenes importadas son:
-  // /logos/logo-completo.png -> Logo gREIGE sin fondo.png
-  // /logos/logo-abreviado.png -> K no background.png
 
   const getSrc = () => {
-    if (type === "short") return "/logos/logo-abreviado.png";
-    if (variant === "mocha") return "/logos/logo-mocha-sin-fondo.png";
-    return "/logos/logo-completo.png";
+    if (type === "short") return "/logos/logo-short.png";
+    if (variant === "mocha") return "/logos/logo-full-mocha.png";
+    return "/logos/logo-full-greige.png";
   };
   const src = getSrc();
 
   return (
     <Link
       href={href}
-      className={cn("flex items-center no-underline relative", className)}
+      className={cn("flex items-center no-underline relative", centered && "justify-center", className)}
     >
-      <div className={cn("relative flex items-center", type === "full" ? "w-[260px] h-[86px] sm:w-[320px] sm:h-[106px] lg:w-[360px] lg:h-[120px] xl:w-[400px] xl:h-[135px]" : "w-[48px] h-[48px]")}>
+      <div className={cn(
+        "relative flex items-center", 
+        type === "full" 
+          ? "w-[200px] h-[66px] sm:w-[240px] sm:h-[80px] lg:w-[280px] lg:h-[94px]" 
+          : "w-[48px] h-[48px]"
+      )}>
         <Image
           src={src}
           alt="Kisstheplan Logo"
           fill
-          className={cn("object-contain object-left", type === "full" && "scale-[1.3] md:scale-[1.5] xl:scale-[1.6] origin-left")}
+          className={cn(
+            "object-contain", 
+            type === "full" 
+              ? (centered ? "object-center scale-[1.1]" : "object-left scale-[1.3] origin-left")
+              : "object-center scale-[2.5]"
+          )}
           priority
         />
       </div>

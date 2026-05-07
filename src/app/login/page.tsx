@@ -50,8 +50,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-bg2 flex items-center justify-center p-4">
       <div className="w-full max-w-[440px] animate-fade-up">
-        <div className="flex justify-center mb-8">
-          <Logo variant="mocha" />
+        <div className="flex justify-center mb-12">
+          <Logo variant="mocha" centered />
         </div>
 
         <Card variant="elevated" className="p-8">
