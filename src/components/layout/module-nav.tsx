@@ -9,13 +9,13 @@ import type { LucideIcon } from "lucide-react";
 type Module = { id: string; name: string; icon?: LucideIcon; img?: string };
 
 const modules: Module[] = [
-  { id: "dashboard",   name: "Inicio",      img: "/icons/Icono inicio mocha v5.png" },
+  { id: "dashboard",   name: "Inicio",      img: "/icons/nav-home.png" },
   { id: "tareas",      name: "Tareas",       icon: CheckSquare },
   { id: "notas",       name: "Notas",        icon: StickyNote },
   { id: "proveedores", name: "Proveedores",  icon: Store },
-  { id: "presupuesto", name: "Presupuesto",  img: "/icons/Icono proveedores y presupuesto mocha v2.png" },
+  { id: "presupuesto", name: "Presupuesto",  img: "/icons/nav-budget.png" },
   { id: "invitados",   name: "Invitados",    icon: Users },
-  { id: "web",         name: "Web",          img: "/icons/Icono web rsvp v2.png" },
+  { id: "web",         name: "Web",          img: "/icons/nav-web.png" },
   { id: "plano-mesas", name: "Plano mesas",  icon: Grid3X3 },
   { id: "guion",       name: "Guión",        icon: FileText },
   { id: "calendario",  name: "Calendario",   icon: Calendar },
