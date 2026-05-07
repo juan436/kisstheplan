@@ -59,6 +59,7 @@ export function LivePreview({ draft, updateDraft, previewMode, wedding }: LivePr
     fontFamily: fontTitle, color: palette.text,
     fontSize: mobile ? "20px" : "24px",
     fontStyle: tpl.titleItalic ? "italic" : "normal", marginBottom: "6px",
+    ...tpl.h2ExtraStyle,
   };
   const pStyle: React.CSSProperties = { color: palette.text, opacity: 0.72, fontSize: "14px", lineHeight: 1.9 };
 

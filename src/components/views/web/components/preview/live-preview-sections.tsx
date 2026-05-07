@@ -10,6 +10,7 @@ import type { WebPageConfig } from "@/types";
 import type { TemplateStyle } from "../template-styles";
 import { getImgUrl } from "@/lib/img-url";
 import { ScheduleSection } from "./schedule-section";
+import { PreviewRsvp } from "./preview-rsvp";
 
 export type Palette = { primary: string; accent: string; bg: string; text: string };
 
@@ -32,11 +33,14 @@ function show(draft: Partial<WebPageConfig>, key: string) {
 }
 
 export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile, px, draft, editable, sectionStyle, h2Style, pStyle }: PreviewConfig) {
+  const bdg: React.CSSProperties = { display: "block", color: palette.text, opacity: 0.18, fontSize: "9px", letterSpacing: "0.35em", marginBottom: "4px", fontWeight: 700 };
   return (
     <>
       {show(draft, "story") && (
         <div style={sectionStyle(0)}>
+          {tpl.sectionBadge && <span style={bdg}>01</span>}
           {tpl.divider(palette.accent)}
+          {tpl.sectionAccent?.(palette.accent, palette.primary)}
           <h2 style={h2Style}>{draft.storyTitle || "Nuestra historia"}</h2>
           <p {...editable("storyText")} style={{ ...pStyle, marginTop: "12px" }}>
             {draft.storyText || <em style={{ opacity: 0.4 }}>Cuéntales cómo os conocisteis... (haz clic para editar)</em>}
@@ -46,7 +50,9 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
 
       {show(draft, "schedule") && (
         <div style={sectionStyle(1)}>
+          {tpl.sectionBadge && <span style={bdg}>02</span>}
           {tpl.divider(palette.accent)}
+          {tpl.sectionAccent?.(palette.accent, palette.primary)}
           <h2 style={h2Style}>{draft.scheduleTitle || "Horarios del día"}</h2>
           <ScheduleSection draft={draft} palette={palette} fontTitle={fontTitle} fontBody={fontBody} editable={editable} />
         </div>
@@ -54,7 +60,9 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
 
       {show(draft, "location") && (
         <div style={sectionStyle(2)}>
+          {tpl.sectionBadge && <span style={bdg}>03</span>}
           {tpl.divider(palette.accent)}
+          {tpl.sectionAccent?.(palette.accent, palette.primary)}
           <h2 style={h2Style}>{draft.locationTitle || "Cómo llegar"}</h2>
           <p {...editable("locationText")} style={{ ...pStyle, marginTop: "12px" }}>
             {draft.locationText || <em style={{ opacity: 0.4 }}>Escribe la dirección y cómo llegar...</em>}
@@ -64,7 +72,9 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
 
       {show(draft, "transport") && (
         <div style={sectionStyle(3)}>
+          {tpl.sectionBadge && <span style={bdg}>04</span>}
           {tpl.divider(palette.accent)}
+          {tpl.sectionAccent?.(palette.accent, palette.primary)}
           <h2 style={h2Style}>{draft.transportTitle || "Transporte"}</h2>
           <p {...editable("transportText")} style={{ ...pStyle, marginTop: "12px" }}>
             {draft.transportText || <em style={{ opacity: 0.4 }}>Información sobre el transporte...</em>}
@@ -83,7 +93,9 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
 
       {show(draft, "accommodation") && (
         <div style={sectionStyle(4)}>
+          {tpl.sectionBadge && <span style={bdg}>05</span>}
           {tpl.divider(palette.accent)}
+          {tpl.sectionAccent?.(palette.accent, palette.primary)}
           <h2 style={h2Style}>{draft.accommodationTitle || "Alojamiento recomendado"}</h2>
           <p {...editable("accommodationText")} style={{ ...pStyle, marginTop: "12px" }}>
             {draft.accommodationText || <em style={{ opacity: 0.4 }}>Hoteles y opciones cercanas...</em>}
@@ -124,20 +136,7 @@ export function LivePreviewSections({ palette, tpl, fontTitle, fontBody, mobile,
         </div>
       ))}
 
-      {draft.rsvpEnabled !== false && (
-        <div style={{ padding: `${mobile ? "40px" : "56px"} ${px}`, textAlign: "center", borderTop: `${tpl.borderStyle} ${palette.primary}35`, backgroundColor: `${palette.primary}28` }}>
-          <h2 style={{ fontFamily: fontTitle, color: palette.text, fontSize: mobile ? "26px" : "32px", fontStyle: tpl.titleItalic ? "italic" : "normal", marginBottom: "8px" }}>¿Vendrás?</h2>
-          {draft.rsvpDeadline && (
-            <p style={{ color: palette.text, opacity: 0.55, fontSize: "13px", marginBottom: "24px" }}>
-              Confirma antes del {new Date(draft.rsvpDeadline).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
-            </p>
-          )}
-          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-            <button style={{ padding: "12px 28px", borderRadius: tpl.buttonRadius, backgroundColor: palette.accent, color: "#fff", fontSize: "14px", fontWeight: 600, border: "none", cursor: "default" }}>Confirmar asistencia</button>
-            <button style={{ padding: "12px 28px", borderRadius: tpl.buttonRadius, backgroundColor: "transparent", color: palette.text, fontSize: "14px", fontWeight: 500, border: `1px solid ${palette.primary}80`, cursor: "default" }}>No podré ir</button>
-          </div>
-        </div>
-      )}
+      <PreviewRsvp draft={draft} tpl={tpl} palette={palette} fontTitle={fontTitle} mobile={mobile} px={px} />
 
       <div style={{ padding: "20px", textAlign: "center", borderTop: `1px solid ${palette.primary}30` }}>
         <p style={{ color: palette.text, opacity: 0.35, fontSize: "11px" }}>Con amor • KissthePlan</p>

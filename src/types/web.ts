@@ -6,6 +6,7 @@ export interface WebPageConfig {
   fontBody: string;
   // Fotos
   heroImage?: string;
+  heroImagePosition?: string;
   galleryImages?: string[];
   // RSVP
   rsvpEnabled: boolean;

@@ -1,12 +1,13 @@
 "use client";
 
-import { Upload, X } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import type { WebPageConfig } from "@/types";
 import { getImgUrl } from "@/lib/img-url";
 import { TEMPLATES, COLOR_PALETTES, FONT_OPTIONS } from "../../constants/web.constants";
 import { usePhotoUpload } from "../../hooks/use-photo-upload";
 import { FontSelect } from "../font-select";
+import { ImagePositionPicker } from "./image-position-picker";
 
 interface DesignStepProps {
   draft: Partial<WebPageConfig>;
@@ -44,13 +45,12 @@ export function DesignStep({ draft, updateDraft, onPhotoSave }: DesignStepProps)
         <Label>Imagen de portada</Label>
         <div className="mt-2">
           {draft.heroImage ? (
-            <div className="relative rounded-lg overflow-hidden h-28 group">
-              <img src={getImgUrl(draft.heroImage)} alt="Portada" className="w-full h-full object-cover" />
-              <button onClick={() => updateDraft({ heroImage: "" })}
-                className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-black/70 transition-all">
-                <X size={12} />
-              </button>
-            </div>
+            <ImagePositionPicker
+              imageUrl={getImgUrl(draft.heroImage)}
+              position={draft.heroImagePosition || "50% 50%"}
+              onChange={(pos) => updateDraft({ heroImagePosition: pos })}
+              onRemove={() => updateDraft({ heroImage: "" })}
+            />
           ) : (
             <label className="flex items-center justify-center gap-2 w-full h-16 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-cta hover:bg-cta/5 transition-all text-[13px] text-brand hover:text-cta">
               {uploading ? <span>Subiendo...</span> : <><Upload size={14} /><span>Subir foto de portada</span></>}

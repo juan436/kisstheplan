@@ -16,6 +16,13 @@ export type TemplateStyle = {
   sectionRadius: string;
   buttonRadius: string;
   floralDecor: boolean;
+  sectionBadge?: boolean;
+  sectionAccent?: (accent: string, primary: string) => React.ReactNode;
+  h2ExtraStyle?: React.CSSProperties;
+  heroFade?: boolean;
+  heroBotanical?: boolean;
+  heroGlassCard?: boolean;
+  heroDoubleBorder?: boolean;
 };
 
 export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
@@ -34,6 +41,11 @@ export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
     ),
     sectionBg: () => undefined, borderStyle: "1px solid",
     sectionRadius: "0", buttonRadius: "999px", floralDecor: false,
+    heroFade: true, heroDoubleBorder: true,
+    h2ExtraStyle: { letterSpacing: "0.04em" },
+    sectionAccent: (accent) => (
+      <p style={{ color: accent, fontSize: "8px", letterSpacing: "10px", opacity: 0.45, marginBottom: "14px", textAlign: "center" }}>· · ·</p>
+    ),
   },
 
   inmersivo: {
@@ -47,6 +59,8 @@ export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
     ),
     sectionBg: (primary, i) => i % 2 !== 0 ? `${primary}18` : undefined,
     borderStyle: "none", sectionRadius: "0", buttonRadius: "8px", floralDecor: false,
+    heroGlassCard: true, sectionBadge: true,
+    h2ExtraStyle: { letterSpacing: "0.08em", textTransform: "uppercase" as const },
   },
 
   minimalista: {
@@ -58,6 +72,11 @@ export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
     divider: (_accent) => <div style={{ marginBottom: "22px" }} />,
     sectionBg: () => undefined, borderStyle: "none",
     sectionRadius: "0", buttonRadius: "6px", floralDecor: false,
+    sectionBadge: true,
+    h2ExtraStyle: { letterSpacing: "0.15em", textTransform: "uppercase" as const, fontStyle: "normal" as const },
+    sectionAccent: (_accent, primary) => (
+      <div style={{ width: "36px", height: "1px", backgroundColor: `${primary}40`, margin: "0 auto 14px" }} />
+    ),
   },
 
   floral: {
@@ -79,6 +98,10 @@ export const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
         ? `radial-gradient(circle at 92% 8%, ${accent}18 0%, transparent 45%), ${primary}18`
         : `radial-gradient(circle at 8% 92%, ${accent}12 0%, transparent 40%)`,
     borderStyle: "1px dashed", sectionRadius: "0", buttonRadius: "999px", floralDecor: true,
+    heroBotanical: true,
+    sectionAccent: (accent) => (
+      <div style={{ textAlign: "center", fontSize: "11px", opacity: 0.5, color: accent, marginBottom: "12px", letterSpacing: "6px" }}>✿ · ✿</div>
+    ),
   },
 
   // Aliases retrocompatibilidad
