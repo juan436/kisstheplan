@@ -21,6 +21,7 @@ export function Logo({
   const getSrc = () => {
     if (type === "short") return "/logos/logo-short.png";
     if (variant === "mocha") return "/logos/logo-full-mocha.png";
+    if (variant === "light") return "/logos/logo-full-greige.png";
     return "/logos/logo-full-greige.png";
   };
   const src = getSrc();
@@ -33,7 +34,7 @@ export function Logo({
       <div className={cn(
         "relative flex items-center", 
         type === "full" 
-          ? "w-[200px] h-[66px] sm:w-[240px] sm:h-[80px] lg:w-[280px] lg:h-[94px]" 
+          ? "w-[220px] h-[70px] sm:w-[260px] sm:h-[80px] lg:w-[300px] lg:h-[90px]" 
           : "w-[48px] h-[48px]"
       )}>
         <Image
@@ -43,7 +44,7 @@ export function Logo({
           className={cn(
             "object-contain", 
             type === "full" 
-              ? (centered ? "object-center scale-[1.1]" : "object-left scale-[1.3] origin-left")
+              ? (centered ? "object-center scale-[1.1]" : "object-left scale-[1.8] origin-left")
               : "object-center scale-[2.5]"
           )}
           priority
