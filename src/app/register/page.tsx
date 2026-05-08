@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/services";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/ui/logo";
@@ -20,6 +21,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const useRealApi = process.env.NEXT_PUBLIC_USE_REAL_API === "true";
+
+  // Saltar al paso de boda si viene del callback de Google OAuth
+  useEffect(() => {
+    if (!useRealApi) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("step") === "1" && isAuthenticated()) {
+      setStep(1);
+    }
+  }, [useRealApi]);
 
   // Step 1 state
   const [email, setEmail] = useState("");

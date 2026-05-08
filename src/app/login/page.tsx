@@ -9,7 +9,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
-import Image from "next/image";
+import { GoogleButton } from "@/components/ui/google-button";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -102,10 +102,7 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          <Button variant="secondary" size="full" className="gap-3" disabled>
-            <Image src="/icons/Google__G__logo.svg.png" alt="Google" width={18} height={18} className="object-contain" />
-            Continuar con Google (próximamente)
-          </Button>
+          <GoogleButton />
 
           <p className="text-[13px] text-brand text-center mt-6">
             ¿No tienes cuenta?{" "}

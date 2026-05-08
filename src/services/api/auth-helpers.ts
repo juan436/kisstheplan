@@ -50,4 +50,4 @@ export function isAuthenticated(): boolean {
   return !!localStorage.getItem("ktp_access_token");
 }
 
-export { clearTokens, getTokens };
+export { clearTokens, getTokens, setTokens };

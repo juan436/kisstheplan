@@ -7,4 +7,5 @@ export {
   apiLogout,
   isAuthenticated,
   clearTokens,
+  setTokens,
 } from "./api/index";
