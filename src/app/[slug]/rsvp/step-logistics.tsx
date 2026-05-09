@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-const PER_PAGE = 4;
+const PER_PAGE = 2;
 import type { RsvpSession, GuestResponse, GuestPublic } from "./types";
 
 interface StepLogisticsProps {

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { RsvpSession, GuestResponse, GuestPublic } from "./types";
 import { RsvpChips } from "./rsvp-chips";
 
-const PER_PAGE = 4;
+const PER_PAGE = 2;
 
 interface StepPreferencesProps {
   session: RsvpSession;

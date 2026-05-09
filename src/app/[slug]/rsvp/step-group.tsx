@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, X, ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
 import type { RsvpSession, GuestResponse, GuestPublic } from "./types";
 
-const PER_PAGE = 4;
+const PER_PAGE = 2;
 
 interface StepGroupProps {
   session: RsvpSession;
