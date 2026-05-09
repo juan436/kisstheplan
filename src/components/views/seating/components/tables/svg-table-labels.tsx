@@ -71,7 +71,7 @@ export function SvgTableLabels({ table, guests, chairs, chairR, r, w, h, rot, sh
   const pillYEmpty = -(chairEdge + 1.4 * chairR + TAG_DIST);
 
   const hasGuests = table.assignments.some((a) => !!a?.guestId);
-  const showTags = hovered || isSelected;
+  const showTags = showLabels && hasGuests;
 
   type TagEntry = { idx: number; name: string; allergyColor: string | null; mealColor: string | null; lx: number; ly: number };
   const resolvedTags: TagEntry[] = [];

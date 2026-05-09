@@ -1,7 +1,10 @@
 "use client";
 
-import { Check, X, ChevronRight, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Check, X, ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
 import type { RsvpSession, GuestResponse, GuestPublic } from "./types";
+
+const PER_PAGE = 4;
 
 interface StepGroupProps {
   session: RsvpSession;
@@ -12,6 +15,8 @@ interface StepGroupProps {
   colors: Record<string, string>;
   fontTitle: string;
 }
+
+const STATUS_COLOR = { confirmed: "#5cb85c", rejected: "#c47a7a" } as const;
 
 function MemberRow({ member, response, onChange, accent }: {
   member: GuestPublic;
@@ -24,26 +29,33 @@ function MemberRow({ member, response, onChange, accent }: {
       style={{ borderColor: accent + "20" }}>
       <span className="text-[15px]">{member.firstName} {member.lastName}</span>
       <div className="flex gap-2">
-        {(["confirmed", "rejected"] as const).map((status) => (
-          <button key={status} type="button" onClick={() => onChange({ ...response, rsvpStatus: status })}
-            className="w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all"
-            style={{
-              borderColor: response.rsvpStatus === status ? accent : accent + "30",
-              backgroundColor: response.rsvpStatus === status ? (status === "confirmed" ? accent : "#c47a7a") : "transparent",
-              color: response.rsvpStatus === status ? "white" : accent,
-            }}>
-            {status === "confirmed" ? <Check size={16} /> : <X size={16} />}
-          </button>
-        ))}
+        {(["confirmed", "rejected"] as const).map((status) => {
+          const active = response.rsvpStatus === status;
+          return (
+            <button key={status} type="button" onClick={() => onChange({ ...response, rsvpStatus: status })}
+              className="w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all"
+              style={{
+                borderColor:     active ? STATUS_COLOR[status] : accent + "30",
+                backgroundColor: active ? STATUS_COLOR[status] : "transparent",
+                color:           active ? "white" : accent + "80",
+              }}>
+              {status === "confirmed" ? <Check size={16} /> : <X size={16} />}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 export function StepGroup({ session, responses, setResponses, onNext, submitting, colors, fontTitle }: StepGroupProps) {
-  const members  = session.group ? session.group.members : [session.guest];
-  const isGroup  = !!session.group;
+  const members    = session.group ? session.group.members : [session.guest];
+  const isGroup    = !!session.group;
   const allRejected = responses.every((r) => r.rsvpStatus === "rejected");
+  const [page, setPage] = useState(0);
+
+  const totalPages = Math.ceil(members.length / PER_PAGE);
+  const pageMembers = members.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   const update = (guestId: string, partial: Partial<GuestResponse>) => {
     setResponses(responses.map((r) => r.guestId === guestId ? { ...r, ...partial } : r));
@@ -60,8 +72,8 @@ export function StepGroup({ session, responses, setResponses, onNext, submitting
       </p>
 
       {isGroup ? (
-        <div className="mb-8">
-          {members.map((member) => {
+        <div className="mb-4">
+          {pageMembers.map((member) => {
             const resp = responses.find((r) => r.guestId === member.id);
             if (!resp) return null;
             return (
@@ -69,18 +81,32 @@ export function StepGroup({ session, responses, setResponses, onNext, submitting
                 onChange={(r) => update(member.id, r)} accent={colors.accent} />
             );
           })}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <button type="button" onClick={() => setPage((p) => p - 1)} disabled={page === 0}
+                className="flex items-center gap-1 text-[13px] opacity-50 hover:opacity-80 disabled:opacity-20 transition-opacity">
+                <ChevronLeft size={16} /> Anterior
+              </button>
+              <span className="text-[12px] opacity-40">{page + 1} / {totalPages}</span>
+              <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages - 1}
+                className="flex items-center gap-1 text-[13px] opacity-50 hover:opacity-80 disabled:opacity-20 transition-opacity">
+                Siguiente <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {(["confirmed", "rejected"] as const).map((status) => {
             const active = responses[0]?.rsvpStatus === status;
             return (
               <button key={status} type="button" onClick={() => update(session.guest.id, { rsvpStatus: status })}
                 className="py-4 rounded-xl border-2 text-[15px] font-medium transition-all"
                 style={{
-                  borderColor: active ? colors.accent : colors.accent + "30",
-                  backgroundColor: active ? colors.accent + "15" : "transparent",
-                  color: active ? colors.text : colors.text + "80",
+                  borderColor:     active ? STATUS_COLOR[status] : colors.accent + "30",
+                  backgroundColor: active ? STATUS_COLOR[status] : "transparent",
+                  color:           active ? "white" : undefined,
                 }}>
                 {status === "confirmed" ? "Confirmo asistencia" : "No podré ir"}
               </button>

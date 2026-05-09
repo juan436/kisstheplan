@@ -124,3 +124,12 @@ export function IconNovia({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
+
+export function IconGuest({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" style={s}>
+      <circle cx="16" cy="9" r="6" fill="currentColor" opacity="0.55" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M6 30 L26 30 Q26 18 16 18 Q6 18 6 30Z" fill="currentColor" opacity="0.45" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  );
+}

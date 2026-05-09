@@ -95,7 +95,11 @@ export function RsvpStepper({ session, colors, fontTitle }: RsvpStepperProps) {
         <h2 className="text-[28px] mb-3" style={{ fontFamily: fontTitle, fontStyle: "italic" }}>
           {confirmedCount > 0 ? "¡Hasta pronto!" : "Gracias por avisarnos"}
         </h2>
-        <p className="text-[15px] opacity-60">{msg}</p>
+        <p className="text-[15px] opacity-60 mb-6">{msg}</p>
+        <button type="button" onClick={handleModify}
+          className="text-[13px] underline opacity-40 hover:opacity-70 transition-opacity">
+          Modificar mi respuesta
+        </button>
       </div>
     );
   }

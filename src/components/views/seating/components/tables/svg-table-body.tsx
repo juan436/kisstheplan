@@ -2,6 +2,7 @@
 
 import type { TableSeat, Guest } from "@/types";
 import { normalizeDish } from "@/lib/allergy-colors";
+import { IconNovio, IconNovia, IconGuest } from "../library/library-icons";
 
 interface SvgTableBodyProps {
   table: TableSeat;
@@ -31,9 +32,23 @@ export function SvgTableBody({ table, guests, chairs, chairR, r, w, h, tableFill
         const allergyColor = allergies.length > 0 ? (allergyColors[allergies[0]] ?? "#f59e0b") : null;
         const mealColor = guest?.dish?.trim() ? (mealColors[normalizeDish(guest.dish)] ?? null) : null;
         const dotR = Math.max(1.5, chairR * 0.32);
+        
+        // Icono según rol
+        let RoleIcon = null;
+        if (guest) {
+          if (guest.role === "groom") RoleIcon = IconNovio;
+          else if (guest.role === "bride") RoleIcon = IconNovia;
+          else RoleIcon = IconGuest;
+        }
+
         return (
           <g key={i}>
             <circle cx={ch.x} cy={ch.y} r={chairR} fill={guest ? "#8c6f5f" : "#EDE4D9"} stroke={guest ? "#7a5f51" : "#C4B7A6"} strokeWidth={0.75} />
+            {RoleIcon && (
+              <g transform={`translate(${ch.x - chairR*0.7}, ${ch.y - chairR*0.7})`}>
+                <RoleIcon size={chairR * 1.4} />
+              </g>
+            )}
             {allergyColor && <circle cx={ch.x + chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR} fill={allergyColor} stroke="white" strokeWidth={0.5} />}
             {mealColor    && <circle cx={ch.x - chairR * 0.55} cy={ch.y - chairR * 0.55} r={dotR} fill={mealColor}    stroke="white" strokeWidth={0.5} />}
           </g>

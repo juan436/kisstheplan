@@ -1,6 +1,9 @@
 "use client";
 
-import { ChevronLeft, Check, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+
+const PER_PAGE = 4;
 import type { RsvpSession, GuestResponse, GuestPublic } from "./types";
 
 interface StepLogisticsProps {
@@ -62,6 +65,10 @@ export function StepLogistics({ session, responses, setResponses, submitting, on
   const allMembers   = session.group ? session.group.members : [session.guest];
   const confirmed    = allMembers.filter((m) => responses.find((r) => r.guestId === m.id)?.rsvpStatus === "confirmed");
   const hasTransport = session.wedding.transportOptions.length > 0;
+  const [page, setPage] = useState(0);
+
+  const totalPages  = Math.ceil(confirmed.length / PER_PAGE);
+  const pageMembers = confirmed.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
 
   const update = (guestId: string, partial: Partial<GuestResponse>) => {
     setResponses(responses.map((r) => r.guestId === guestId ? { ...r, ...partial } : r));
@@ -76,8 +83,8 @@ export function StepLogistics({ session, responses, setResponses, submitting, on
       </p>
 
       {hasTransport && confirmed.length > 0 ? (
-        <div className="mb-6">
-          {confirmed.map((member) => {
+        <div className="mb-4">
+          {pageMembers.map((member) => {
             const resp = responses.find((r) => r.guestId === member.id);
             if (!resp) return null;
             return (
@@ -86,6 +93,19 @@ export function StepLogistics({ session, responses, setResponses, submitting, on
                 transportOptions={session.wedding.transportOptions} accent={colors.accent} />
             );
           })}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-2 mb-2">
+              <button type="button" onClick={() => setPage((p) => p - 1)} disabled={page === 0}
+                className="flex items-center gap-1 text-[13px] opacity-50 hover:opacity-80 disabled:opacity-20 transition-opacity">
+                <ChevronLeft size={16} /> Anterior
+              </button>
+              <span className="text-[12px] opacity-40">{page + 1} / {totalPages}</span>
+              <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages - 1}
+                className="flex items-center gap-1 text-[13px] opacity-50 hover:opacity-80 disabled:opacity-20 transition-opacity">
+                Siguiente <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <p className="text-[14px] opacity-50 mb-6">

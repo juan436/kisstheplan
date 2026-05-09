@@ -9,7 +9,7 @@ import {
   IconBar, IconCandyBar, IconGiftTable, IconCoatCheck, IconBathroom, IconEntrance,
   IconSofa, IconFlowers, IconTree, IconCandelabra, IconCarpet,
   IconSpeaker, IconScreen, IconOutlet,
-  IconNovio, IconNovia,
+  IconNovio, IconNovia, IconGuest,
 } from "./library-icons";
 
 export interface LibraryItem {
@@ -26,12 +26,21 @@ export interface LibraryItem {
 export const ICON_SIZE = 26;
 
 export const CATEGORIES: { id: string; label: string; items: LibraryItem[] }[] = [
+  
   {
     id: "tables", label: "Mesas",
     items: [
       { label: "Redonda",     icon: <IconRoundTable size={ICON_SIZE} />,      isTable: "round" },
       { label: "Rectangular", icon: <IconRectTable size={ICON_SIZE} />,       isTable: "rectangular" },
       { label: "Serpentina",  icon: <IconSerpentineTable size={ICON_SIZE} />, isTable: "serpentine" },
+    ],
+  },
+  {
+    id: "people", label: "Gente",
+    items: [
+      { label: "Novio",    icon: <IconNovio size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novio",  physicalWidth: 0.6, physicalHeight: 0.6, keywords: ["groom", "traje", "novios"] },
+      { label: "Novia",    icon: <IconNovia size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novia",  physicalWidth: 0.6, physicalHeight: 0.8, keywords: ["bride", "vestido", "novios"] },
+      { label: "Persona",  icon: <IconGuest size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "guest",  physicalWidth: 0.5, physicalHeight: 0.5, keywords: ["invitado", "persona", "man", "woman"] },
     ],
   },
   {
@@ -46,8 +55,6 @@ export const CATEGORIES: { id: string; label: string; items: LibraryItem[] }[] =
     items: [
       { label: "Arco",    icon: <IconArch size={ICON_SIZE} />,   decoType: "custom_emoji", objectType: "arch",   physicalWidth: 3,   physicalHeight: 3,   keywords: ["altar", "arco floral"] },
       { label: "Pasillo", icon: <IconRunner size={ICON_SIZE} />, decoType: "custom_emoji", objectType: "runner", physicalWidth: 1.2, physicalHeight: 8,   keywords: ["alfombra"] },
-      { label: "Novio",   icon: <IconNovio size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novio",  physicalWidth: 0.6, physicalHeight: 0.6, keywords: ["groom", "traje", "novios"] },
-      { label: "Novia",   icon: <IconNovia size={ICON_SIZE} />,  decoType: "custom_emoji", objectType: "novia",  physicalWidth: 0.6, physicalHeight: 0.8, keywords: ["bride", "vestido", "novios"] },
     ],
   },
   {

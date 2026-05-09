@@ -6,7 +6,7 @@ export {
 export {
   IconArch, IconRunner, IconDanceFloor, IconStage, IconDjBooth, IconPhotocall, IconPiano,
   IconFlowers, IconTree, IconCandelabra, IconCarpet,
-  IconNovio, IconNovia,
+  IconNovio, IconNovia, IconGuest,
 } from "./library-icons-decor";
 
 export {
