@@ -12,10 +12,26 @@ import { api } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { useModal } from "@/hooks/use-modal";
 import type { ExpenseCategory, BudgetSummary } from "@/types";
+import type { UpdateWeddingData } from "@/services/api";
 
 export function useBudget() {
-  const { wedding } = useAuth();
+  const { wedding, refreshUserData } = useAuth();
   const totalBudget = wedding?.estimatedBudget ?? 0;
+
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [budgetInput,   setBudgetInput]   = useState("");
+
+  const startEditBudget = () => { setBudgetInput(String(totalBudget)); setEditingBudget(true); };
+  const cancelBudget    = () => setEditingBudget(false);
+  const saveBudget      = async () => {
+    const value = parseInt(budgetInput) || 0;
+    if (wedding) {
+      const update: UpdateWeddingData = { estimatedBudget: value };
+      await api.updateWedding(wedding.id, update);
+      await refreshUserData();
+    }
+    setEditingBudget(false);
+  };
 
   const [categories,      setCategories]      = useState<ExpenseCategory[]>([]);
   const [summary,         setSummary]         = useState<BudgetSummary | null>(null);
@@ -104,5 +120,6 @@ export function useBudget() {
     cancelEdit, handleDeleteCat, handleDeleteItem, openPayments, closePayments,
     showPayments, paymentCat, paymentItemId, loadData,
     paidPct, enteredPct,
+    editingBudget, budgetInput, setBudgetInput, startEditBudget, saveBudget, cancelBudget,
   };
 }

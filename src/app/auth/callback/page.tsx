@@ -4,10 +4,12 @@ import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { setTokens } from "@/services";
 import { apiFetch } from "@/services/api/http-client";
+import { useAuth } from "@/hooks/useAuth";
 
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshUserData } = useAuth();
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -21,7 +23,8 @@ function CallbackContent() {
     setTokens(token, refreshToken);
 
     apiFetch<{ onboardingComplete?: boolean }>("/auth/me")
-      .then((profile) => {
+      .then(async (profile) => {
+        await refreshUserData();
         if (profile.onboardingComplete === false) {
           router.replace("/register?step=1");
         } else {
@@ -31,7 +34,7 @@ function CallbackContent() {
       .catch(() => {
         router.replace("/login");
       });
-  }, [router, searchParams]);
+  }, [router, searchParams, refreshUserData]);
 
   return (
     <div className="min-h-screen bg-bg2 flex items-center justify-center">

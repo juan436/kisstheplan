@@ -7,7 +7,7 @@
  * Provee:   estado de categorías, tabla, edición, filtros, y modals (pagos, añadir categoría).
  */
 
-import { Plus, FileDown, FileSpreadsheet } from "lucide-react";
+import { Plus, FileDown, FileSpreadsheet, Pencil } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useBudget } from "./hooks/use-budget";
 import { BudgetTable } from "./components/table/budget-table";
@@ -28,9 +28,28 @@ export default function PresupuestoPage() {
       {/* Header: total + bar + actions */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
         <div className="flex-1 space-y-3">
-          <p className="font-display text-[22px] text-text">
-            Presupuesto total: <span className="text-cta">{formatCurrency(b.totalBudget)}</span>
-          </p>
+          {b.editingBudget ? (
+            <div className="flex items-center gap-2">
+              <span className="font-display text-[22px] text-text">Presupuesto total:</span>
+              <input
+                type="number"
+                value={b.budgetInput}
+                onChange={(e) => b.setBudgetInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); b.saveBudget(); } if (e.key === "Escape") b.cancelBudget(); }}
+                className="w-36 text-center text-cta font-display text-[22px] bg-[#f2efe9] rounded-lg border-none outline-none px-2 py-0.5"
+                autoFocus
+              />
+              <button onClick={b.saveBudget}   className="text-[12px] text-[#4A773C] font-semibold hover:underline">Guardar</button>
+              <button onClick={b.cancelBudget} className="text-[12px] text-[#a89f91] hover:underline">Cancelar</button>
+            </div>
+          ) : (
+            <p className="font-display text-[22px] text-text flex items-center gap-2">
+              Presupuesto total: <span className="text-cta">{formatCurrency(b.totalBudget)}</span>
+              <button onClick={b.startEditBudget} className="text-[#a89f91] hover:text-[#866857] transition-colors ml-1" title="Editar presupuesto">
+                <Pencil size={15} />
+              </button>
+            </p>
+          )}
           <div className="space-y-1.5">
             <div className="relative h-3 bg-[#e8e2d8] rounded-full overflow-hidden">
               <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 bg-[#8fba88]" style={{ width: `${b.enteredPct}%` }} />

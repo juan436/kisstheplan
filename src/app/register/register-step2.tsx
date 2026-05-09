@@ -14,6 +14,8 @@ export interface Step2Props {
   setVenue: (v: string) => void;
   estimatedGuests: string;
   setEstimatedGuests: (v: string) => void;
+  estimatedBudget: string;
+  setEstimatedBudget: (v: string) => void;
   loading: boolean;
   onNext: () => void;
   onBack: () => void;
@@ -22,7 +24,9 @@ export interface Step2Props {
 export function Step2({
   partner1Name, setPartner1Name, partner2Name, setPartner2Name,
   weddingDate, setWeddingDate, venue, setVenue,
-  estimatedGuests, setEstimatedGuests, loading, onNext, onBack,
+  estimatedGuests, setEstimatedGuests,
+  estimatedBudget, setEstimatedBudget,
+  loading, onNext, onBack,
 }: Step2Props) {
   return (
     <Card variant="elevated" className="p-8 md:p-10">
@@ -49,6 +53,11 @@ export function Step2({
           <div className="space-y-1">
             <Label className="text-[#6b5549] text-[13px] font-semibold">Número de invitados</Label>
             <Input type="number" placeholder="Número" value={estimatedGuests} onChange={(e) => setEstimatedGuests(e.target.value)} disabled={loading} className="bg-[#f2efe9] border-transparent text-center h-11 shadow-sm placeholder:text-[#a89f91]" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[#6b5549] text-[13px] font-semibold">Presupuesto estimado</Label>
+            <Input type="number" placeholder="ej: 30000" value={estimatedBudget} onChange={(e) => setEstimatedBudget(e.target.value)} disabled={loading} className="bg-[#f2efe9] border-transparent text-center h-11 shadow-sm placeholder:text-[#a89f91]" />
+            <p className="text-[11px] text-[#a89f91] text-center">Puedes modificarlo más tarde</p>
           </div>
         </div>
 

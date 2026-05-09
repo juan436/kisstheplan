@@ -43,6 +43,7 @@ export default function RegisterPage() {
   const [weddingDate, setWeddingDate] = useState("");
   const [venue, setVenue] = useState("");
   const [estimatedGuests, setEstimatedGuests] = useState("");
+  const [estimatedBudget, setEstimatedBudget] = useState("");
 
   async function handleStep1() {
     setError("");
@@ -72,7 +73,7 @@ export default function RegisterPage() {
         date: weddingDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
         venue: venue || "",
         estimatedGuests: parseInt(estimatedGuests) || 100,
-        estimatedBudget: 30000,
+        estimatedBudget: parseInt(estimatedBudget) || 0,
       });
       router.push("/app/dashboard");
     } catch (err) {
@@ -112,6 +113,7 @@ export default function RegisterPage() {
                 weddingDate={weddingDate} setWeddingDate={setWeddingDate}
                 venue={venue} setVenue={setVenue}
                 estimatedGuests={estimatedGuests} setEstimatedGuests={setEstimatedGuests}
+                estimatedBudget={estimatedBudget} setEstimatedBudget={setEstimatedBudget}
                 loading={loading} onNext={handleStep2} onBack={back}
               />
             )}
