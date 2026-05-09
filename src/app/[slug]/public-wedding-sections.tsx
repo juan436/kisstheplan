@@ -5,6 +5,71 @@ import type { PublicWeddingData } from "@/types";
 import { ContentSection } from "./content-section";
 import { RsvpForm } from "./rsvp-form";
 
+interface ScheduleEntry { time: string; title: string }
+
+function parseSchedule(text: string): ScheduleEntry[] {
+  return text.split("\n")
+    .map((line) => { const m = line.match(/^(\d{1,2}[.:]\d{2})\s*[-—–]+\s*(.+)/); return m ? { time: m[1], title: m[2].trim() } : null; })
+    .filter((e): e is ScheduleEntry => e !== null);
+}
+
+function ScheduleContent({ text, style, colors, fontTitle, fontBody }: { text: string; style: string; colors: Record<string, string>; fontTitle: string; fontBody: string }) {
+  const entries = parseSchedule(text);
+  if (!entries.length) return <p className="text-[15px] leading-[1.8] whitespace-pre-line opacity-75">{text}</p>;
+
+  // Estilo A — timeline vertical con línea izquierda
+  if (style === "A") return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+      {entries.map((e, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 0, width: "100%", maxWidth: "400px" }}>
+          <div style={{ width: "80px", textAlign: "right", paddingRight: "12px" }}>
+            <span style={{ fontSize: "14px", color: colors.accent, fontFamily: fontTitle, fontStyle: "italic" }}>{e.time}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {i > 0 && <div style={{ width: "1px", height: "18px", backgroundColor: `${colors.accent}40` }} />}
+            <div style={{ width: "9px", height: "9px", borderRadius: "50%", backgroundColor: colors.accent, flexShrink: 0 }} />
+            {i < entries.length - 1 && <div style={{ width: "1px", height: "18px", backgroundColor: `${colors.accent}40` }} />}
+          </div>
+          <div style={{ paddingLeft: "12px", flex: 1 }}>
+            <p style={{ fontSize: "15px", color: colors.text, fontFamily: fontBody }}>{e.title}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Estilo B — centrado, hora + evento apilados
+  if (style === "B") return (
+    <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "20px" }}>
+      {entries.map((e, i) => (
+        <div key={i}>
+          <p style={{ fontSize: "12px", fontFamily: fontTitle, fontStyle: "italic", color: colors.accent, marginBottom: "3px" }}>{e.time}</p>
+          <p style={{ fontSize: "15px", color: colors.text, fontFamily: fontBody, fontWeight: 500 }}>{e.title}</p>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Estilo C — alternado izquierda/derecha con línea central
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: "1px", backgroundColor: `${colors.accent}40`, transform: "translateX(-50%)" }} />
+      {entries.map((e, i) => (
+        <div key={i} style={{ display: "flex", marginBottom: "18px", alignItems: "flex-start" }}>
+          <div style={{ width: "calc(50% - 18px)", textAlign: i % 2 === 0 ? "right" : "left", padding: "0 14px", order: i % 2 === 0 ? 0 : 2 }}>
+            <p style={{ fontSize: "12px", color: colors.accent, fontFamily: fontTitle, fontStyle: "italic" }}>{e.time}</p>
+            <p style={{ fontSize: "14px", color: colors.text, fontFamily: fontBody }}>{e.title}</p>
+          </div>
+          <div style={{ width: "36px", display: "flex", justifyContent: "center", paddingTop: "4px", position: "relative", zIndex: 1, order: 1 }}>
+            <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: colors.accent, border: `2px solid ${colors.bg || "#FAF7F2"}`, flexShrink: 0 }} />
+          </div>
+          <div style={{ width: "calc(50% - 18px)", order: i % 2 === 0 ? 2 : 0 }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface PublicWeddingSectionsProps {
   page: PublicWeddingData["page"];
   colors: Record<string, string>;
@@ -29,18 +94,7 @@ export function PublicWeddingSections({ page, colors, template, slug }: PublicWe
 
       {page.scheduleText && show(page, "schedule") && (
         <ContentSection sectionIndex={idx++} icon={<Clock size={20} />} title={page.scheduleTitle || "Horarios del día"} colors={colors} fontTitle={page.fontTitle} template={template}>
-          <div className="space-y-3">
-            {page.scheduleText.split("\n").filter(Boolean).map((line, i) => {
-              const parts = line.match(/^(\d{1,2}[.:]\d{2})\s*[-—]\s*(.+)$/);
-              if (parts) return (
-                <div key={i} className="flex items-start gap-4 py-2">
-                  <span className="text-[15px] font-semibold shrink-0 w-14" style={{ color: colors.accent, fontFamily: page.fontTitle }}>{parts[1]}</span>
-                  <span className="text-[15px] opacity-75">{parts[2]}</span>
-                </div>
-              );
-              return <p key={i} className="text-[15px] opacity-75">{line}</p>;
-            })}
-          </div>
+          <ScheduleContent text={page.scheduleText} style={page.scheduleStyle || "B"} colors={colors} fontTitle={page.fontTitle} fontBody={page.fontBody} />
         </ContentSection>
       )}
 

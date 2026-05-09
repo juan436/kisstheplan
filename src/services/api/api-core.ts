@@ -43,6 +43,64 @@ export const coreMethods = {
     if (!res.ok) throw new Error("Error al importar el archivo");
     return res.json();
   },
+  async exportGuestsExcel() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/guests/export/excel`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "invitados.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  },
+  async exportGuestsPdf() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/guests/export/pdf`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "invitados.pdf"; a.click();
+    URL.revokeObjectURL(url);
+  },
+  async downloadGuestTemplate() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/guests/template`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al descargar la plantilla");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "plantilla-invitados.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  },
+  async exportBudgetExcel() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/budget/export/excel`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar el presupuesto");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "presupuesto.xlsx"; a.click();
+    URL.revokeObjectURL(url);
+  },
+  async exportBudgetPdf() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/budget/export/pdf`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar el presupuesto");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "presupuesto.pdf"; a.click();
+    URL.revokeObjectURL(url);
+  },
   async createGuest(data: object) {
     return apiFetch("/guests", { method: "POST", body: JSON.stringify(data) });
   },

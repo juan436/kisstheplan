@@ -112,6 +112,9 @@ export function useBudget() {
   const paidPct    = totalBudget > 0 ? Math.min((summary?.totalPaid ?? 0) / totalBudget * 100, 100) : 0;
   const enteredPct = totalBudget > 0 ? Math.min((summary?.totalReal ?? 0) / totalBudget * 100, 100) : 0;
 
+  const handleExportExcel = async () => { try { await api.exportBudgetExcel(); } catch { /**/ } };
+  const handleExportPdf   = async () => { try { await api.exportBudgetPdf();   } catch { /**/ } };
+
   return {
     totalBudget, categories, summary, collapsed, toggleCollapse,
     editingCell, editValue, setEditValue, isEditing, startEdit, saveEdit, handleKeyDown,
@@ -121,5 +124,6 @@ export function useBudget() {
     showPayments, paymentCat, paymentItemId, loadData,
     paidPct, enteredPct,
     editingBudget, budgetInput, setBudgetInput, startEditBudget, saveBudget, cancelBudget,
+    handleExportExcel, handleExportPdf,
   };
 }

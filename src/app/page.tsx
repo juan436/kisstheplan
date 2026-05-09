@@ -1,5 +1,6 @@
 import { LandingNav } from "@/components/layout/landing-nav";
 import { Hero } from "@/components/features/landing/hero";
+import { EarlyAccessForm } from "@/components/features/landing/early-access-form";
 import { FeaturesStrip } from "@/components/features/landing/features-strip";
 import { AboutSection } from "@/components/features/landing/about-section";
 import { ModulesGrid } from "@/components/features/landing/modules-grid";
@@ -11,10 +12,11 @@ export default function LandingPage() {
     <>
       <LandingNav />
       <Hero />
+      <EarlyAccessForm />
       <FeaturesStrip />
       <AboutSection />
       <ModulesGrid />
-      <PricingSection />
+      {/* <PricingSection /> */}
       <Footer />
     </>
   );

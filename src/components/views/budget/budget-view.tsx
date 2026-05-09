@@ -67,10 +67,10 @@ export default function PresupuestoPage() {
             className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#CBA978] hover:bg-[#b08f5d] text-white text-[13px] font-semibold transition-colors">
             <Plus size={15} />Añadir Categoría
           </button>
-          <button className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#c8bfb5] hover:bg-[#b5aaa0] text-white text-[13px] font-semibold transition-colors">
+          <button onClick={b.handleExportPdf} className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#c8bfb5] hover:bg-[#b5aaa0] text-white text-[13px] font-semibold transition-colors">
             <FileDown size={15} />Exportar PDF
           </button>
-          <button className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#c8bfb5] hover:bg-[#b5aaa0] text-white text-[13px] font-semibold transition-colors">
+          <button onClick={b.handleExportExcel} className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#c8bfb5] hover:bg-[#b5aaa0] text-white text-[13px] font-semibold transition-colors">
             <FileSpreadsheet size={15} />Exportar Excel
           </button>
         </div>

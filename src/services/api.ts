@@ -72,8 +72,13 @@ export interface ApiService {
   uploadPhoto(file: File): Promise<{ url: string }>;
   checkSlug(slug: string): Promise<{ available: boolean }>;
 
-  // Guest import
+  // Guest import/export
   importGuestsExcel(file: File): Promise<{ imported: number; guests: Guest[] }>;
+  downloadGuestTemplate(): Promise<void>;
+  exportGuestsExcel(): Promise<void>;
+  exportGuestsPdf(): Promise<void>;
+  exportBudgetExcel(): Promise<void>;
+  exportBudgetPdf(): Promise<void>;
 
   // Guest CRUD
   createGuest(data: CreateGuestData): Promise<Guest>;

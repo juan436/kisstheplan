@@ -81,7 +81,7 @@ export const FAQ_DATA: FaqModule[] = [
       {
         question: "¿Cómo publico la web de mi boda?",
         answer:
-          "Ve al módulo Web y completa los 3 pasos del builder (Diseño, RSVP, Contenido). Cuando estés listo, pulsa 'Publicar web'. La URL será kisstheplan.es/tu-slug.",
+          "Ve al módulo Web y completa los 3 pasos del builder (Diseño, RSVP, Contenido). Cuando estés listo, pulsa 'Publicar web'. La URL será kisstheplan.com/tu-slug.",
       },
       {
         question: "¿Puedo cambiar la URL (slug) de mi boda?",
