@@ -27,8 +27,10 @@ export function RsvpChips({ options, value, onChange, allowCustom = false, accen
   allowCustom?: boolean;
   accent: string;
 }) {
-  const [open,   setOpen]   = useState(false);
-  const [custom, setCustom] = useState("");
+  const [open,    setOpen]    = useState(false);
+  const [custom,  setCustom]  = useState("");
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [focused, setFocused] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const close   = useCallback(() => setOpen(false), []);
   useClickOutside(wrapRef, close, open);
@@ -80,7 +82,14 @@ export function RsvpChips({ options, value, onChange, allowCustom = false, accen
             <div className="flex flex-wrap gap-1.5 p-3">
               {available.map((opt) => (
                 <button key={opt} type="button" onMouseDown={(e) => { e.preventDefault(); toggle(opt); }}
-                  className="px-2.5 py-1 rounded-full text-[12px] font-medium border border-border bg-bg2 text-text hover:border-cta hover:bg-cta/10 transition-colors">
+                  onMouseEnter={() => setHovered(opt)}
+                  onMouseLeave={() => setHovered(null)}
+                  className="px-2.5 py-1 rounded-full text-[12px] font-medium border transition-colors"
+                  style={{
+                    borderColor:     hovered === opt ? accent : accent + "30",
+                    backgroundColor: hovered === opt ? accent + "18" : "transparent",
+                    color:           hovered === opt ? accent : undefined,
+                  }}>
                   {opt}
                 </button>
               ))}
@@ -90,8 +99,11 @@ export function RsvpChips({ options, value, onChange, allowCustom = false, accen
             <div className="flex gap-2 px-3 pb-3 border-t border-border/50 pt-2.5">
               <input value={custom} onChange={(e) => setCustom(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 placeholder="Otra alergia..."
-                className="flex-1 bg-bg2 border border-border rounded-lg px-3 py-1.5 text-[13px] outline-none focus:border-cta" />
+                className="flex-1 bg-white/60 border rounded-lg px-3 py-1.5 text-[13px] outline-none transition-colors"
+                style={{ borderColor: focused ? accent : accent + "40" }} />
               <button type="button" onClick={addCustom}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-medium text-white transition-opacity hover:opacity-80"
                 style={{ backgroundColor: accent }}>

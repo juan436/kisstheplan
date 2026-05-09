@@ -34,14 +34,24 @@ function MemberTransport({ member, response, onChange, transportOptions, accent 
       </label>
       {response.transport && transportOptions.length > 0 && (
         <div>
-          <label className="block text-[11px] uppercase tracking-widest opacity-40 mb-1.5">Punto de recogida</label>
-          <select value={response.transportPickupPoint || ""}
-            onChange={(e) => onChange({ transportPickupPoint: e.target.value || undefined })}
-            className="w-full bg-white/80 border-[1.5px] rounded-xl px-4 py-2.5 text-[14px] outline-none transition-colors"
-            style={{ borderColor: response.transportPickupPoint ? accent : accent + "30" }}>
-            <option value="">Selecciona un punto</option>
-            {transportOptions.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
+          <label className="block text-[11px] uppercase tracking-widest opacity-40 mb-2">Punto de recogida</label>
+          <div className="flex flex-wrap gap-2">
+            {transportOptions.map((opt) => {
+              const selected = response.transportPickupPoint === opt;
+              return (
+                <button key={opt} type="button"
+                  onClick={() => onChange({ transportPickupPoint: selected ? undefined : opt })}
+                  className="px-3 py-1.5 rounded-full text-[13px] font-medium border-[1.5px] transition-colors"
+                  style={{
+                    borderColor:     selected ? accent : accent + "40",
+                    backgroundColor: selected ? accent : "transparent",
+                    color:           selected ? "#fff"  : undefined,
+                  }}>
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
