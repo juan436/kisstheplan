@@ -14,20 +14,30 @@ import {
 import type { Guest, GuestGroup } from "@/types";
 import { GuestTableRow, type GuestRowProps } from "./table-row";
 
-interface GuestsTableProps extends Omit<GuestRowProps, "guest" | "index"> {
+interface GuestsTableProps extends Omit<GuestRowProps, "guest" | "index" | "selected"> {
   filteredGuests: Guest[];
   groups: GuestGroup[];
   searchQuery: string;
   rsvpFilter: string;
   groupFilter: string;
+  selectedIds: Set<string>;
+  onSelectAll: (ids: string[]) => void;
+  onClearSelect: () => void;
 }
 
-export function GuestsTable({ filteredGuests, searchQuery, rsvpFilter, groupFilter, show, ...rowProps }: GuestsTableProps) {
+export function GuestsTable({ filteredGuests, searchQuery, rsvpFilter, groupFilter, show, selectedIds, onSelectAll, onClearSelect, ...rowProps }: GuestsTableProps) {
+  const allSelected = filteredGuests.length > 0 && filteredGuests.every((g) => selectedIds.has(g.id));
+  const toggleAll = () => allSelected ? onClearSelect() : onSelectAll(filteredGuests.map((g) => g.id));
+
   return (
     <div className="bg-white rounded-xl border border-border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-8">
+              <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                className="w-3.5 h-3.5 accent-cta cursor-pointer" />
+            </TableHead>
             <TableHead className="w-10">#</TableHead>
             <TableHead>Nombre</TableHead>
             {show("lastName")  && <TableHead>Apellidos</TableHead>}
@@ -46,7 +56,8 @@ export function GuestsTable({ filteredGuests, searchQuery, rsvpFilter, groupFilt
         </TableHeader>
         <TableBody>
           {filteredGuests.map((guest, i) => (
-            <GuestTableRow key={guest.id} guest={guest} index={i} show={show} {...rowProps} />
+            <GuestTableRow key={guest.id} guest={guest} index={i} show={show}
+              selected={selectedIds.has(guest.id)} {...rowProps} />
           ))}
           {filteredGuests.length === 0 && (
             <TableRow>

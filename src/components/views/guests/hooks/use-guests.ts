@@ -35,6 +35,10 @@ export function useGuests() {
   const [transportPoints, setTransportPoints] = useState<string[]>([]);
   const [importingExcel,  setImportingExcel]  = useState(false);
   const [importError,     setImportError]     = useState("");
+  const [selectedIds,     setSelectedIds]     = useState<Set<string>>(new Set());
+  const [sendingInvite,   setSendingInvite]   = useState<string | null>(null);
+  const [bulkSending,     setBulkSending]     = useState(false);
+  const [inviteToast,     setInviteToast]     = useState("");
 
   const colMenuRef   = useRef<HTMLDivElement>(null);
   const excelInputRef = useRef<HTMLInputElement>(null);
@@ -140,6 +144,36 @@ export function useGuests() {
     }
   };
 
+  const toggleSelectGuest = (id: string) =>
+    setSelectedIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const selectAll  = (ids: string[]) => setSelectedIds(new Set(ids));
+  const clearSelect = () => setSelectedIds(new Set());
+
+  const showToast = (msg: string) => { setInviteToast(msg); setTimeout(() => setInviteToast(""), 3500); };
+
+  const handleSendInvite = async (guestId: string) => {
+    setSendingInvite(guestId);
+    try {
+      const res = await api.sendGuestInvite(guestId);
+      showToast(`Invitación enviada a ${res.email}`);
+      await loadData();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Error al enviar la invitación");
+    } finally { setSendingInvite(null); }
+  };
+
+  const handleBulkInvite = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkSending(true);
+    try {
+      const res = await api.sendBulkInvites([...selectedIds]);
+      showToast(`Enviadas: ${res.sent} · Fallidas: ${res.failed}`);
+      clearSelect();
+      await loadData();
+    } catch { showToast("Error al enviar invitaciones"); }
+    finally { setBulkSending(false); }
+  };
+
   const filteredGuests = groupFilter ? guests.filter((g) => g.groupId === groupFilter) : guests;
   const handleExportExcel = () => exportGuestsToExcel(filteredGuests);
   const groupMap = new Map(groups.map((g) => [g.id, g.name]));
@@ -158,5 +192,8 @@ export function useGuests() {
     mealOptions, mealColors, allergyOptions, allergyColors, transportPoints,
     handleSaveConfig, handleExportExcel,
     excelInputRef, importingExcel, importError, setImportError, handleExcelFile,
+    selectedIds, toggleSelectGuest, selectAll, clearSelect,
+    sendingInvite, bulkSending, inviteToast,
+    handleSendInvite, handleBulkInvite,
   };
 }

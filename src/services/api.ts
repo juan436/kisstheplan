@@ -86,6 +86,11 @@ export interface ApiService {
   createGuestGroup(name: string): Promise<GuestGroup>;
   updateGuestGroup(id: string, name: string): Promise<GuestGroup>;
   deleteGuestGroup(id: string): Promise<void>;
+  sendGuestInvite(guestId: string): Promise<{ sent: boolean; email: string }>;
+  sendBulkInvites(guestIds: string[]): Promise<{ sent: number; failed: number; errors: string[] }>;
+  getRsvpByToken(token: string): Promise<unknown>;
+  lookupRsvpGuest(slug: string, name: string, email: string): Promise<unknown>;
+  submitGroupRsvp(slug: string, token: string, responses: object[]): Promise<unknown>;
 
   // Budget CRUD
   createCategory(data: CreateCategoryData): Promise<ExpenseCategory>;

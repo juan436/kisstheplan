@@ -1,5 +1,6 @@
 "use client";
 
+import { Send, Loader2 } from "lucide-react";
 import { AddGuestModal } from "./components/modals/add-guest-modal";
 import { GuestHistoryModal } from "./components/modals/guest-history-modal";
 import { useGuests } from "./hooks/use-guests";
@@ -16,6 +17,24 @@ export default function InvitadosPage() {
   return (
     <div className="max-w-[1300px] mx-auto">
       <GuestsStatsBar stats={g.stats} />
+
+      {g.inviteToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-text text-white text-[13px] px-5 py-3 rounded-full shadow-lg">
+          {g.inviteToast}
+        </div>
+      )}
+
+      {g.selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 mb-3 px-4 py-2.5 bg-[#f5efe9] border border-cta/30 rounded-xl">
+          <span className="text-[13px] text-accent font-medium">{g.selectedIds.size} invitado{g.selectedIds.size > 1 ? "s" : ""} seleccionado{g.selectedIds.size > 1 ? "s" : ""}</span>
+          <button onClick={g.handleBulkInvite} disabled={g.bulkSending}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cta hover:bg-[#b08f5d] text-white text-[13px] font-semibold transition-colors disabled:opacity-60">
+            {g.bulkSending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+            Enviar invitación
+          </button>
+          <button onClick={g.clearSelect} className="text-[12px] text-brand hover:underline ml-auto">Cancelar</button>
+        </div>
+      )}
 
       <GuestsToolbar
         groups={g.groups}
@@ -45,6 +64,9 @@ export default function InvitadosPage() {
         onHistoryClick={h.openHistory}
         getFirst={g.getFirst} getLast={g.getLast} loadData={g.loadData}
         searchQuery={g.searchQuery} rsvpFilter={g.rsvpFilter} groupFilter={g.groupFilter}
+        selectedIds={g.selectedIds} onSelectAll={g.selectAll} onClearSelect={g.clearSelect}
+        onToggleSelect={g.toggleSelectGuest}
+        onSendInvite={g.handleSendInvite} sendingInvite={g.sendingInvite}
       />
 
       <AddGuestModal

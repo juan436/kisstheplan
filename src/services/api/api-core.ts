@@ -61,6 +61,21 @@ export const coreMethods = {
   async deleteGuestGroup(id: string) {
     return apiFetch(`/guests/groups/${id}`, { method: "DELETE" });
   },
+  async sendGuestInvite(guestId: string): Promise<{ sent: boolean; email: string }> {
+    return apiFetch(`/guests/${guestId}/invite`, { method: "POST" });
+  },
+  async sendBulkInvites(guestIds: string[]): Promise<{ sent: number; failed: number; errors: string[] }> {
+    return apiFetch("/guests/invite-bulk", { method: "POST", body: JSON.stringify({ guestIds }) });
+  },
+  async getRsvpByToken(token: string) {
+    return apiFetch(`/public/rsvp/token/${token}`);
+  },
+  async lookupRsvpGuest(slug: string, name: string, email: string) {
+    return apiFetch(`/public/rsvp/${slug}/lookup`, { method: "POST", body: JSON.stringify({ name, email }) });
+  },
+  async submitGroupRsvp(slug: string, token: string, responses: object[]) {
+    return apiFetch(`/public/rsvp/${slug}/group`, { method: "POST", body: JSON.stringify({ token, responses }) });
+  },
   async createCategory(data: object) {
     return apiFetch("/budget/categories", { method: "POST", body: JSON.stringify(data) });
   },

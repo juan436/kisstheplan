@@ -9,7 +9,7 @@
 
 import { api } from "@/services";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { Trash2, History, Check } from "lucide-react";
+import { Trash2, History, Check, Send, Loader2 } from "lucide-react";
 import type { Guest, GuestGroup, GuestRole, RsvpStatus } from "@/types";
 import type { UpdateGuestData } from "@/services/api";
 import { ROLE_OPTIONS, ROLE_LABELS, type ColKey } from "../../constants/guests.constants";
@@ -37,6 +37,10 @@ export interface GuestRowProps {
   onHistoryClick: (guestId: string) => void;
   getFirst: (g: Guest) => string; getLast: (g: Guest) => string;
   loadData: () => void;
+  selected: boolean;
+  onToggleSelect: (id: string) => void;
+  onSendInvite: (id: string) => void;
+  sendingInvite: string | null;
 }
 
 function EC({ guestId, field, value, isEditing, startEdit, editValue, setEditValue, saveEdit, handleKeyDown, className = "" }: { guestId: string; field: string; value: string; isEditing: (a: string, b: string) => boolean; startEdit: (a: string, b: string, c: string) => void; editValue: string; setEditValue: (v: string) => void; saveEdit: () => void; handleKeyDown: (e: React.KeyboardEvent) => void; className?: string }) {
@@ -49,7 +53,7 @@ function EC({ guestId, field, value, isEditing, startEdit, editValue, setEditVal
   );
 }
 
-export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, allergyOptions, transportPoints, show, isEditing, editValue, setEditValue, startEdit, cancelEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, handleDelete, handleAssignGroup, onHistoryClick, getFirst, getLast, loadData }: GuestRowProps) {
+export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, allergyOptions, transportPoints, show, isEditing, editValue, setEditValue, startEdit, cancelEdit, saveEdit, handleKeyDown, deletingId, setDeletingId, handleDelete, handleAssignGroup, onHistoryClick, getFirst, getLast, loadData, selected, onToggleSelect, onSendInvite, sendingInvite }: GuestRowProps) {
   const ecProps = { isEditing, startEdit, editValue, setEditValue, saveEdit, handleKeyDown };
   const { color, label } = RSVP_CFG[guest.rsvp] ?? { color: "bg-brand", label: guest.rsvp };
 
@@ -62,8 +66,14 @@ export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, all
     }
   };
 
+  const isSending = sendingInvite === guest.id;
+
   return (
     <TableRow className="group">
+      <TableCell>
+        <input type="checkbox" checked={selected} onChange={() => onToggleSelect(guest.id)}
+          className="w-3.5 h-3.5 accent-cta cursor-pointer" />
+      </TableCell>
       <TableCell className="text-brand text-[12px]">{index + 1}</TableCell>
       <EC guestId={guest.id} field="firstName" value={getFirst(guest)} className="font-medium" {...ecProps} />
       {show("lastName") && <EC guestId={guest.id} field="lastName" value={getLast(guest)} className="text-brand" {...ecProps} />}
@@ -122,6 +132,9 @@ export function GuestTableRow({ guest, index, groups, groupMap, mealOptions, all
           </div>
         ) : (
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={() => onSendInvite(guest.id)} disabled={isSending || !guest.email} title={guest.email ? "Enviar invitación" : "Sin email"} className={`transition-colors ${guest.invitationSent ? "text-success" : "text-brand hover:text-cta"} disabled:opacity-40`}>
+              {isSending ? <Loader2 size={14} className="animate-spin" /> : <Send size={13} />}
+            </button>
             <button onClick={() => onHistoryClick(guest.id)} className="text-brand hover:text-accent" title="Ver Historial"><History size={13} /></button>
             <button onClick={() => setDeletingId(guest.id)} className="text-brand hover:text-danger"><Trash2 size={14} /></button>
           </div>
