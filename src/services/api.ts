@@ -149,6 +149,7 @@ export interface ApiService {
   updateSeatingTable(planId: string, tableId: string, data: Partial<{ name: string; shape: "round" | "rectangular" | "serpentine"; capacity: number; posX: number; posY: number; physicalDiameter: number; physicalWidth: number; physicalHeight: number; rotation: number }>): Promise<SeatingPlan>;
   deleteSeatingTable(planId: string, tableId: string): Promise<SeatingPlan>;
   assignSeat(planId: string, tableId: string, seatNumber: number, guestId?: string): Promise<SeatingPlan>;
+  exportSeatingPdf(planId: string, imageData: string): Promise<void>;
 
   // Notes
   getNotes(): Promise<Note[]>;

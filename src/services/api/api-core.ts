@@ -101,6 +101,19 @@ export const coreMethods = {
     a.href = url; a.download = "presupuesto.pdf"; a.click();
     URL.revokeObjectURL(url);
   },
+  async exportSeatingPdf(planId: string, imageData: string) {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/seating/plans/${planId}/export-pdf`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` } as HeadersInit,
+      body: JSON.stringify({ imageData }),
+    });
+    if (!res.ok) throw new Error("Error al exportar el plano");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "plano-mesas.pdf"; a.click();
+    URL.revokeObjectURL(url);
+  },
   async createGuest(data: object) {
     return apiFetch("/guests", { method: "POST", body: JSON.stringify(data) });
   },

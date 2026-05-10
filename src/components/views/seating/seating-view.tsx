@@ -1,7 +1,10 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, Download, Users } from "lucide-react";
+import { Plus, Trash2, Download, Loader2, Users } from "lucide-react";
+import { toPng } from "html-to-image";
+import { api } from "@/services";
 import { useSeating } from "./hooks/use-seating";
 import { PlanSelector } from "./components/legends/plan-selector";
 import { NewPlanModal } from "./components/modals/new-plan-modal";
@@ -10,6 +13,9 @@ import { CanvasTab } from "./components/canvas/canvas-tab";
 import { ListTab } from "./components/list-tab";
 
 export default function SeatingView() {
+  const exportRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
+
   const {
     plans, guests, selectedPlanId, setSelectedPlanId,
     mode, setMode, activeTab, setActiveTab,
@@ -22,6 +28,19 @@ export default function SeatingView() {
     handleAddTable, handleUpdateTablePos, handleUpdateTableSize, handleRotateTable, handleDeleteTable,
     handleRenameTable, handleAssignSeat,
   } = useSeating();
+
+  const handleExportPdf = async () => {
+    if (!selectedPlan || !exportRef.current) return;
+    setExporting(true);
+    try {
+      const imageData = await toPng(exportRef.current, { pixelRatio: 2, cacheBust: true });
+      await api.exportSeatingPdf(selectedPlan.id, imageData);
+    } catch {
+      alert("Error al generar el PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -61,9 +80,9 @@ export default function SeatingView() {
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => alert("Exportar a PDF — próximamente")} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-medium text-white transition-colors" style={{ backgroundColor: "#866857" }}>
-            <Download size={14} />
-            Exportar PDF
+          <button onClick={handleExportPdf} disabled={!selectedPlan || exporting} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-medium text-white transition-colors disabled:opacity-50" style={{ backgroundColor: "#866857" }}>
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            {exporting ? "Generando…" : "Exportar PDF"}
           </button>
         </div>
       </div>
@@ -100,7 +119,7 @@ export default function SeatingView() {
           <AnimatePresence mode="wait">
             {activeTab === "canvas" ? (
               <motion.div key="canvas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <CanvasTab plan={selectedPlan} guests={guests} mode={mode} allergyColors={allergyColors} mealColors={mealColors} onUpdateTablePos={handleUpdateTablePos} onUpdateTableSize={handleUpdateTableSize} onRotateTable={handleRotateTable} onAddTable={(shape) => setShowAddTable(shape as "round" | "rectangular" | "serpentine")} onDeleteTable={handleDeleteTable} onAssignSeat={handleAssignSeat} />
+                <CanvasTab plan={selectedPlan} guests={guests} mode={mode} allergyColors={allergyColors} mealColors={mealColors} exportRef={exportRef} onUpdateTablePos={handleUpdateTablePos} onUpdateTableSize={handleUpdateTableSize} onRotateTable={handleRotateTable} onAddTable={(shape) => setShowAddTable(shape as "round" | "rectangular" | "serpentine")} onDeleteTable={handleDeleteTable} onAssignSeat={handleAssignSeat} />
               </motion.div>
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>

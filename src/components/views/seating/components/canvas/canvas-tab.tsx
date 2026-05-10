@@ -17,6 +17,7 @@ interface CanvasTabProps {
   mode: "layout" | "seating";
   allergyColors: Record<string, string>;
   mealColors: Record<string, string>;
+  exportRef?: React.RefObject<HTMLDivElement | null>;
   onUpdateTablePos: (tableId: string, posX: number, posY: number) => void;
   onUpdateTableSize: (tableId: string, d?: number, w?: number, h?: number) => void;
   onRotateTable: (tableId: string) => void;
@@ -25,7 +26,7 @@ interface CanvasTabProps {
   onAssignSeat: (tableId: string, seatNumber: number, guestId?: string) => void;
 }
 
-export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpdateTablePos, onUpdateTableSize, onRotateTable, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
+export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, exportRef, onUpdateTablePos, onUpdateTableSize, onRotateTable, onAddTable, onDeleteTable, onAssignSeat }: CanvasTabProps) {
   const c = useCanvasTab({ plan, mode, onUpdateTablePos, onDeleteTable });
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
@@ -66,7 +67,7 @@ export function CanvasTab({ plan, guests, mode, allergyColors, mealColors, onUpd
           onCenter={c.handleCenter}
         />
 
-        <div className="flex-1 overflow-hidden" style={{ position: "relative", background: "#6b9854" }}>
+        <div ref={exportRef} className="flex-1 overflow-hidden" style={{ position: "relative", background: "#6b9854" }}>
           <div ref={c.canvasRef} className="absolute inset-0 overflow-hidden select-none"
             style={{ background: "#EDE4D9", cursor: c.cursor }}
             draggable={false} onDragStart={(e) => e.preventDefault()} onMouseDown={c.onPanMouseDown}>
