@@ -9,9 +9,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
 
-# Crear .npmrc para permitir scripts de dependencias en pnpm v10
-RUN echo "only-allow-trusted-dependencies=false" > .npmrc
-
+# Instalar solo deps de producción (pnpm usará pnpm.onlyBuiltDependencies del package.json)
 RUN pnpm install --frozen-lockfile --prod
 
 
@@ -31,10 +29,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
 
-# Crear .npmrc para permitir scripts de dependencias en pnpm v10
-RUN echo "only-allow-trusted-dependencies=false" > .npmrc
-
-# Instalar TODAS las deps (incluyendo devDependencies) para el build
+# Instalar TODAS las deps para el build
 RUN pnpm install --frozen-lockfile
 
 # Copiar código fuente
