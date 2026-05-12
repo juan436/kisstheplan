@@ -3,13 +3,13 @@
 # ============================================================
 FROM node:22-alpine AS deps
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Usamos pnpm v9 para evitar los bloqueos de seguridad de la v10 en Docker
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
 
-# Instalar solo deps de producción (pnpm usará pnpm.onlyBuiltDependencies del package.json)
 RUN pnpm install --frozen-lockfile --prod
 
 
@@ -23,7 +23,8 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Usamos pnpm v9 para evitar los bloqueos de seguridad de la v10 en Docker
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 WORKDIR /app
 
