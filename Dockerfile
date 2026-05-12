@@ -3,11 +3,14 @@
 # ============================================================
 FROM node:22-alpine AS deps
 
-RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm config set only-allow-trusted-dependencies false
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
+
+# Crear .npmrc para permitir scripts de dependencias en pnpm v10
+RUN echo "only-allow-trusted-dependencies=false" > .npmrc
 
 RUN pnpm install --frozen-lockfile --prod
 
@@ -22,11 +25,14 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
-RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm config set only-allow-trusted-dependencies false
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml* ./
+
+# Crear .npmrc para permitir scripts de dependencias en pnpm v10
+RUN echo "only-allow-trusted-dependencies=false" > .npmrc
 
 # Instalar TODAS las deps (incluyendo devDependencies) para el build
 RUN pnpm install --frozen-lockfile
