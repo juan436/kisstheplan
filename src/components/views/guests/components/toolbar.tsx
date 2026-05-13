@@ -106,7 +106,7 @@ export function GuestsToolbar({ groups, setShowAddModal, setShowGroupsModal, set
             <Columns size={14} />Columnas
           </button>
           {showColMenu && (
-            <div className="absolute right-0 top-9 bg-white border border-border rounded-xl shadow-dropdown p-3 z-20 min-w-[160px] space-y-1 animate-fade-in">
+            <div className="absolute right-0 top-9 bg-white border border-border rounded-xl shadow-dropdown p-3 z-50 min-w-[160px] space-y-1 animate-fade-in">
               {ALL_COLS.map((col) => (
                 <label key={col.key} className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded-lg hover:bg-bg2 text-[13px]">
                   <input type="checkbox" checked={show(col.key)} onChange={() => toggleCol(col.key)} className="w-3.5 h-3.5 accent-cta" />

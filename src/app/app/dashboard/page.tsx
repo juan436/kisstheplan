@@ -28,7 +28,7 @@ export default function DashboardAppPage() {
   return (
     <div className="flex flex-col h-full min-h-full">
       <ModuleNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 w-full max-w-full overflow-hidden">
+      <div className="flex-1 w-full max-w-full min-h-0">
         {activeTab === "dashboard" && (
           <div className="py-6">
             <DashboardView onTabChange={setActiveTab} />
