@@ -31,7 +31,6 @@ const PREVIEW_ICON: Record<string, { icon: React.ReactNode; color: string }> = {
 export function NoteCard({ note, vendors, onOpen, onDelete }: NoteCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const vendor = vendors.find((v) => v.id === note.vendorId);
-  const previewImage = note.type === "moodboard" ? note.categories.flatMap((c) => c.images)[0]?.url : null;
   const { icon, color } = PREVIEW_ICON[note.type] ?? PREVIEW_ICON.text;
 
   return (
@@ -39,16 +38,9 @@ export function NoteCard({ note, vendors, onOpen, onDelete }: NoteCardProps) {
       className="group relative rounded-2xl border border-[var(--color-border)] overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       style={{ background: NOTE_BG[note.type], boxShadow: "0 2px 12px rgba(74,60,50,0.06)" }} onClick={onOpen}>
 
-      {previewImage ? (
-        <div className="h-36 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getMediaUrl(previewImage)} alt="" className="w-full h-full object-cover" />
-        </div>
-      ) : (
-        <div className="h-28 flex items-center justify-center" style={{ background: NOTE_BG[note.type] }}>
-          <span style={{ color, opacity: 0.45 }}>{icon}</span>
-        </div>
-      )}
+      <div className="h-28 flex items-center justify-center" style={{ background: NOTE_BG[note.type] }}>
+        <span style={{ color, opacity: 0.45 }}>{icon}</span>
+      </div>
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1">
