@@ -9,6 +9,7 @@
 import { useState } from "react";
 import { Image as ImageIcon, Plus, Trash2, X } from "lucide-react";
 import type { MoodboardCategory } from "@/types";
+import { getMediaUrl } from "@/lib/utils/media";
 
 interface MoodboardCategorySectionProps {
   category: MoodboardCategory;
@@ -54,7 +55,7 @@ export function MoodboardCategorySection({ category, onUpload, onRemoveImage, on
           {category.images.map((img) => (
             <div key={img.id} className="group relative rounded-xl overflow-hidden break-inside-avoid">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt={img.caption || ""} className="w-full object-cover rounded-xl" style={{ display: "block" }} />
+              <img src={getMediaUrl(img.url)} alt={img.caption || ""} className="w-full object-cover rounded-xl" style={{ display: "block" }} />
               {img.caption && <p className="text-xs text-[var(--color-text)]/60 mt-1 px-1 pb-1">{img.caption}</p>}
               <button onClick={() => onRemoveImage(img.id)}
                 className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

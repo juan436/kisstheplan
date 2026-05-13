@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, File, Loader2, AlertTriangle } from "lucide-react";
 import { uploadPdf } from "@/lib/upload";
 import type { Note } from "@/types";
+import { getMediaUrl } from "@/lib/utils/media";
 
 interface PdfViewerProps {
   note: Note;
@@ -29,7 +30,7 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
     if (!pdfUrl) return;
     setChecking(true);
     setLoadError(false);
-    fetch(pdfUrl, { method: "HEAD" })
+    fetch(getMediaUrl(pdfUrl), { method: "HEAD" })
       .then((res) => { if (!res.ok) setLoadError(true); })
       .catch(() => setLoadError(true))
       .finally(() => setChecking(false));
@@ -79,7 +80,7 @@ export function PdfViewer({ note, onSave, onClose }: PdfViewerProps) {
             <Loader2 size={24} className="animate-spin text-[var(--color-text)]/30" />
           </div>
         ) : pdfUrl && !loadError ? (
-          <iframe src={pdfUrl} className="w-full border-0" style={{ flex: 1, minHeight: 0, height: "100%" }} />
+          <iframe src={getMediaUrl(pdfUrl)} className="w-full border-0" style={{ flex: 1, minHeight: 0, height: "100%" }} />
         ) : pdfUrl && loadError ? (
           <div className="flex flex-col items-center justify-center gap-4" style={{ minHeight: 420 }}>
             <AlertTriangle size={32} style={{ color: "#c47a7a" }} />

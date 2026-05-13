@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { Trash2, FileText, File, Image as ImageIcon } from "lucide-react";
 import type { Note, Vendor } from "@/types";
 import { NOTE_BG, TYPE_ICONS, formatDate } from "../constants/notes.constants";
+import { getMediaUrl } from "@/lib/utils/media";
 
 interface NoteCardProps {
   note: Note;
@@ -41,7 +42,7 @@ export function NoteCard({ note, vendors, onOpen, onDelete }: NoteCardProps) {
       {previewImage ? (
         <div className="h-36 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={previewImage} alt="" className="w-full h-full object-cover" />
+          <img src={getMediaUrl(previewImage)} alt="" className="w-full h-full object-cover" />
         </div>
       ) : (
         <div className="h-28 flex items-center justify-center" style={{ background: NOTE_BG[note.type] }}>
