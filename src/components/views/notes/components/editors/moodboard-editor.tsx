@@ -8,8 +8,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Download, Image as ImageIcon } from "lucide-react";
+import { X, Plus, Download, Loader2, Image as ImageIcon } from "lucide-react";
 import { uploadImage } from "@/lib/upload";
+import { api } from "@/services";
 import type { Note } from "@/types";
 import { PREDEFINED_CATEGORIES } from "../../constants/notes.constants";
 import { MoodboardCategorySection } from "./moodboard-category-section";
@@ -32,6 +33,14 @@ export function MoodboardEditor({
 }: MoodboardEditorProps) {
   const [title, setTitle] = useState(note.title);
   const [newColorHex, setNewColorHex] = useState("#c7a977");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPdf = async () => {
+    setExporting(true);
+    try { await api.exportMoodboardPdf(note.id); }
+    catch { alert("Error al generar el PDF"); }
+    finally { setExporting(false); }
+  };
   const [newColorName, setNewColorName] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -44,9 +53,10 @@ export function MoodboardEditor({
         <button onClick={onClose} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)] transition-colors"><X size={18} /></button>
         <input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={() => onSaveTitle(title)}
           className="flex-1 bg-transparent font-playfair text-xl text-[var(--color-text)] focus:outline-none" placeholder="Título del moodboard..." />
-        <button onClick={() => alert("Exportar a PDF — próximamente")}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: "#866857" }}>
-          <Download size={14} /> Exportar PDF
+        <button onClick={handleExportPdf} disabled={exporting}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ backgroundColor: "#866857" }}>
+          {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+          {exporting ? "Generando..." : "Exportar PDF"}
         </button>
       </div>
 

@@ -14,6 +14,7 @@ import type { TabType, ScriptViewProps } from "./helpers/script.helpers";
 import { ResumenTab } from "./components/tabs/resumen-tab";
 import { GuionDetalladoTab } from "./components/tabs/guion-detallado-tab";
 import { useScript } from "./hooks/use-script";
+import { api } from "@/services";
 
 function ScriptPanel({
   entries, areas, guestStats,
@@ -21,6 +22,14 @@ function ScriptPanel({
   onCreateArea, onUpdateArea, onDeleteArea,
 }: ScriptViewProps) {
   const [tab, setTab] = useState<TabType>("resumen");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportPdf = async () => {
+    setExporting(true);
+    try { await api.exportScriptPdf(); }
+    catch { alert("Error al generar el PDF"); }
+    finally { setExporting(false); }
+  };
 
   return (
     <div>
@@ -38,10 +47,11 @@ function ScriptPanel({
             </button>
           ))}
         </div>
-        <button onClick={() => alert("Exportación PDF próximamente")}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-opacity hover:opacity-80"
+        <button onClick={handleExportPdf} disabled={exporting}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
           style={{ background: "#866857" }}>
-          <FileDown size={14} />Exportar PDF
+          {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileDown size={14} />}
+          {exporting ? "Generando..." : "Exportar PDF"}
         </button>
       </div>
 

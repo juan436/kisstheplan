@@ -1,4 +1,4 @@
-import { apiFetch, getApiUrl } from "./http-client";
+import { apiFetch, getApiUrl, getTokens } from "./http-client";
 
 export const contentMethods = {
   // Script
@@ -24,6 +24,17 @@ export const contentMethods = {
   },
   async deleteScriptArea(id: string) {
     return apiFetch(`/script/areas/${id}`, { method: "DELETE" });
+  },
+  async exportScriptPdf() {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/script/export/pdf`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar el guión");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "guion-boda.pdf"; a.click();
+    URL.revokeObjectURL(url);
   },
   // Seating
   async getSeatingPlans() { return apiFetch("/seating/plans"); },
@@ -81,6 +92,17 @@ export const contentMethods = {
   },
   async removeNoteCategoryImage(noteId: string, categoryId: string, imageId: string) {
     return apiFetch(`/notes/${noteId}/categories/${categoryId}/images/${imageId}`, { method: "DELETE" });
+  },
+  async exportMoodboardPdf(noteId: string) {
+    const { accessToken } = getTokens();
+    const res = await fetch(`${getApiUrl()}/notes/${noteId}/export/pdf`, {
+      headers: { Authorization: `Bearer ${accessToken}` } as HeadersInit,
+    });
+    if (!res.ok) throw new Error("Error al exportar el moodboard");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "moodboard.pdf"; a.click();
+    URL.revokeObjectURL(url);
   },
   // Web Page
   async getWebPage() { return apiFetch("/web-page"); },

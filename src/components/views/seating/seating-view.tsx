@@ -123,7 +123,7 @@ export default function SeatingView() {
               </motion.div>
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <ListTab plan={selectedPlan} guests={guests} onAddTable={(shape) => setShowAddTable(shape)} onDeleteTable={handleDeleteTable} onRenameTable={handleRenameTable} onAssignSeat={handleAssignSeat} />
+                <ListTab plan={selectedPlan} guests={guests} onAddTable={handleAddTable} onDeleteTable={handleDeleteTable} onRenameTable={handleRenameTable} onAssignSeat={handleAssignSeat} />
               </motion.div>
             )}
           </AnimatePresence>

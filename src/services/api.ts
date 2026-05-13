@@ -139,6 +139,7 @@ export interface ApiService {
   createScriptArea(data: { name: string; imageUrl?: string }): Promise<ScriptArea>;
   updateScriptArea(id: string, data: { name?: string; imageUrl?: string }): Promise<ScriptArea>;
   deleteScriptArea(id: string): Promise<void>;
+  exportScriptPdf(): Promise<void>;
 
   // Seating Plans
   getSeatingPlans(): Promise<SeatingPlan[]>;
@@ -163,6 +164,7 @@ export interface ApiService {
   removeNoteCategory(noteId: string, categoryId: string): Promise<Note>;
   addNoteCategoryImage(noteId: string, categoryId: string, data: { url: string; caption?: string }): Promise<Note>;
   removeNoteCategoryImage(noteId: string, categoryId: string, imageId: string): Promise<Note>;
+  exportMoodboardPdf(noteId: string): Promise<void>;
 
   // Web Page
   getWebPage(): Promise<WebPageConfig | null>;
