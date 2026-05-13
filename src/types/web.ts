@@ -12,6 +12,7 @@ export interface WebPageConfig {
   rsvpEnabled: boolean;
   rsvpDeadline: string | null;
   mealOptions: string[];
+  allergyOptions: string[];
   transportOptions: string[];
   confirmMessage?: string;
   rejectMessage?: string;
