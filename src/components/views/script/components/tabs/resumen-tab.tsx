@@ -33,7 +33,7 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
       <div>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h2>
+          <h2 className="text-2xl" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>Horarios</h2>
           <div className="relative">
             <button onClick={() => setShowFieldMenu((v) => !v)} title="Configurar campos"
               className="p-1.5 rounded-lg transition-colors"
@@ -77,7 +77,7 @@ export function ResumenTab({ entries, areas, onCreateArea, onUpdateArea, onDelet
       </div>
 
       <div>
-        <h2 className="text-2xl mb-5" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Áreas</h2>
+        <h2 className="text-2xl mb-5" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>Áreas</h2>
         <div className="space-y-2 mb-4">
           {areas.map((area) => (
             <div key={area.id} className="group flex items-center gap-2">

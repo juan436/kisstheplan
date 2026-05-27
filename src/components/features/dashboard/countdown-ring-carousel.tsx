@@ -94,12 +94,12 @@ export function PaymentBar({ budget, weddingBudget }: { budget: BudgetSummary; w
   return (
     <div className="w-full space-y-1.5">
       <div className="flex items-center justify-between text-[11px]">
-        <span className="text-text/50">Comprometido</span>
+        <span className="text-text/50">Introducido</span>
         <span className="font-semibold text-text/70">
           {formatCurrency(budget.totalReal)} / {formatCurrency(weddingBudget)}
         </span>
       </div>
-      <div className="relative h-2.5 bg-fill rounded-full overflow-hidden">
+      <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: "var(--color-fill2)" }}>
         <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-700"
           style={{ width: `${committedPct}%`, background: "var(--color-accent)" }} />
       </div>

@@ -38,7 +38,7 @@ export function Step2({
             <Label className="text-[#6b5549] text-[13px] font-semibold">Datos de la pareja</Label>
             <div className="flex flex-col gap-2 relative">
               <Input placeholder="Nombre" value={partner1Name} onChange={(e) => setPartner1Name(e.target.value)} disabled={loading} className="bg-[#f2efe9] border-transparent text-center h-11 shadow-sm placeholder:text-[#a89f91]" />
-              <span className="font-display text-[20px] text-[#A0877C] mx-auto absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 bg-white px-2">&</span>
+              <span className="font-display text-[20px] text-[#A0877C] mx-auto absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">&</span>
               <Input placeholder="Nombre" value={partner2Name} onChange={(e) => setPartner2Name(e.target.value)} disabled={loading} className="bg-[#f2efe9] border-transparent text-center h-11 shadow-sm placeholder:text-[#a89f91] mt-3" />
             </div>
           </div>

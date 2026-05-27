@@ -86,7 +86,7 @@ export default function MiBodaPage() {
     <div className="min-h-screen bg-[#fdfcfb] pt-8 pb-16 px-4">
       <Container>
         <Link href="/app/dashboard" className="inline-flex items-center gap-2 text-[13px] text-accent hover:text-cta transition-colors no-underline font-medium mb-6">
-          <ArrowLeft size={16} />Volver al dashboard
+          <ArrowLeft size={16} />Volver al inicio
         </Link>
 
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
@@ -101,7 +101,7 @@ export default function MiBodaPage() {
               <div className="absolute -bottom-1 left-0 w-full h-[2px] bg-[#866857] opacity-0 group-hover:opacity-30 transition-opacity" />
             </span>
           </h1>
-          <p className="text-[#a89f91] text-[14px] mt-2 uppercase tracking-[3px] font-medium">Panel de configuración directa</p>
+          <p className="text-[#a89f91] text-[14px] mt-2 uppercase tracking-[3px] font-medium">Panel de configuración</p>
         </motion.div>
 
         <div className="max-w-[900px] mx-auto space-y-8">

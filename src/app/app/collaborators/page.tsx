@@ -61,7 +61,7 @@ export default function ColaboradoresPage() {
           className="inline-flex items-center gap-2 text-[13px] text-accent hover:text-cta transition-colors no-underline font-medium mb-8"
         >
           <ArrowLeft size={16} />
-          Volver al dashboard
+          Volver al inicio
         </Link>
 
         <motion.div

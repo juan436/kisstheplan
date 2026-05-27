@@ -50,7 +50,7 @@ export function GuionDetalladoTab({ entries, guestStats, onCreateEntry, onUpdate
     <div className="mx-auto mt-6" style={{ maxWidth: 860 }}>
     <div className="flex gap-0" style={{ minHeight: "calc(100vh - 300px)" }}>
       <div className="w-52 flex-shrink-0 pr-5 border-r" style={{ borderColor: "var(--color-fill)", position: "sticky", top: 80, alignSelf: "flex-start" }}>
-        <h3 className="text-lg mb-4" style={{ fontFamily: "var(--font-playfair)", color: "var(--color-text)" }}>Horarios</h3>
+        <h3 className="text-lg mb-4" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>Horarios</h3>
         {timedEntries.length === 0 ? (
           <p className="text-xs" style={{ color: "var(--color-accent)" }}>Sin horarios aún</p>
         ) : (
