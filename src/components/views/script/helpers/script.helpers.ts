@@ -30,11 +30,18 @@ export function formatTimeDisplay(entry: ScriptEntry): string {
   return entry.timeStart;
 }
 
+// Horas < 06:00 se tratan como día siguiente (madrugada tras evento nocturno)
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  const total = h * 60 + (m || 0);
+  return total < 360 ? total + 1440 : total;
+}
+
 export function sortEntries(entries: ScriptEntry[]): ScriptEntry[] {
   return [...entries].sort((a, b) => {
     const aT = a.timeType !== "none" && a.timeStart;
     const bT = b.timeType !== "none" && b.timeStart;
-    if (aT && bT) return (a.timeStart ?? "").localeCompare(b.timeStart ?? "");
+    if (aT && bT) return timeToMinutes(a.timeStart ?? "00:00") - timeToMinutes(b.timeStart ?? "00:00");
     if (aT) return -1;
     if (bT) return 1;
     return a.order - b.order;
