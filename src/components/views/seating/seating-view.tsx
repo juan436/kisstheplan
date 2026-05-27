@@ -79,7 +79,21 @@ export default function SeatingView() {
           </div>
         )}
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          {selectedPlan && (() => {
+            const totalSeats    = selectedPlan.tables.reduce((s, t) => s + t.capacity, 0);
+            const seated        = selectedPlan.tables.reduce((s, t) => s + t.assignments.filter(a => !!a.guestId).length, 0);
+            const pendingGuests = Math.max(0, guests.length - seated);
+            return (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-white text-[12px] font-medium" style={{ boxShadow: "0 2px 8px rgba(74,60,50,0.06)" }}>
+                <span title="Asientos creados" style={{ color: "var(--color-text)" }}>🪑 {totalSeats}</span>
+                <span className="w-px h-3.5 bg-[var(--color-border)]" />
+                <span title="Invitados sentados" style={{ color: "var(--color-success)" }}>✓ {seated}</span>
+                <span className="w-px h-3.5 bg-[var(--color-border)]" />
+                <span title="Invitados sin asiento" style={{ color: "var(--color-danger)" }}>⏳ {pendingGuests}</span>
+              </div>
+            );
+          })()}
           <button onClick={handleExportPdf} disabled={!selectedPlan || exporting} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-medium text-white transition-colors disabled:opacity-50" style={{ backgroundColor: "#866857" }}>
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
             {exporting ? "Generando…" : "Exportar PDF"}
