@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { TEMPLATE_STYLES } from "@/components/views/web/components/template-styles";
 
@@ -12,11 +15,25 @@ interface ContentSectionProps {
 }
 
 export function ContentSection({ icon, title, colors, fontTitle, template, sectionIndex = 0, children }: ContentSectionProps) {
-  const tpl = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.elegante;
-  const bg  = tpl.sectionBgFull?.(colors.primary, colors.accent, sectionIndex) ?? tpl.sectionBg(colors.primary, sectionIndex);
+  const tpl     = TEMPLATE_STYLES[template] ?? TEMPLATE_STYLES.elegante;
+  const bg      = tpl.sectionBgFull?.(colors.primary, colors.accent, sectionIndex) ?? tpl.sectionBg(colors.primary, sectionIndex);
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <section style={{ marginTop: "60px", textAlign: tpl.sectionTitleAlign, padding: "48px 0", backgroundColor: bg || "transparent" }}>
+    <section
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        marginTop: "60px",
+        textAlign: tpl.sectionTitleAlign,
+        padding: "48px 0",
+        backgroundColor: bg || "transparent",
+        borderRadius: hovered ? "16px" : "4px",
+        boxShadow: hovered ? `0 8px 40px ${colors.accent}1a` : "0 0px 0px transparent",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        transition: "box-shadow 0.3s ease, transform 0.25s ease, border-radius 0.3s ease",
+      }}
+    >
       {icon && (
         <div style={{ width: "40px", height: "40px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", backgroundColor: `${colors.accent}14`, color: colors.accent }}>
           {icon}
