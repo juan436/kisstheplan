@@ -3,24 +3,42 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
-import { ArrowLeft, CreditCard, XCircle, AlertTriangle, Tag } from "lucide-react";
+import { ArrowLeft, CreditCard, XCircle, AlertTriangle, Tag, User, Lock, BarChart2, Heart } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import { useAuth } from "@/hooks/useAuth";
 import { MetodoPago } from "./payment-section";
 import { CancelarPlan } from "./cancel-section";
 import { CerrarCuenta } from "./close-account-section";
 import { CodigoDescuento } from "./discount-section";
+import { EstadoSuscripcion } from "./subscription-section";
+import { CrearMiBoda } from "./create-wedding-section";
+import { DatosPersonales } from "./personal-section";
+import { CambiarContrasena } from "./password-section";
 
-type Section = "pago" | "descuento" | "cancelar" | "cerrar";
+type Section = "personal" | "password" | "suscripcion" | "pago" | "descuento" | "crear-boda" | "cancelar" | "cerrar";
 
-const menuItems: { key: Section; label: string; icon: React.ReactNode }[] = [
-  { key: "pago",      label: "Modificar método de pago", icon: <CreditCard size={18} /> },
-  { key: "descuento", label: "Código de descuento",      icon: <Tag size={18} /> },
-  { key: "cancelar",  label: "Cancelar Plan",            icon: <XCircle size={18} /> },
-  { key: "cerrar",    label: "Cerrar cuenta",            icon: <AlertTriangle size={18} /> },
+const ownerItems: { key: Section; label: string; icon: React.ReactNode }[] = [
+  { key: "personal",    label: "Datos personales",         icon: <User size={18} /> },
+  { key: "password",    label: "Cambiar contraseña",        icon: <Lock size={18} /> },
+  { key: "suscripcion", label: "Estado suscripción",        icon: <BarChart2 size={18} /> },
+  { key: "pago",        label: "Método de pago",            icon: <CreditCard size={18} /> },
+  { key: "descuento",   label: "Código de descuento",       icon: <Tag size={18} /> },
+  { key: "cancelar",    label: "Cancelar plan",             icon: <XCircle size={18} /> },
+  { key: "cerrar",      label: "Cerrar cuenta",             icon: <AlertTriangle size={18} /> },
+];
+
+const collaboratorItems: { key: Section; label: string; icon: React.ReactNode }[] = [
+  { key: "personal",    label: "Datos personales",  icon: <User size={18} /> },
+  { key: "password",    label: "Cambiar contraseña", icon: <Lock size={18} /> },
+  { key: "crear-boda",  label: "Crear mi boda",      icon: <Heart size={18} /> },
+  { key: "cerrar",      label: "Cerrar cuenta",      icon: <AlertTriangle size={18} /> },
 ];
 
 export default function CuentaPage() {
-  const [active, setActive] = useState<Section>("pago");
+  const { activeRole } = useAuth();
+  const isCollaborator = activeRole === 'collaborator';
+  const menuItems = isCollaborator ? collaboratorItems : ownerItems;
+  const [active, setActive] = useState<Section>("personal");
 
   return (
     <div className="min-h-screen bg-[#fdfcfb] pt-8 pb-16 px-4">
@@ -35,7 +53,6 @@ export default function CuentaPage() {
         </h1>
 
         <div className="max-w-[900px] mx-auto flex flex-col md:flex-row gap-0 md:gap-0 min-h-[480px]">
-          {/* Sidebar */}
           <nav className="md:w-[260px] shrink-0 flex flex-row md:flex-col gap-1 md:border-r md:border-border md:pr-8 mb-8 md:mb-0 overflow-x-auto scrollbar-hide">
             {menuItems.map((item) => (
               <button
@@ -53,13 +70,16 @@ export default function CuentaPage() {
             ))}
           </nav>
 
-          {/* Content */}
           <div className="flex-1 md:pl-10">
             <AnimatePresence mode="wait">
-              {active === "pago"      && <MetodoPago key="pago" />}
-              {active === "descuento" && <CodigoDescuento key="descuento" />}
-              {active === "cancelar"  && <CancelarPlan key="cancelar" />}
-              {active === "cerrar"    && <CerrarCuenta key="cerrar" />}
+              {active === "personal"    && <DatosPersonales key="personal" />}
+              {active === "password"    && <CambiarContrasena key="password" />}
+              {active === "suscripcion" && <EstadoSuscripcion key="suscripcion" />}
+              {active === "pago"        && <MetodoPago key="pago" />}
+              {active === "descuento"   && <CodigoDescuento key="descuento" />}
+              {active === "crear-boda"  && <CrearMiBoda key="crear-boda" />}
+              {active === "cancelar"    && <CancelarPlan key="cancelar" />}
+              {active === "cerrar"      && <CerrarCuenta key="cerrar" />}
             </AnimatePresence>
           </div>
         </div>

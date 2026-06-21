@@ -1,57 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+import { useCollaborators } from "./use-collaborators";
+import { CollaboratorCard } from "./collaborator-card";
+import { AddCollaboratorForm } from "./add-collaborator-form";
 
 export default function ColaboradoresPage() {
-  const [emails, setEmails] = useState(["", ""]);
-  const [errors, setErrors] = useState(["", ""]);
-  const [sent, setSent] = useState([false, false]);
-
-  const handleChange = (index: number, value: string) => {
-    const updated = [...emails];
-    updated[index] = value;
-    setEmails(updated);
-
-    // Clear error while typing
-    const updatedErrors = [...errors];
-    updatedErrors[index] = "";
-    setErrors(updatedErrors);
-  };
-
-  const handleRemove = (index: number) => {
-    const updatedEmails = [...emails];
-    const updatedSent = [...sent];
-    updatedEmails[index] = "";
-    updatedSent[index] = false;
-    setEmails(updatedEmails);
-    setSent(updatedSent);
-  };
-
-  const handleInvite = () => {
-    const newErrors = emails.map((email) => {
-      if (!email.trim()) return "";
-      if (!isValidEmail(email.trim())) return "Email no válido";
-      return "";
-    });
-    setErrors(newErrors);
-
-    const hasErrors = newErrors.some((e) => e !== "");
-    const hasFilled = emails.some((e) => e.trim() !== "");
-    if (hasErrors || !hasFilled) return;
-
-    // Mark filled emails as sent
-    setSent(emails.map((e) => e.trim() !== "" && isValidEmail(e.trim())));
-  };
+  const c = useCollaborators();
 
   return (
     <div className="min-h-screen bg-[#fdfcfb] pt-8 pb-16 px-4">
@@ -73,70 +31,46 @@ export default function ColaboradoresPage() {
           <h1 className="font-display text-[36px] md:text-[44px] text-text mb-4">
             Colaboradores
           </h1>
-          <p className="text-[14px] text-text/60 mb-12 leading-relaxed">
-            Puedes invitar hasta un máximo de 2 colaboradores más con acceso
-            total a tu boda:
+          <p className="text-[14px] text-text/60 mb-10 leading-relaxed">
+            Hasta 3 colaboradores con acceso total a la boda.
           </p>
 
-          <div className="space-y-6">
-            {emails.map((email, i) => (
-              <div key={i} className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 relative">
-                    <Input
-                      type="email"
-                      placeholder="Introduce e-mail:"
-                      value={email}
-                      onChange={(e) => handleChange(i, e.target.value)}
-                      disabled={sent[i]}
-                      className={`bg-[#f2efe9] border-none h-12 rounded-xl text-text pr-10 ${
-                        sent[i] ? "opacity-60" : ""
-                      }`}
-                    />
-                    {sent[i] && (
-                      <button
-                        onClick={() => handleRemove(i)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text/30 hover:text-danger transition-colors"
-                        title="Quitar"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleRemove(i)}
-                    className="text-[13px] text-[#866857] hover:text-[#6b5549] transition-colors font-medium whitespace-nowrap shrink-0"
-                  >
-                    Eliminar acceso
-                  </button>
-                </div>
+          {!c.loading && c.collaborators.length > 0 && (
+            <div className="mb-10 space-y-3">
+              <p className="text-[11px] text-text/40 uppercase tracking-widest mb-3">
+                Colaboradores actuales
+              </p>
+              {c.collaborators.map((collab) => (
+                <CollaboratorCard key={collab.id} collaborator={collab} onRevoke={c.handleRevoke} />
+              ))}
+            </div>
+          )}
 
-                {errors[i] && (
-                  <p className="text-[12px] text-danger pl-1">{errors[i]}</p>
-                )}
-                {sent[i] && (
-                  <p className="text-[12px] text-success pl-1">
-                    Invitación enviada
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+          {c.globalError && (
+            <p className="text-[12px] text-danger mb-4">{c.globalError}</p>
+          )}
 
-          <div className="flex justify-end mt-8">
-            <Button
-              onClick={handleInvite}
-              className="px-10 py-5 bg-[#CBA978] hover:bg-[#b08f5d] text-white rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <span className="text-[14px] font-bold tracking-[2px] uppercase">
-                Invitar
-              </span>
-            </Button>
-          </div>
+          {c.slotsLeft > 0 ? (
+            <AddCollaboratorForm
+              mode={c.mode} setMode={c.setMode}
+              inviteEmail={c.inviteEmail} setInviteEmail={c.setInviteEmail}
+              inviteError={c.inviteError} setInviteError={c.setInviteError}
+              inviting={c.inviting} handleInvite={c.handleInvite}
+              manualName={c.manualName} setManualName={c.setManualName}
+              manualEmail={c.manualEmail} setManualEmail={c.setManualEmail}
+              manualPassword={c.manualPassword} setManualPassword={c.setManualPassword}
+              manualError={c.manualError} setManualError={c.setManualError}
+              creating={c.creating} handleCreateManual={c.handleCreateManual}
+            />
+          ) : (
+            <p className="text-[13px] text-text/50 text-center mt-4">
+              Has alcanzado el máximo de 3 colaboradores.
+            </p>
+          )}
 
-          <p className="text-[12px] text-text/30 text-center mt-10 leading-relaxed">
-            Los colaboradores tendrán acceso completo a todos los módulos de tu
-            boda. Puedes revocar el acceso en cualquier momento.
+          <p className="text-[12px] text-text/30 text-center mt-12 leading-relaxed">
+            Los colaboradores tienen acceso completo a todos los módulos.
+            Puedes revocar el acceso en cualquier momento.
           </p>
         </motion.div>
       </Container>

@@ -22,10 +22,14 @@ function CallbackContent() {
 
     setTokens(token, refreshToken);
 
+    const pendingInvite = localStorage.getItem("ktp_pending_invite");
+
     apiFetch<{ onboardingComplete?: boolean }>("/auth/me")
       .then(async (profile) => {
         await refreshUserData();
-        if (profile.onboardingComplete === false) {
+        if (pendingInvite) {
+          router.replace(`/invitar/${pendingInvite}`);
+        } else if (profile.onboardingComplete === false) {
           router.replace("/register?step=1");
         } else {
           router.replace("/app/dashboard");

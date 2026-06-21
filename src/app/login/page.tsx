@@ -38,8 +38,8 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await login(email, password);
-      router.push("/app/dashboard");
+      const userData = await login(email, password);
+      router.push(userData?.role === 'admin' ? "/admin" : "/app/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {

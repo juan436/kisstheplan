@@ -10,8 +10,9 @@ import { StepIndicator } from "@/components/features/auth/step-indicator";
 import Link from "next/link";
 import { Step1 } from "./register-step1";
 import { Step2 } from "./register-step2";
+import { Step3 } from "./register-step3";
 
-const steps = ["Cuenta", "Configuración"];
+const steps = ["Cuenta", "Configuración", "Plan"];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -45,6 +46,9 @@ export default function RegisterPage() {
   const [estimatedGuests, setEstimatedGuests] = useState("");
   const [estimatedBudget, setEstimatedBudget] = useState("");
 
+  // Step 3 state
+  const [plan, setPlan] = useState<'trial' | 'annual'>('trial');
+
   async function handleStep1() {
     setError("");
     if (!useRealApi) { setStep(1); return; }
@@ -64,8 +68,13 @@ export default function RegisterPage() {
 
   async function handleStep2() {
     setError("");
-    if (!useRealApi) { router.push("/app/dashboard"); return; }
     if (!partner1Name || !partner2Name) { setError("Introduce los nombres de los novios"); return; }
+    setStep(2);
+  }
+
+  async function handleStep3() {
+    setError("");
+    if (!useRealApi) { router.push("/app/dashboard"); return; }
     setLoading(true);
     try {
       await createWedding({
@@ -74,6 +83,7 @@ export default function RegisterPage() {
         venue: venue || "",
         estimatedGuests: parseInt(estimatedGuests) || 100,
         estimatedBudget: parseInt(estimatedBudget) || 0,
+        plan,
       });
       router.push("/app/dashboard");
     } catch (err) {
@@ -115,6 +125,12 @@ export default function RegisterPage() {
                 estimatedGuests={estimatedGuests} setEstimatedGuests={setEstimatedGuests}
                 estimatedBudget={estimatedBudget} setEstimatedBudget={setEstimatedBudget}
                 loading={loading} onNext={handleStep2} onBack={back}
+              />
+            )}
+            {step === 2 && (
+              <Step3
+                plan={plan} setPlan={setPlan}
+                loading={loading} onNext={handleStep3} onBack={back}
               />
             )}
           </motion.div>

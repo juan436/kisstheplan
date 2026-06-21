@@ -1,8 +1,15 @@
+export interface WeddingOption {
+  weddingId: string;
+  role: 'owner' | 'collaborator';
+  weddingName: string;
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
   avatarUrl?: string;
+  role?: 'owner' | 'collaborator' | 'admin';
 }
 
 export interface Wedding {

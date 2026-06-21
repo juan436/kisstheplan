@@ -7,3 +7,4 @@ export * from './web';
 export * from './script';
 export * from './seating';
 export * from './note';
+export * from './collaborator';

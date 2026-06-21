@@ -133,4 +133,22 @@ export const contentMethods = {
     }
     return res.json();
   },
+
+  // Collaborators
+  async getCollaborators() { return apiFetch("/collaborators"); },
+  async inviteCollaborator(email: string) {
+    return apiFetch("/collaborators/invite", { method: "POST", body: JSON.stringify({ email }) });
+  },
+  async revokeCollaborator(id: string) {
+    return apiFetch(`/collaborators/${id}`, { method: "DELETE" });
+  },
+  async acceptCollaboratorInvite(token: string) {
+    return apiFetch(`/collaborators/accept/${token}`, { method: "POST" });
+  },
+  async getCollaboratorInviteInfo(token: string) {
+    return apiFetch(`/collaborators/invite-info/${token}`);
+  },
+  async createManualCollaborator(data: { email: string; password: string; name: string }) {
+    return apiFetch("/collaborators/create-manual", { method: "POST", body: JSON.stringify(data) });
+  },
 };

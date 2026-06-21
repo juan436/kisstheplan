@@ -174,4 +174,12 @@ export interface ApiService {
   unpublishWebPage(): Promise<WebPageConfig>;
   getPublicWedding(slug: string): Promise<PublicWeddingData>;
   submitRsvp(slug: string, data: RsvpSubmission): Promise<{ success: boolean; message: string }>;
+
+  // Collaborators
+  getCollaborators(): Promise<import("@/types").Collaborator[]>;
+  inviteCollaborator(email: string): Promise<import("@/types").Collaborator>;
+  revokeCollaborator(id: string): Promise<void>;
+  acceptCollaboratorInvite(token: string): Promise<{ weddingId: string }>;
+  getCollaboratorInviteInfo(token: string): Promise<import("@/types").CollaboratorInviteInfo>;
+  createManualCollaborator(data: { email: string; password: string; name: string }): Promise<import("@/types").Collaborator>;
 }

@@ -1,4 +1,5 @@
 import { getApiUrl, setTokens, clearTokens, apiFetch, getTokens } from "./http-client";
+import type { WeddingOption } from "@/types/user";
 
 export async function apiLogin(email: string, password: string) {
   const res = await fetch(`${getApiUrl()}/auth/login`, {
@@ -12,7 +13,17 @@ export async function apiLogin(email: string, password: string) {
   }
   const data = await res.json();
   setTokens(data.accessToken, data.refreshToken);
-  return data.user;
+  return { user: data.user, weddings: (data.weddings ?? []) as WeddingOption[] };
+}
+
+export async function apiGetAvailableWeddings(): Promise<WeddingOption[]> {
+  return apiFetch("/auth/weddings");
+}
+
+export async function apiSwitchWedding(weddingId: string): Promise<{ accessToken: string; refreshToken: string; role: string; weddingId: string }> {
+  const data = await apiFetch("/auth/switch-wedding", { method: "POST", body: JSON.stringify({ weddingId }) }) as { accessToken: string; refreshToken: string; role: string; weddingId: string };
+  setTokens(data.accessToken, data.refreshToken);
+  return data;
 }
 
 export async function apiRegister(email: string, password: string, name: string) {
@@ -33,8 +44,22 @@ export async function apiRegister(email: string, password: string, name: string)
 export async function apiCreateWedding(data: {
   partner1Name: string; partner2Name: string; date: string;
   venue: string; location?: string; estimatedGuests: number; estimatedBudget: number;
+  plan?: 'trial' | 'annual';
 }) {
   return apiFetch("/weddings", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function apiRefreshTokens(): Promise<void> {
+  const { refreshToken } = getTokens();
+  if (!refreshToken) return;
+  const res = await fetch(`${getApiUrl()}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+  if (!res.ok) return;
+  const data = await res.json();
+  setTokens(data.accessToken, data.refreshToken);
 }
 
 export async function apiLogout() {
