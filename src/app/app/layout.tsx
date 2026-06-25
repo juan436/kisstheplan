@@ -47,7 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Topbar
           weddingName={weddingName}
           userName={userName}
-          userRole={activeRole ?? user?.role}
+          userRole={activeRole ?? undefined}
           activeWeddingId={wedding?.id}
           availableWeddings={availableWeddings}
           onSwitchWedding={switchWedding}

@@ -15,8 +15,7 @@
  *           - Input de chat con soporte para envío con 'Enter'.
  *           - Botón rápido para añadir notas mediante prompt.
  */
-import { Plus, Paperclip, Send } from "lucide-react";
-import { api } from "@/services";
+import { Paperclip, Send } from "lucide-react";
 import type { Vendor } from "@/types";
 
 interface DetailActivityProps {
@@ -27,12 +26,11 @@ interface DetailActivityProps {
   activityEndRef: React.RefObject<HTMLDivElement | null>;
   onBack: () => void;
   onSendChat: () => void;
-  onVendorUpdated: (v: Vendor) => void;
 }
 
 export function DetailActivity({
   vendor, chatInput, setChatInput, sending, activityEndRef,
-  onBack, onSendChat, onVendorUpdated,
+  onBack, onSendChat,
 }: DetailActivityProps) {
   return (
     <div className="w-72 flex-shrink-0 flex flex-col bg-white rounded-xl shadow-card overflow-hidden"
@@ -43,27 +41,14 @@ export function DetailActivity({
           className="flex items-center gap-1.5 text-[12px] font-medium text-text px-3 py-1.5 rounded-full border border-border hover:bg-bg2 transition-colors">
           Atrás
         </button>
-        <button
-          onClick={() => {
-            const note = prompt("Escribe tu nota:");
-            if (note?.trim()) {
-              api.addVendorActivity(vendor.id, { type: "note", content: note.trim() }).then((updated) => {
-                onVendorUpdated(updated);
-              });
-            }
-          }}
-          className="flex items-center gap-1.5 text-[12px] font-medium text-white px-3 py-1.5 rounded-full transition-colors"
-          style={{ backgroundColor: "#8c6f5f" }}>
-          <Plus size={13} />
-          Añadir nota
-        </button>
+        <span className="text-[13px] font-semibold text-text">Notas</span>
       </div>
 
       {/* Activity feed */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-        <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-2">Actividad</p>
+        <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-2">Historial de notas</p>
         {vendor.activity.length === 0 && (
-          <p className="text-[12px] text-brand text-center py-6">Sin actividad aún</p>
+          <p className="text-[12px] text-brand text-center py-6">Sin notas aún</p>
         )}
         {vendor.activity.map((entry) => (
           <div key={entry.id} className="flex flex-col gap-0.5">
@@ -98,7 +83,7 @@ export function DetailActivity({
         <div className="flex items-center gap-2 bg-bg2 rounded-xl px-3 py-2 border border-border focus-within:border-cta transition-colors">
           <input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSendChat()}
-            placeholder="Chat para escribir o subir documentación..."
+            placeholder="Escribe una nota sobre este proveedor..."
             className="flex-1 bg-transparent text-[12px] text-text placeholder:text-brand outline-none" />
           <button onClick={onSendChat} disabled={sending || !chatInput.trim()}
             className="text-cta hover:text-accent transition-colors disabled:opacity-40">

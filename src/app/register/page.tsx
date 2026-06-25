@@ -12,7 +12,7 @@ import { Step1 } from "./register-step1";
 import { Step2 } from "./register-step2";
 import { Step3 } from "./register-step3";
 
-const steps = ["Cuenta", "Configuración", "Plan"];
+const steps = ["Cuenta", "Configuración", "Empezar"];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -45,9 +45,6 @@ export default function RegisterPage() {
   const [venue, setVenue] = useState("");
   const [estimatedGuests, setEstimatedGuests] = useState("");
   const [estimatedBudget, setEstimatedBudget] = useState("");
-
-  // Step 3 state
-  const [plan, setPlan] = useState<'trial' | 'annual'>('trial');
 
   async function handleStep1() {
     setError("");
@@ -83,7 +80,7 @@ export default function RegisterPage() {
         venue: venue || "",
         estimatedGuests: parseInt(estimatedGuests) || 100,
         estimatedBudget: parseInt(estimatedBudget) || 0,
-        plan,
+        plan: 'trial',
       });
       router.push("/app/dashboard");
     } catch (err) {
@@ -129,7 +126,6 @@ export default function RegisterPage() {
             )}
             {step === 2 && (
               <Step3
-                plan={plan} setPlan={setPlan}
                 loading={loading} onNext={handleStep3} onBack={back}
               />
             )}

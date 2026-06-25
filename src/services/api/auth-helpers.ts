@@ -75,4 +75,20 @@ export function isAuthenticated(): boolean {
   return !!localStorage.getItem("ktp_access_token");
 }
 
+export async function apiChangePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiFetch("/auth/password", { method: "PATCH", body: JSON.stringify({ currentPassword, newPassword }) });
+}
+
+export function getCurrentUserEmail(): string | null {
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("ktp_access_token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1])) as { email?: string };
+    return payload.email ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export { clearTokens, getTokens, setTokens };

@@ -19,6 +19,7 @@ export {
   apiLogout,
   apiGetAvailableWeddings,
   apiSwitchWedding,
+  apiChangePassword,
   isAuthenticated,
   clearTokens,
   setTokens,

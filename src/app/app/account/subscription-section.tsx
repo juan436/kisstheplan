@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/services/api/http-client";
+import { Button } from "@/components/ui/button";
 import { SectionWrapper } from "./account-helpers";
 
 interface SubscriptionData {
@@ -29,19 +30,32 @@ const STATUS_COLOR: Record<string, string> = {
 
 export function EstadoSuscripcion() {
   const [sub, setSub] = useState<SubscriptionData | null>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const useRealApi = process.env.NEXT_PUBLIC_USE_REAL_API === "true";
 
   useEffect(() => {
-    const useRealApi = process.env.NEXT_PUBLIC_USE_REAL_API === "true";
     if (!useRealApi) return;
     apiFetch("/subscription")
       .then((data) => setSub(data as SubscriptionData))
       .catch(() => null);
-  }, []);
+  }, [useRealApi]);
 
   const expiryDate = sub?.trialEndDate ?? sub?.currentPeriodEnd;
   const formattedExpiry = expiryDate
     ? new Date(expiryDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
     : null;
+
+  const handleActivate = async () => {
+    setLoadingCheckout(true);
+    try {
+      const data = await apiFetch("/payments/stripe/checkout", { method: "POST" }) as { url: string };
+      window.location.href = data.url;
+    } catch {
+      setLoadingCheckout(false);
+    }
+  };
+
+  const needsActivation = sub && (sub.status === 'trial' || sub.status === 'expired');
 
   return (
     <SectionWrapper>
@@ -51,7 +65,7 @@ export function EstadoSuscripcion() {
           <div className="bg-[#f2efe9] rounded-xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-[13px] text-text/60 uppercase tracking-wider font-semibold">Plan</span>
-              <span className="text-[14px] text-text font-semibold capitalize">{sub.plan === 'trial' ? 'Prueba gratuita' : 'Anual'}</span>
+              <span className="text-[14px] text-text font-semibold">{sub.plan === 'trial' ? 'Prueba gratuita' : 'Anual'}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-[13px] text-text/60 uppercase tracking-wider font-semibold">Estado</span>
@@ -74,8 +88,18 @@ export function EstadoSuscripcion() {
               </div>
             )}
           </div>
-          {sub.status === 'trial' && (
-            <p className="text-[13px] text-brand">Al terminar la prueba, elige el plan anual desde aquí.</p>
+
+          {needsActivation && (
+            <div className="space-y-3">
+              <p className="text-[13px] text-brand">
+                {sub.status === 'expired'
+                  ? 'Tu período de prueba ha terminado. Activa el plan anual para seguir organizando tu boda.'
+                  : 'Al terminar la prueba, activa el plan anual para continuar sin interrupciones.'}
+              </p>
+              <Button variant="cta" size="full" onClick={handleActivate} disabled={loadingCheckout}>
+                {loadingCheckout ? 'Redirigiendo...' : 'Activar plan anual — 70 €/año'}
+              </Button>
+            </div>
           )}
         </div>
       ) : (

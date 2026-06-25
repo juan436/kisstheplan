@@ -15,14 +15,14 @@ function GoogleSvg() {
   );
 }
 
-export function GoogleButton() {
+export function GoogleButton({ onClick }: { onClick?: () => void }) {
   return (
     <Button
       type="button"
       variant="secondary"
       size="full"
       className="gap-3"
-      onClick={() => { window.location.href = `${API_URL}/auth/google`; }}
+      onClick={onClick ?? (() => { window.location.href = `${API_URL}/auth/google`; })}
     >
       <GoogleSvg />
       Continuar con Google

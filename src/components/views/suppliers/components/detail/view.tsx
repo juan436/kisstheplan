@@ -79,7 +79,7 @@ export function DetailView({ vendor: initialVendor, onBack, onUpdate, onDelete }
       <DetailActivity
         vendor={vendor} chatInput={chatInput} setChatInput={setChatInput}
         sending={sending} activityEndRef={activityEndRef}
-        onBack={onBack} onSendChat={handleSendChat} onVendorUpdated={onUpdate}
+        onBack={onBack} onSendChat={handleSendChat}
       />
     </div>
   );

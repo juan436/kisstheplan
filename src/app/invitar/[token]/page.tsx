@@ -1,13 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
+import { AuthForm } from "@/components/features/auth/auth-form";
 import { useInviteAccept } from "./use-invite-accept";
-import { InviteAuthForm } from "./invite-auth-form";
 
 export default function InvitarPage() {
   const iv = useInviteAccept();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col items-center justify-center px-4 py-16">
@@ -31,6 +33,38 @@ export default function InvitarPage() {
             <p className="text-[13px] text-text/50">
               {iv.error || "Este enlace ha expirado o ya no es válido."}
             </p>
+          </div>
+        )}
+
+        {iv.step === "wrong-user" && (
+          <div className="text-center space-y-4">
+            <p className="font-display text-[22px] text-text">Cuenta incorrecta</p>
+            <p className="text-[13px] text-text/50">
+              Hay una sesión activa con <strong>{iv.currentUserEmail}</strong>.<br />
+              Esta invitación es para <strong>{iv.info?.email}</strong>.
+            </p>
+            <Button
+              onClick={iv.handleLogoutAndContinue}
+              className="w-full py-4 bg-[#CBA978] hover:bg-[#b08f5d] text-white rounded-xl font-bold tracking-widest uppercase text-[13px]"
+            >
+              Cerrar sesión y continuar
+            </Button>
+          </div>
+        )}
+
+        {iv.step === "already-accepted" && (
+          <div className="text-center space-y-3">
+            <p className="font-display text-[22px] text-text">Invitación ya aceptada</p>
+            <p className="text-[13px] text-text/50">
+              Ya formas parte de la boda de{" "}
+              <strong>{iv.info?.partner1Name} & {iv.info?.partner2Name}</strong>.
+            </p>
+            <Button
+              onClick={() => router.push("/login")}
+              className="w-full py-4 bg-[#CBA978] hover:bg-[#b08f5d] text-white rounded-xl font-bold tracking-widest uppercase text-[13px]"
+            >
+              Iniciar sesión
+            </Button>
           </div>
         )}
 
@@ -70,15 +104,24 @@ export default function InvitarPage() {
         )}
 
         {iv.step === "auth" && iv.info && (
-          <InviteAuthForm
-            info={iv.info}
-            authMode={iv.authMode} setAuthMode={iv.setAuthMode}
-            email={iv.email} setEmail={iv.setEmail}
-            password={iv.password} setPassword={iv.setPassword}
-            name={iv.name} setName={iv.setName}
-            error={iv.error} submitting={iv.submitting}
-            handleAuth={iv.handleAuth}
-            handleGoogleLogin={iv.handleGoogleLogin}
+          <AuthForm
+            header={
+              <div className="mb-2">
+                <p className="text-[11px] text-text/40 uppercase tracking-widest mb-1">Invitación</p>
+                <h1 className="font-display text-[22px] text-text">
+                  {iv.info.partner1Name} & {iv.info.partner2Name}
+                </h1>
+              </div>
+            }
+            showTabs
+            prefillEmail={iv.info.email}
+            onSubmit={async (email, password, mode, name) => {
+              await iv.handleAuth(email, password, mode, name);
+            }}
+            onGoogleLogin={iv.handleGoogleLogin}
+            submitLabel={{ login: "Entrar y aceptar", register: "Registrarme y aceptar" }}
+            error={iv.error}
+            submitting={iv.submitting}
           />
         )}
       </motion.div>

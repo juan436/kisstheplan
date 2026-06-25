@@ -100,7 +100,6 @@ export function GeneralInfo({ vendor, onFieldBlur, onUpdateCategories }: General
            <div className="flex flex-wrap gap-1.5 mb-3">
               {dbCategories
                 .filter(c => !vendor.categories.includes(c))
-                .slice(0, 8) // Limit visible suggestions
                 .map((cat) => (
                 <button
                   key={cat}
