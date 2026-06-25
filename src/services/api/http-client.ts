@@ -65,7 +65,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
       },
     });
   let res = await doFetch(accessToken);
-  if (res.status === 401 && accessToken) {
+  if ((res.status === 401 || res.status === 403) && accessToken) {
     const newToken = await refreshAccessToken();
     if (newToken) res = await doFetch(newToken);
   }
