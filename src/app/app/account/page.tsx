@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { ArrowLeft, AlertTriangle, Tag, User, Lock, BarChart2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
@@ -30,17 +31,23 @@ const collaboratorItems: { key: Section; label: string; icon: React.ReactNode }[
 
 export default function CuentaPage() {
   const { activeRole } = useAuth();
+  const searchParams = useSearchParams();
+  const isExpired = searchParams.get("expired") === "true";
   const isCollaborator = activeRole === 'collaborator';
   const menuItems = isCollaborator ? collaboratorItems : ownerItems;
-  const [active, setActive] = useState<Section>("personal");
+  const [active, setActive] = useState<Section>(
+    isExpired && !isCollaborator ? "suscripcion" : "personal"
+  );
 
   return (
     <div className="min-h-screen bg-[#fdfcfb] pt-8 pb-16 px-4">
       <Container>
-        <Link href="/app/dashboard" className="inline-flex items-center gap-2 text-[13px] text-accent hover:text-cta transition-colors no-underline font-medium mb-8">
-          <ArrowLeft size={16} />
-          Volver al inicio
-        </Link>
+        {!isExpired && (
+          <Link href="/app/dashboard" className="inline-flex items-center gap-2 text-[13px] text-accent hover:text-cta transition-colors no-underline font-medium mb-8">
+            <ArrowLeft size={16} />
+            Volver al inicio
+          </Link>
+        )}
 
         <h1 className="font-display text-[32px] md:text-[40px] text-text mb-10 text-center">
           Mi Cuenta

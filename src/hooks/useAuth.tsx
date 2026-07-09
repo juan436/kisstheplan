@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/services/api/http-client";
 import type { User, Wedding } from "@/types";
 import type { WeddingOption } from "@/types/user";
 import {
@@ -31,7 +32,7 @@ interface AuthContextValue {
   activeRole: 'owner' | 'collaborator' | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<{ user: User; isExpired: boolean }>;
   register: (email: string, password: string, name: string) => Promise<void>;
   createWedding: (data: {
     partner1Name: string;
@@ -102,19 +103,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUserData();
   }, [loadUserData]);
 
-  const login = useCallback(async (email: string, password: string): Promise<User> => {
+  const login = useCallback(async (email: string, password: string): Promise<{ user: User; isExpired: boolean }> => {
     const { user: userData, weddings } = await apiLogin(email, password);
     setUser(userData);
     setAvailableWeddings(weddings);
+    let isExpired = false;
     if (userData?.role !== 'admin') {
       try {
         const weddingData = await api.getWedding();
         setWedding(weddingData);
         const active = weddings.find(w => w.weddingId === weddingData?.id);
         setActiveRole(active?.role ?? null);
+        
+        const sub = await apiFetch("/subscription") as { status: string };
+        if (sub && sub.status === "expired") {
+          isExpired = true;
+        }
       } catch { /* no wedding yet */ }
     }
-    return userData;
+    return { user: userData, isExpired };
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string) => {
@@ -139,8 +146,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const switchWeddingFn = useCallback(async (targetWeddingId: string) => {
     await apiSwitchWedding(targetWeddingId);
-    await loadUserData();
-  }, [loadUserData]);
+    try {
+      const sub = await apiFetch("/subscription") as { status: string };
+      if (typeof window !== "undefined") {
+        if (sub && sub.status === "expired") {
+          window.location.href = "/app/account?expired=true";
+        } else {
+          window.location.href = "/app/dashboard";
+        }
+      }
+    } catch {
+      if (typeof window !== "undefined") {
+        window.location.href = "/app/dashboard";
+      }
+    }
+  }, []);
 
   const logout = useCallback(async () => {
     await apiLogout();

@@ -17,9 +17,19 @@ interface TopbarProps {
   availableWeddings?: WeddingOption[];
   onSwitchWedding?: (weddingId: string) => Promise<void>;
   onLogout?: () => void;
+  isSubscriptionExpired?: boolean;
 }
 
-export function Topbar({ weddingName, userName, userRole, activeWeddingId, availableWeddings = [], onSwitchWedding, onLogout }: TopbarProps) {
+export function Topbar({
+  weddingName,
+  userName,
+  userRole,
+  activeWeddingId,
+  availableWeddings = [],
+  onSwitchWedding,
+  onLogout,
+  isSubscriptionExpired = false,
+}: TopbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { navigateTo } = useNavigation();
@@ -35,11 +45,16 @@ export function Topbar({ weddingName, userName, userRole, activeWeddingId, avail
   }, []);
 
   const showSwitcher = availableWeddings.length > 1 && !!onSwitchWedding;
+  const isBlockedCollaborator = isSubscriptionExpired && userRole === 'collaborator';
+  const isBlockedNavigation = isSubscriptionExpired;
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-accent flex items-center justify-between px-5">
-      <div className="flex items-center gap-3" onClick={() => navigateTo("dashboard")}>
-        <Logo type="short" href="/app/dashboard" />
+      <div
+        className={`flex items-center gap-3 ${isBlockedNavigation ? '' : 'cursor-pointer'}`}
+        onClick={() => !isBlockedNavigation && navigateTo("dashboard")}
+      >
+        <Logo type="short" href={isBlockedNavigation ? undefined : "/app/dashboard"} />
         <div className="hidden sm:block">
           {showSwitcher ? (
             <WeddingSwitcher
@@ -48,6 +63,10 @@ export function Topbar({ weddingName, userName, userRole, activeWeddingId, avail
               available={availableWeddings}
               onSwitch={onSwitchWedding!}
             />
+          ) : isBlockedNavigation ? (
+            <span className="text-white font-body font-semibold text-[14px]">
+              {weddingName}
+            </span>
           ) : (
             <Link href="/app/dashboard" className="text-white font-body font-semibold text-[14px] hover:opacity-80 transition-opacity no-underline">
               {weddingName}
@@ -74,13 +93,15 @@ export function Topbar({ weddingName, userName, userRole, activeWeddingId, avail
                 </div>
               )}
             </div>
-            <nav className="py-1">
-              <DropdownItem href="/app/wedding" icon={<Heart size={16} />} label="Mi boda" />
-              <DropdownItem href="/app/account" icon={<User size={16} />} label="Mi cuenta" />
-              <DropdownItem href="/app/collaborators" icon={<Settings size={16} />} label="Colaboradores" />
-              <DropdownItem href="/app/help" icon={<HelpCircle size={16} />} label="Ayuda" />
-            </nav>
-            <div className="border-t border-border py-1">
+            {!isSubscriptionExpired && (
+              <nav className="py-1">
+                <DropdownItem href="/app/wedding" icon={<Heart size={16} />} label="Mi boda" />
+                <DropdownItem href="/app/account" icon={<User size={16} />} label="Mi cuenta" />
+                <DropdownItem href="/app/collaborators" icon={<Settings size={16} />} label="Colaboradores" />
+                <DropdownItem href="/app/help" icon={<HelpCircle size={16} />} label="Ayuda" />
+              </nav>
+            )}
+            <div className={!isSubscriptionExpired ? "border-t border-border py-1" : "py-1"}>
               <button
                 onClick={() => { setMenuOpen(false); onLogout?.(); }}
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-danger hover:bg-bg2 transition-colors"

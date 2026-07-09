@@ -14,8 +14,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (email: string, password: string) => {
     if (!useRealApi) { router.push("/app/dashboard"); return; }
-    const userData = await login(email, password);
-    router.push(userData?.role === "admin" ? "/admin" : "/app/dashboard");
+    const { user: userData, isExpired } = await login(email, password);
+    if (userData?.role === "admin") {
+      router.push("/admin");
+    } else if (isExpired) {
+      router.push("/app/account?expired=true");
+    } else {
+      router.push("/app/dashboard");
+    }
   };
 
   return (

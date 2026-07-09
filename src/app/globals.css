@@ -80,8 +80,16 @@
   }
 }
 
+/* Legibility: boost low-opacity text tokens */
+@layer utilities {
+  .text-text\/40 { color: color-mix(in srgb, var(--color-text) 60%, transparent) !important; }
+  .text-text\/50 { color: color-mix(in srgb, var(--color-text) 65%, transparent) !important; }
+  .text-text\/60 { color: color-mix(in srgb, var(--color-text) 75%, transparent) !important; }
+  .text-text\/70 { color: color-mix(in srgb, var(--color-text) 82%, transparent) !important; }
+}
+
 html {
-  font-size: 87.5%;
+  font-size: 93.75%;
 }
 
 body {

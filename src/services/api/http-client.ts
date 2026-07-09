@@ -34,23 +34,29 @@ export function clearTokens() {
   localStorage.removeItem("ktp_refresh_token");
 }
 
+let _refreshPromise: Promise<string | null> | null = null;
+
 async function refreshAccessToken(): Promise<string | null> {
-  const { refreshToken } = getTokens();
-  if (!refreshToken) return null;
-  try {
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken }),
-    });
-    if (!res.ok) { clearTokens(); return null; }
-    const data = await res.json();
-    setTokens(data.accessToken, data.refreshToken);
-    return data.accessToken;
-  } catch {
-    clearTokens();
-    return null;
-  }
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = (async () => {
+    const { refreshToken } = getTokens();
+    if (!refreshToken) return null;
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!res.ok) { clearTokens(); return null; }
+      const data = await res.json();
+      setTokens(data.accessToken, data.refreshToken);
+      return data.accessToken as string;
+    } catch {
+      clearTokens();
+      return null;
+    }
+  })().finally(() => { _refreshPromise = null; });
+  return _refreshPromise;
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -71,6 +77,14 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   }
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: "Error de red" }));
+    if (error.message === "SUBSCRIPTION_EXPIRED") {
+      if (typeof window !== "undefined") {
+        if (!window.location.pathname.includes("/app/account")) {
+          window.location.href = "/app/account?expired=true";
+        }
+        return new Promise(() => {}); // Detiene flujo asíncrono para evitar crashes en el componente
+      }
+    }
     throw new Error(error.message || `Error ${res.status}`);
   }
   if (res.status === 204 || res.headers.get("content-length") === "0") {
