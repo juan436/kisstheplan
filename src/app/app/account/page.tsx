@@ -33,10 +33,11 @@ export default function CuentaPage() {
   const { activeRole } = useAuth();
   const searchParams = useSearchParams();
   const isExpired = searchParams.get("expired") === "true";
+  const paymentStatus = searchParams.get("payment");
   const isCollaborator = activeRole === 'collaborator';
   const menuItems = isCollaborator ? collaboratorItems : ownerItems;
   const [active, setActive] = useState<Section>(
-    isExpired && !isCollaborator ? "suscripcion" : "personal"
+    (isExpired || paymentStatus !== null) && !isCollaborator ? "suscripcion" : "personal"
   );
 
   return (
