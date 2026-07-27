@@ -29,9 +29,9 @@ export function Step2({
   loading, onNext, onBack,
 }: Step2Props) {
   return (
-    <Card variant="elevated" className="p-8 md:p-10">
-      <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="max-w-[420px] mx-auto space-y-6">
-        <h2 className="font-display text-[26px] text-[#A0877C] mb-8 text-center md:text-left">Información de la boda</h2>
+    <Card variant="elevated" className="p-8 max-w-[500px] mx-auto">
+      <form onSubmit={(e) => { e.preventDefault(); onNext(); }} className="space-y-5">
+        <h2 className="font-display text-[24px] text-[#A0877C] text-center mb-8">Información de la boda</h2>
         <div className="space-y-3">
           <Label className="text-[#6b5549] text-[13px] font-semibold">Datos de la pareja</Label>
           <div className="flex flex-col gap-2 relative">
@@ -58,12 +58,9 @@ export function Step2({
           <p className="text-[11px] text-[#a89f91] text-center">Puedes modificarlo más tarde</p>
         </div>
 
-        <div className="flex justify-end mt-8 gap-3">
-          <Button type="button" variant="ghost" className="text-brand text-[13px]" onClick={onBack} disabled={loading}>Atrás</Button>
-          <Button type="submit" variant="cta" className="px-10 py-5 bg-[#CBA978] hover:bg-[#b08f5d]" disabled={loading}>
-            {loading ? "Cargando..." : "COMENZAR"}
-          </Button>
-        </div>
+        <Button type="submit" variant="cta" size="full" disabled={loading}>
+          {loading ? "Cargando..." : "Continuar"}
+        </Button>
       </form>
     </Card>
   );
